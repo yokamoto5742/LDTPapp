@@ -110,9 +110,11 @@ def load_sheet_names():
     c.execute("SELECT name FROM sheet_names")
     return [ft.dropdown.Option(row[0]) for row in c.fetchall()]
 
-async def main_async(page: ft.Page, df_patients: pd.DataFrame):
+def main(page: ft.Page):
     page.title = "生活習慣病療養計画書アプリ"
     init_db()
+
+    df_patients = load_patient_data()
 
     def load_patient_info(patient_id):
         patient_info = df_patients[df_patients["患者ID"] == patient_id].iloc[0]
@@ -121,11 +123,7 @@ async def main_async(page: ft.Page, df_patients: pd.DataFrame):
         gender_value.value = "男性" if patient_info["性別　1:男性　2:女性"] == 1 else "女性"
         birthdate_value.value = patient_info["生年月日"]
         doctor_name_value.value = patient_info["医師名"]
-        name_value.update()
-        kana_value.update()
-        gender_value.update()
-        birthdate_value.update()
-        doctor_name_value.update()
+        page.update()
 
     def create_new_plan(e):
         patient_id = int(patient_id_value.value)
@@ -139,15 +137,16 @@ async def main_async(page: ft.Page, df_patients: pd.DataFrame):
         create_treatment_plan(patient_id, doctor_id, department, creation_count, main_disease, sheet_name, weight, df_patients)
         page.snack_bar = ft.SnackBar(content=ft.Text("療養計画書が作成されました"))
         page.snack_bar.open = True
+        dialog.open = False
         page.update()
 
     def view_issued_plans(e):
         issued_plans = get_issued_plans()
         plans_text = "\n".join([
-                                   f"発行日: {str(plan[2])}, 診療科: {str(plan[4])}, 医師名: {str(plan[3])}, 主病名: {str(plan[6])}, シート名: {str(plan[7])}, 作成回数: {str(plan[5])}"
-                                   for plan in issued_plans])
+            f"発行日: {str(plan[2])}, 診療科: {str(plan[4])}, 医師名: {str(plan[3])}, 主病名: {str(plan[6])}, シート名: {str(plan[7])}, 作成回数: {str(plan[5])}"
+            for plan in issued_plans])
         issued_plans_textfield.value = plans_text
-        issued_plans_textfield.update()
+        page.update()
 
     def print_plan(e):
         pass
@@ -228,5 +227,4 @@ async def main_async(page: ft.Page, df_patients: pd.DataFrame):
         dialog
     )
 
-df_patients = load_patient_data()
-ft.app(target=lambda page: main_async(page, df_patients))
+ft.app(target=main)
