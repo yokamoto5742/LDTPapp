@@ -24,6 +24,7 @@ class TreatmentPlan(Base):
     main_disease = Column(String)
     sheet_name = Column(String)
     weight = Column(Float)
+    file_path = Column(String)
 
 
 class MainDisease(Base):
@@ -56,10 +57,11 @@ def create_treatment_plan(patient_id, doctor_id, department, creation_count, mai
     patient_info = df_patients[df_patients.iloc[:, 2] == patient_id]
     if patient_info.empty:
         session.close()
-        raise ValueError(f"Patient with ID {patient_id} not found.")
+        raise ValueError(f"患者ID {patient_id} が見つかりません。")
 
     patient_info = patient_info.iloc[0]
 
+    # 共通情報シートに必要な情報を設定
     common_sheet["B2"] = patient_info.iloc[2]
     common_sheet["B3"] = patient_info.iloc[3]
     common_sheet["B4"] = patient_info.iloc[4]
@@ -78,7 +80,8 @@ def create_treatment_plan(patient_id, doctor_id, department, creation_count, mai
     selected_sheet = workbook[sheet_name]
 
     new_file_name = f"生活習慣病療養計画書_{current_datetime}.xlsm"
-    workbook.save(r"C:\Shinseikai\LDTPapp" + "\\" + new_file_name)
+    file_path = r"C:\Shinseikai\LDTPapp" + "\\" + new_file_name
+    workbook.save(file_path)
 
     treatment_plan = TreatmentPlan(
         patient_id=patient_id,
@@ -88,11 +91,13 @@ def create_treatment_plan(patient_id, doctor_id, department, creation_count, mai
         creation_count=creation_count,
         main_disease=main_disease,
         sheet_name=sheet_name,
-        weight=weight
+        weight=weight,
+        file_path=file_path
     )
     session.add(treatment_plan)
     session.commit()
     session.close()
+
 
 def get_issued_plans():
     session = Session()
@@ -173,25 +178,32 @@ def main(page: ft.Page):
         page.update()
 
     def create_new_plan(e):
-        patient_id = int(patient_id_value.value)
-        doctor_id = int(doctor_id_value.value)
+        patient_id = patient_id_value.value.strip()
+        doctor_id = doctor_id_value.value.strip()
+        if not patient_id or not doctor_id:
+            page.snack_bar = ft.SnackBar(content=ft.Text("患者IDと医師IDは必須です"))
+            page.snack_bar.open = True
+            page.update()
+            return
         department = department_value.value
         creation_count = int(creation_count_value.value)
         main_disease = main_disease_dropdown.value
         sheet_name = sheet_name_dropdown.value
         weight = float(weight_value.value)
 
-        create_treatment_plan(patient_id, doctor_id, department, creation_count, main_disease, sheet_name, weight,
+        create_treatment_plan(int(patient_id), int(doctor_id), department, creation_count, main_disease, sheet_name,
+                              weight,
                               df_patients)
         page.snack_bar = ft.SnackBar(content=ft.Text("療養計画書が作成されました"))
         page.snack_bar.open = True
         setattr(dialog, "open", False)
+        view_issued_plans(None)
         page.update()
 
     def view_issued_plans(e):
         issued_plans = get_issued_plans()
         plans_text = "\n".join([
-            f"発行日: {str(plan.issue_date)}, 診療科: {str(plan.department)}, 医師名: {str(plan.doctor_id)}, 主病名: {str(plan.main_disease)}, シート名: {str(plan.sheet_name)}, 作成回数: {str(plan.creation_count)}"
+            f"発行日: {str(plan.issue_date)}, ファイルパス: {str(plan.file_path)}"
             for plan in issued_plans])
         issued_plans_textfield.value = plans_text
         page.update()
@@ -207,8 +219,9 @@ def main(page: ft.Page):
         page.update()
 
     def on_patient_id_change(e):
-        patient_id = int(patient_id_value.value)
-        load_patient_info(patient_id)
+        patient_id = patient_id_value.value.strip()
+        if patient_id:
+            load_patient_info(int(patient_id))
 
     patient_id_value = ft.TextField(label="患者ID", on_change=on_patient_id_change)
     issue_date_value = ft.TextField(label="発行日", read_only=True)
