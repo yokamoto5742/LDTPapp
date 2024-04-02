@@ -152,7 +152,8 @@ def main(page: ft.Page):
     session.close()
 
     df_patients = load_patient_data()
-    df_patients.iloc[1:, 6] = pd.to_datetime(df_patients.iloc[1:, 6])
+    df_patients.iloc[:, 6] = df_patients.iloc[:, 6].astype(str)
+    df_patients.iloc[:, 6] = pd.to_datetime(df_patients.iloc[:, 6])
 
     def load_patient_info(patient_id):
         patient_info = df_patients[df_patients.iloc[:, 2] == patient_id]
@@ -162,7 +163,7 @@ def main(page: ft.Page):
             name_value.value = patient_info.iloc[3]
             kana_value.value = patient_info.iloc[4]
             gender_value.value = "男性" if patient_info.iloc[5] == 1 else "女性"
-            birthdate_value.value = patient_info.iloc[6].strftime("%Y/%m/%d")
+            birthdate_value.value = patient_info.iloc[6].strftime("%Y/%m/%d")  # 日付時刻型であることを確認
             doctor_id_value.value = str(patient_info.iloc[9])
             doctor_name_value.value = patient_info.iloc[10]
             department_value.value = patient_info.iloc[14]
@@ -194,7 +195,7 @@ def main(page: ft.Page):
         create_treatment_plan(int(patient_id), int(doctor_id), department, creation_count, main_disease, sheet_name,
                               weight,
                               df_patients)
-        page.snack_bar = ft.SnackBar(content=ft.Text("療養計画書が作成されました"))
+        page.snack_bar = ft.SnackBar(content=ft.Text("計画書が作成されました"))
         page.snack_bar.open = True
         setattr(dialog, "open", False)
         view_issued_plans(None)
@@ -233,9 +234,9 @@ def main(page: ft.Page):
     main_disease_options = load_main_diseases()
     sheet_name_options = load_sheet_names()
 
-    doctor_id_value = ft.TextField(label="医師ID")
+    doctor_id_value = ft.TextField(label="医師ID", read_only=True)
     doctor_name_value = ft.TextField(label="医師名", read_only=True)
-    department_value = ft.TextField(label="診療科")
+    department_value = ft.TextField(label="診療科", read_only=True)
     creation_count_value = ft.TextField(label="作成回数")
     main_disease_dropdown = ft.Dropdown(label="主病名", options=main_disease_options)
     sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options)
