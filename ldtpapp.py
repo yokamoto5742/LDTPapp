@@ -1,82 +1,74 @@
 import flet as ft
-import sqlite3
+from sqlalchemy import create_engine, Column, Integer, String, Float, Date
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import declarative_base
 import pandas as pd
 from datetime import datetime
 from openpyxl import load_workbook
 
-conn = None
-c = None
+# SQLAlchemyの設定
+engine = create_engine("sqlite:///ldtp_app.db")
+Session = sessionmaker(bind=engine)
+Base = declarative_base()
 
-def init_db():
-    global conn, c
-    conn = sqlite3.connect("ldtp_app.db", check_same_thread=False)
-    c = conn.cursor()
 
-    # 療養計画書テーブルを作成
-    c.execute("""
-        CREATE TABLE IF NOT EXISTS treatment_plans (
-            id INTEGER PRIMARY KEY,
-            patient_id INTEGER,
-            issue_date TEXT,
-            doctor_id INTEGER,
-            department TEXT,
-            creation_count INTEGER,
-            main_disease TEXT,
-            sheet_name TEXT,
-            weight REAL
-        )
-    """)
-    conn.commit()
+# モデルの定義
+class TreatmentPlan(Base):
+    __tablename__ = "treatment_plans"
+    id = Column(Integer, primary_key=True)
+    patient_id = Column(Integer)
+    issue_date = Column(Date)
+    doctor_id = Column(Integer)
+    department = Column(String)
+    creation_count = Column(Integer)
+    main_disease = Column(String)
+    sheet_name = Column(String)
+    weight = Column(Float)
 
-    # 主病名テーブルを作成
-    c.execute("""
-        CREATE TABLE IF NOT EXISTS main_diseases (
-            id INTEGER PRIMARY KEY,
-            name TEXT
-        )
-    """)
-    conn.commit()
 
-    # シート名テーブルを作成
-    c.execute("""
-        CREATE TABLE IF NOT EXISTS sheet_names (
-            id INTEGER PRIMARY KEY,
-            name TEXT
-        )
-    """)
-    conn.commit()
+class MainDisease(Base):
+    __tablename__ = "main_diseases"
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
 
-    # 主病名の初期データを挿入
-    c.execute("INSERT OR IGNORE INTO main_diseases (name) VALUES (?)", ("高血圧",))
-    c.execute("INSERT OR IGNORE INTO main_diseases (name) VALUES (?)", ("脂質異常症",))
-    c.execute("INSERT OR IGNORE INTO main_diseases (name) VALUES (?)", ("糖尿病",))
-    conn.commit()
 
-    # シート名の初期データを挿入
-    c.execute("INSERT OR IGNORE INTO sheet_names (name) VALUES (?)", ("DM01",))
-    c.execute("INSERT OR IGNORE INTO sheet_names (name) VALUES (?)", ("DM02",))
-    c.execute("INSERT OR IGNORE INTO sheet_names (name) VALUES (?)", ("DM03",))
-    conn.commit()
+class SheetName(Base):
+    __tablename__ = "sheet_names"
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+
+
+# テーブルの作成
+Base.metadata.create_all(engine)
+
 
 def load_patient_data():
-    return pd.read_csv("C:\\InnoKarte\\pat.csv", encoding="shift_jis")
+    return pd.read_csv(r"C:\InnoKarte\pat.csv", encoding="shift_jis")
 
-def create_treatment_plan(patient_id, doctor_id, department, creation_count, main_disease, sheet_name, weight, df_patients):
-    global c, conn
+
+def create_treatment_plan(patient_id, doctor_id, department, creation_count, main_disease, sheet_name, weight,
+                          df_patients):
+    session = Session()
     current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
-    workbook = load_workbook("C:\\Shinseikai\\LDTPapp\\生活習慣病療養計画書.xlsm")
+    workbook = load_workbook(r"C:\Shinseikai\LDTPapp\生活習慣病療養計画書.xlsm")
     common_sheet = workbook["共通情報"]
-    patient_info = df_patients[df_patients["患者ID"] == patient_id].iloc[0]
 
-    common_sheet["B2"] = patient_info["患者ID"]
-    common_sheet["B3"] = patient_info["氏名"]
-    common_sheet["B4"] = patient_info["カナ"]
-    common_sheet["B5"] = "男性" if patient_info["性別　1:男性　2:女性"] == 1 else "女性"
-    common_sheet["B6"] = patient_info["生年月日"]
+    patient_info = df_patients[df_patients.iloc[:, 2] == patient_id]
+    if patient_info.empty:
+        session.close()
+        raise ValueError(f"Patient with ID {patient_id} not found.")
+
+    patient_info = patient_info.iloc[0]
+
+    common_sheet["B2"] = patient_info.iloc[2]
+    common_sheet["B3"] = patient_info.iloc[3]
+    common_sheet["B4"] = patient_info.iloc[4]
+    common_sheet["B5"] = "男性" if patient_info.iloc[5] == 1 else "女性"
+    common_sheet["B6"] = patient_info.iloc[6].strftime("%Y/%m/%d")
     common_sheet["B8"] = creation_count
     common_sheet["C11"] = datetime.now().strftime("%Y/%m/%d")
     common_sheet["C12"] = doctor_id
-    common_sheet["C13"] = patient_info["医師名"]
+    common_sheet["C13"] = patient_info.iloc[10]
     common_sheet["C14"] = department
     common_sheet["C15"] = creation_count
     common_sheet["C16"] = main_disease
@@ -86,43 +78,98 @@ def create_treatment_plan(patient_id, doctor_id, department, creation_count, mai
     selected_sheet = workbook[sheet_name]
 
     new_file_name = f"生活習慣病療養計画書_{current_datetime}.xlsm"
-    workbook.save(f"C:\\Shinseikai\\LDTPapp\\{new_file_name}")
+    workbook.save(r"C:\Shinseikai\LDTPapp" + "\\" + new_file_name)
 
-    c.execute("""
-        INSERT INTO treatment_plans (patient_id, issue_date, doctor_id, department, creation_count, main_disease, sheet_name, weight)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    """, (patient_id, datetime.now().strftime("%Y-%m-%d"), doctor_id, department, creation_count, main_disease,
-          sheet_name, weight))
-    conn.commit()
+    treatment_plan = TreatmentPlan(
+        patient_id=patient_id,
+        issue_date=datetime.now().date(),
+        doctor_id=doctor_id,
+        department=department,
+        creation_count=creation_count,
+        main_disease=main_disease,
+        sheet_name=sheet_name,
+        weight=weight
+    )
+    session.add(treatment_plan)
+    session.commit()
+    session.close()
 
 def get_issued_plans():
-    global c
-    c.execute("SELECT * FROM treatment_plans")
-    return c.fetchall()
+    session = Session()
+    issued_plans = session.query(TreatmentPlan).all()
+    session.close()
+    return issued_plans
+
 
 def load_main_diseases():
-    global c
-    c.execute("SELECT name FROM main_diseases")
-    return [ft.dropdown.Option(row[0]) for row in c.fetchall()]
+    session = Session()
+    main_diseases = session.query(MainDisease).all()
+    session.close()
+    return [ft.dropdown.Option(disease.name) for disease in main_diseases]
+
 
 def load_sheet_names():
-    global c
-    c.execute("SELECT name FROM sheet_names")
-    return [ft.dropdown.Option(row[0]) for row in c.fetchall()]
+    session = Session()
+    sheet_names = session.query(SheetName).all()
+    session.close()
+    return [ft.dropdown.Option(sheet.name) for sheet in sheet_names]
+
+
+def format_date(date_str):
+    if pd.isna(date_str):
+        return ""
+    return pd.to_datetime(date_str).strftime("%Y/%m/%d")
+
 
 def main(page: ft.Page):
     page.title = "生活習慣病療養計画書アプリ"
-    init_db()
+
+    # 初期データの挿入
+    session = Session()
+    if session.query(MainDisease).count() == 0:
+        main_diseases = [
+            MainDisease(name="高血圧"),
+            MainDisease(name="脂質異常症"),
+            MainDisease(name="糖尿病")
+        ]
+        session.add_all(main_diseases)
+        session.commit()
+
+    if session.query(SheetName).count() == 0:
+        sheet_names = [
+            SheetName(name="DM01"),
+            SheetName(name="DM02"),
+            SheetName(name="DM03")
+        ]
+        session.add_all(sheet_names)
+        session.commit()
+
+    session.close()
 
     df_patients = load_patient_data()
+    df_patients.iloc[1:, 6] = pd.to_datetime(df_patients.iloc[1:, 6])
 
     def load_patient_info(patient_id):
-        patient_info = df_patients[df_patients["患者ID"] == patient_id].iloc[0]
-        name_value.value = patient_info["氏名"]
-        kana_value.value = patient_info["カナ"]
-        gender_value.value = "男性" if patient_info["性別　1:男性　2:女性"] == 1 else "女性"
-        birthdate_value.value = patient_info["生年月日"]
-        doctor_name_value.value = patient_info["医師名"]
+        patient_info = df_patients[df_patients.iloc[:, 2] == patient_id]
+        if not patient_info.empty:
+            patient_info = patient_info.iloc[0]
+            issue_date_value.value = format_date(patient_info.iloc[0])
+            name_value.value = patient_info.iloc[3]
+            kana_value.value = patient_info.iloc[4]
+            gender_value.value = "男性" if patient_info.iloc[5] == 1 else "女性"
+            birthdate_value.value = patient_info.iloc[6].strftime("%Y/%m/%d")
+            doctor_id_value.value = str(patient_info.iloc[9])
+            doctor_name_value.value = patient_info.iloc[10]
+            department_value.value = patient_info.iloc[14]
+        else:
+            issue_date_value.value = ""
+            name_value.value = ""
+            kana_value.value = ""
+            gender_value.value = ""
+            birthdate_value.value = ""
+            doctor_id_value.value = ""
+            doctor_name_value.value = ""
+            department_value.value = ""
         page.update()
 
     def create_new_plan(e):
@@ -134,16 +181,17 @@ def main(page: ft.Page):
         sheet_name = sheet_name_dropdown.value
         weight = float(weight_value.value)
 
-        create_treatment_plan(patient_id, doctor_id, department, creation_count, main_disease, sheet_name, weight, df_patients)
+        create_treatment_plan(patient_id, doctor_id, department, creation_count, main_disease, sheet_name, weight,
+                              df_patients)
         page.snack_bar = ft.SnackBar(content=ft.Text("療養計画書が作成されました"))
         page.snack_bar.open = True
-        dialog.open = False
+        setattr(dialog, "open", False)
         page.update()
 
     def view_issued_plans(e):
         issued_plans = get_issued_plans()
         plans_text = "\n".join([
-            f"発行日: {str(plan[2])}, 診療科: {str(plan[4])}, 医師名: {str(plan[3])}, 主病名: {str(plan[6])}, シート名: {str(plan[7])}, 作成回数: {str(plan[5])}"
+            f"発行日: {str(plan.issue_date)}, 診療科: {str(plan.department)}, 医師名: {str(plan.doctor_id)}, 主病名: {str(plan.main_disease)}, シート名: {str(plan.sheet_name)}, 作成回数: {str(plan.creation_count)}"
             for plan in issued_plans])
         issued_plans_textfield.value = plans_text
         page.update()
@@ -155,7 +203,7 @@ def main(page: ft.Page):
         pass
 
     def close_dialog(e):
-        dialog.open = False
+        setattr(dialog, "open", False)
         page.update()
 
     def on_patient_id_change(e):
@@ -163,6 +211,7 @@ def main(page: ft.Page):
         load_patient_info(patient_id)
 
     patient_id_value = ft.TextField(label="患者ID", on_change=on_patient_id_change)
+    issue_date_value = ft.TextField(label="発行日", read_only=True)
     name_value = ft.TextField(label="氏名", read_only=True)
     kana_value = ft.TextField(label="カナ", read_only=True)
     gender_value = ft.TextField(label="性別", read_only=True)
@@ -212,13 +261,14 @@ def main(page: ft.Page):
         ft.Row([
             ft.Column([
                 patient_id_value,
+                issue_date_value,
                 name_value,
                 kana_value,
                 gender_value,
                 birthdate_value
             ]),
             ft.Column([
-                ft.ElevatedButton("新規作成", on_click=lambda _: dialog.open(True)),
+                ft.ElevatedButton("新規作成", on_click=lambda _: setattr(dialog, "open", True)),
                 view_issued_button
             ])
         ]),
@@ -226,5 +276,6 @@ def main(page: ft.Page):
         issued_plans_textfield,
         dialog
     )
+
 
 ft.app(target=main)
