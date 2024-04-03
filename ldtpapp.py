@@ -44,7 +44,10 @@ Base.metadata.create_all(engine)
 
 
 def load_patient_data():
-    return pd.read_csv(r"C:\InnoKarte\pat.csv", encoding="shift_jis")
+    return pd.read_csv("pat.csv", encoding="shift_jis", header=0)
+
+
+# pd.read_csv(r"C:\InnoKarte\pat.csv", encoding="shift_jis", header=0)
 
 
 def create_treatment_plan(patient_id, doctor_id, department, creation_count, main_disease, sheet_name, weight,
@@ -153,7 +156,14 @@ def main(page: ft.Page):
 
     df_patients = load_patient_data()
     df_patients.iloc[:, 6] = df_patients.iloc[:, 6].astype(str)
-    df_patients.iloc[:, 6] = pd.to_datetime(df_patients.iloc[:, 6])
+
+    # 日付列を日付時刻型に変換
+    df_patients.iloc[:, 6] = pd.to_datetime(df_patients.iloc[:, 6], format='%Y%m%d', errors='coerce')
+
+    # CSVファイルから1行目の患者IDを取得
+    initial_patient_id = ""
+    if not df_patients.empty:
+        initial_patient_id = str(df_patients.iloc[0, 2])
 
     def load_patient_info(patient_id):
         patient_info = df_patients[df_patients.iloc[:, 2] == patient_id]
@@ -163,7 +173,11 @@ def main(page: ft.Page):
             name_value.value = patient_info.iloc[3]
             kana_value.value = patient_info.iloc[4]
             gender_value.value = "男性" if patient_info.iloc[5] == 1 else "女性"
-            birthdate_value.value = patient_info.iloc[6].strftime("%Y/%m/%d")  # 日付時刻型であることを確認
+            birthdate = patient_info.iloc[6]
+            if pd.isna(birthdate):
+                birthdate_value.value = ""
+            else:
+                birthdate_value.value = birthdate.strftime("%Y/%m/%d")
             doctor_id_value.value = str(patient_info.iloc[9])
             doctor_name_value.value = patient_info.iloc[10]
             department_value.value = patient_info.iloc[14]
@@ -224,7 +238,7 @@ def main(page: ft.Page):
         if patient_id:
             load_patient_info(int(patient_id))
 
-    patient_id_value = ft.TextField(label="患者ID", on_change=on_patient_id_change)
+    patient_id_value = ft.TextField(label="患者ID", on_change=on_patient_id_change, value=initial_patient_id)
     issue_date_value = ft.TextField(label="発行日", read_only=True)
     name_value = ft.TextField(label="氏名", read_only=True)
     kana_value = ft.TextField(label="カナ", read_only=True)
@@ -290,6 +304,10 @@ def main(page: ft.Page):
         issued_plans_textfield,
         dialog
     )
+
+    # 初期患者情報を読み込む
+    if initial_patient_id:
+        load_patient_info(initial_patient_id)
 
 
 ft.app(target=main)
