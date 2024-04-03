@@ -54,7 +54,7 @@ def create_treatment_plan(patient_id, doctor_id, department, creation_count, mai
                           df_patients):
     session = Session()
     current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
-    workbook = load_workbook(r"C:\Shinseikai\LDTPapp\生活習慣病療養計画書.xlsm")
+    workbook = load_workbook(r"C:\Shinseikai\LDTPapp\生活習慣病療養計画書.xlsx", keep_vba=True)
     common_sheet = workbook["共通情報"]
 
     patient_info = df_patients[df_patients.iloc[:, 2] == patient_id]
@@ -69,16 +69,17 @@ def create_treatment_plan(patient_id, doctor_id, department, creation_count, mai
     common_sheet["B3"] = patient_info.iloc[3]
     common_sheet["B4"] = patient_info.iloc[4]
     common_sheet["B5"] = "男性" if patient_info.iloc[5] == 1 else "女性"
-    common_sheet["B6"] = patient_info.iloc[6].strftime("%Y/%m/%d")
+    common_sheet["B6"] = patient_info.iloc[6]
+    # common_sheet["B6"] = patient_info.iloc[6].strftime("%Y/%m/%d")
     common_sheet["B8"] = creation_count
-    common_sheet["C11"] = datetime.now().strftime("%Y/%m/%d")
-    common_sheet["C12"] = doctor_id
-    common_sheet["C13"] = patient_info.iloc[10]
-    common_sheet["C14"] = department
-    common_sheet["C15"] = creation_count
-    common_sheet["C16"] = main_disease
-    common_sheet["C17"] = sheet_name
-    common_sheet["C18"] = weight
+    common_sheet["B1"] = datetime.now().strftime("%Y/%m/%d")
+    common_sheet["B7"] = doctor_id
+    common_sheet["B13"] = patient_info.iloc[10]
+    common_sheet["B10"] = department
+    common_sheet["B11"] = creation_count
+    common_sheet["B12"] = main_disease
+    common_sheet["B14"] = sheet_name
+    common_sheet["b13"] = weight
 
     selected_sheet = workbook[sheet_name]
 
@@ -155,10 +156,10 @@ def main(page: ft.Page):
     session.close()
 
     df_patients = load_patient_data()
-    df_patients.iloc[:, 6] = df_patients.iloc[:, 6].astype(str)
+    # df_patients.iloc[:, 6] = df_patients.iloc[:, 6].astype(str)
 
     # 日付列を日付時刻型に変換
-    df_patients.iloc[:, 6] = pd.to_datetime(df_patients.iloc[:, 6], format='%Y%m%d', errors='coerce')
+    # df_patients.iloc[:, 6] = pd.to_datetime(df_patients.iloc[:, 6], format='%Y%m%d', errors='coerce')
 
     # CSVファイルから1行目の患者IDを取得
     initial_patient_id = ""
@@ -177,7 +178,8 @@ def main(page: ft.Page):
             if pd.isna(birthdate):
                 birthdate_value.value = ""
             else:
-                birthdate_value.value = birthdate.strftime("%Y/%m/%d")
+                birthdate_value.value = birthdate
+                # birthdate_value.value = birthdate.strftime("%Y/%m/%d")
             doctor_id_value.value = str(patient_info.iloc[9])
             doctor_name_value.value = patient_info.iloc[10]
             department_value.value = patient_info.iloc[14]
@@ -206,9 +208,7 @@ def main(page: ft.Page):
         sheet_name = sheet_name_dropdown.value
         weight = float(weight_value.value)
 
-        create_treatment_plan(int(patient_id), int(doctor_id), department, creation_count, main_disease, sheet_name,
-                              weight,
-                              df_patients)
+        create_treatment_plan(int(patient_id), int(doctor_id), department, creation_count, main_disease, sheet_name, weight, df_patients)
         page.snack_bar = ft.SnackBar(content=ft.Text("計画書が作成されました"))
         page.snack_bar.open = True
         setattr(dialog, "open", False)
