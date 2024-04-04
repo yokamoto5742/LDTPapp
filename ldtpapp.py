@@ -54,7 +54,7 @@ def create_treatment_plan(patient_id, doctor_id, department, creation_count, mai
                           df_patients):
     session = Session()
     current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
-    workbook = load_workbook(r"C:\Shinseikai\LDTPapp\生活習慣病療養計画書.xlsx", keep_vba=True)
+    workbook = load_workbook(r"C:\Shinseikai\LDTPapp\生活習慣病療養計画書.xlsm", keep_vba=True)
     common_sheet = workbook["共通情報"]
 
     patient_info = df_patients[df_patients.iloc[:, 2] == patient_id]
@@ -156,6 +156,7 @@ def main(page: ft.Page):
     session.close()
 
     df_patients = load_patient_data()
+    print(df_patients)
     # df_patients.iloc[:, 6] = df_patients.iloc[:, 6].astype(str)
 
     # 日付列を日付時刻型に変換
@@ -175,15 +176,13 @@ def main(page: ft.Page):
             kana_value.value = patient_info.iloc[4]
             gender_value.value = "男性" if patient_info.iloc[5] == 1 else "女性"
             birthdate = patient_info.iloc[6]
-            if pd.isna(birthdate):
-                birthdate_value.value = ""
-            else:
-                birthdate_value.value = birthdate
-                # birthdate_value.value = birthdate.strftime("%Y/%m/%d")
+            birthdate_value.value = birthdate
+            # birthdate_value.value = birthdate.strftime("%Y/%m/%d")
             doctor_id_value.value = str(patient_info.iloc[9])
             doctor_name_value.value = patient_info.iloc[10]
             department_value.value = patient_info.iloc[14]
         else:
+            # patient_infoが空の場合は空文字列を設定
             issue_date_value.value = ""
             name_value.value = ""
             kana_value.value = ""
@@ -209,7 +208,7 @@ def main(page: ft.Page):
         weight = float(weight_value.value)
 
         create_treatment_plan(int(patient_id), int(doctor_id), department, creation_count, main_disease, sheet_name, weight, df_patients)
-        page.snack_bar = ft.SnackBar(content=ft.Text("計画書が作成されました"))
+        page.snack_bar = ft.SnackBar(content=ft.Text("計画書ファイルが作成されました"))
         page.snack_bar.open = True
         setattr(dialog, "open", False)
         view_issued_plans(None)
@@ -270,7 +269,6 @@ def main(page: ft.Page):
             ft.Text("発行日"),
             doctor_id_value,
             doctor_name_value,
-            department_value,
             creation_count_value,
             main_disease_dropdown,
             sheet_name_dropdown,
