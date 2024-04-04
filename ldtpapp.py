@@ -1,10 +1,12 @@
 import flet as ft
+import os
 from sqlalchemy import create_engine, Column, Integer, String, Float, Date
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import declarative_base
 import pandas as pd
 from datetime import datetime
 from openpyxl import load_workbook
+
 
 # SQLAlchemyの設定
 engine = create_engine("sqlite:///ldtp_app.db")
@@ -86,6 +88,10 @@ def create_treatment_plan(patient_id, doctor_id, department, creation_count, mai
     new_file_name = f"生活習慣病療養計画書_{current_datetime}.xlsm"
     file_path = r"C:\Shinseikai\LDTPapp" + "\\" + new_file_name
     workbook.save(file_path)
+    wb = load_workbook(file_path, read_only=False, keep_vba=True)
+    wb.active = wb[sheet_name]
+    wb.save(file_path)
+    os.startfile(file_path)
 
     treatment_plan = TreatmentPlan(
         patient_id=patient_id,
