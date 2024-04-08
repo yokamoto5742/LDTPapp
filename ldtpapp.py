@@ -138,6 +138,8 @@ def format_date(date_str):
 
 def main(page: ft.Page):
     page.title = "生活習慣病療養計画書アプリ"
+    page.window_width = 500
+    page.window_height = 700
 
     # 初期データの挿入
     session = Session()
