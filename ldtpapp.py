@@ -1,12 +1,12 @@
-import flet as ft
 import os
-from sqlalchemy import create_engine, Column, Integer, String, Float, Date
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import declarative_base
-import pandas as pd
 from datetime import datetime
-from openpyxl import load_workbook
 
+import flet as ft
+import pandas as pd
+from openpyxl import load_workbook
+from sqlalchemy import create_engine, Column, Integer, String, Float, Date
+from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import sessionmaker
 
 # SQLAlchemyの設定
 engine = create_engine("sqlite:///ldtp_app.db")
@@ -46,7 +46,10 @@ Base.metadata.create_all(engine)
 
 
 def load_patient_data():
-    return pd.read_csv("pat.csv", encoding="shift_jis", header=0)
+    column_names = ['発行日', 'column2', '患者ID', '氏名', 'カナ', '性別', '生年月日', 'column8', 'column9', '医師ID', '医師名', 'column12', 'column13', 'column14', '診療科']
+    date_columns = [0, 6]
+    dtype_dict = {'患者ID': str, '医師ID': str}
+    return pd.read_csv("pat.csv", encoding="shift_jis", header=None, names=column_names, parse_dates=date_columns, dtype=dtype_dict)
 
 
 # pd.read_csv(r"C:\InnoKarte\pat.csv", encoding="shift_jis", header=0)
@@ -59,7 +62,7 @@ def create_treatment_plan(patient_id, doctor_id, department, creation_count, mai
     workbook = load_workbook(r"C:\Shinseikai\LDTPapp\生活習慣病療養計画書.xlsm", keep_vba=True)
     common_sheet = workbook["共通情報"]
 
-    patient_info = df_patients[df_patients.iloc[:, 2] == patient_id]
+    patient_info = df_patients[df_patients.iloc[0, 2] == patient_id]
     if patient_info.empty:
         session.close()
         raise ValueError(f"患者ID {patient_id} が見つかりません。")
@@ -173,7 +176,7 @@ def main(page: ft.Page):
     # CSVファイルから1行目の患者IDを取得
     initial_patient_id = ""
     if not df_patients.empty:
-        initial_patient_id = str(df_patients.iloc[0, 2])
+        initial_patient_id = str(df_patients.iloc[0, 0])
 
     def load_patient_info(patient_id):
         patient_info = df_patients[df_patients.iloc[:, 2] == patient_id]
