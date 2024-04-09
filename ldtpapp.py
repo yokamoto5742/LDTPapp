@@ -46,13 +46,8 @@ Base.metadata.create_all(engine)
 
 
 def load_patient_data():
-    column_names = ['発行日', 'column2', '患者ID', '氏名', 'カナ', '性別', '生年月日', 'column8', 'column9', '医師ID', '医師名', 'column12', 'column13', 'column14', '診療科']
     date_columns = [0, 6]
-    dtype_dict = {'患者ID': str, '医師ID': str}
-    return pd.read_csv("pat.csv", encoding="shift_jis", header=None, names=column_names, parse_dates=date_columns, dtype=dtype_dict)
-
-
-# pd.read_csv(r"C:\InnoKarte\pat.csv", encoding="shift_jis", header=0)
+    return pd.read_csv(r"C:\InnoKarte\pat.csv", encoding="shift_jis", header=None, parse_dates=date_columns)
 
 
 def create_treatment_plan(patient_id, doctor_id, department, creation_count, main_disease, sheet_name, weight,
@@ -62,7 +57,8 @@ def create_treatment_plan(patient_id, doctor_id, department, creation_count, mai
     workbook = load_workbook(r"C:\Shinseikai\LDTPapp\生活習慣病療養計画書.xlsm", keep_vba=True)
     common_sheet = workbook["共通情報"]
 
-    patient_info = df_patients[df_patients.iloc[0, 2] == patient_id]
+    patient_info = df_patients.loc[df_patients.iloc[:, 2] == patient_id]
+
     if patient_info.empty:
         session.close()
         raise ValueError(f"患者ID {patient_id} が見つかりません。")
@@ -85,8 +81,6 @@ def create_treatment_plan(patient_id, doctor_id, department, creation_count, mai
     common_sheet["B12"] = main_disease
     common_sheet["B14"] = sheet_name
     common_sheet["b13"] = weight
-
-    selected_sheet = workbook[sheet_name]
 
     new_file_name = f"生活習慣病療養計画書_{current_datetime}.xlsm"
     file_path = r"C:\Shinseikai\LDTPapp" + "\\" + new_file_name
@@ -176,7 +170,7 @@ def main(page: ft.Page):
     # CSVファイルから1行目の患者IDを取得
     initial_patient_id = ""
     if not df_patients.empty:
-        initial_patient_id = str(df_patients.iloc[0, 0])
+        initial_patient_id = str(df_patients.iloc[0, 2])
 
     def load_patient_info(patient_id):
         patient_info = df_patients[df_patients.iloc[:, 2] == patient_id]
@@ -187,7 +181,7 @@ def main(page: ft.Page):
             kana_value.value = patient_info.iloc[4]
             gender_value.value = "男性" if patient_info.iloc[5] == 1 else "女性"
             birthdate = patient_info.iloc[6]
-            birthdate_value.value = birthdate
+            birthdate_value.value = format_date(birthdate)
             # birthdate_value.value = birthdate.strftime("%Y/%m/%d")
             doctor_id_value.value = str(patient_info.iloc[9])
             doctor_name_value.value = patient_info.iloc[10]
@@ -218,7 +212,8 @@ def main(page: ft.Page):
         sheet_name = sheet_name_dropdown.value
         weight = float(weight_value.value)
 
-        create_treatment_plan(int(patient_id), int(doctor_id), department, creation_count, main_disease, sheet_name, weight, df_patients)
+        create_treatment_plan(int(patient_id), int(doctor_id), department, creation_count, main_disease, sheet_name,
+                              weight, df_patients)
         page.snack_bar = ft.SnackBar(content=ft.Text("計画書ファイルが作成されました"))
         page.snack_bar.open = True
         setattr(dialog, "open", False)
