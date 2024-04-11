@@ -21,6 +21,7 @@ class TreatmentPlan(Base):
     patient_id = Column(Integer)
     issue_date = Column(Date)
     doctor_id = Column(Integer)
+    doctor_name = Column(String)
     department = Column(String)
     creation_count = Column(Integer)
     main_disease = Column(String)
@@ -50,7 +51,7 @@ def load_patient_data():
     return pd.read_csv(r"C:\InnoKarte\pat.csv", encoding="shift_jis", header=None, parse_dates=date_columns)
 
 
-def create_treatment_plan(patient_id, doctor_id, department, creation_count, main_disease, sheet_name, weight,
+def create_treatment_plan(patient_id, doctor_id, doctor_name, department, creation_count, main_disease, sheet_name, weight,
                           df_patients):
     session = Session()
     current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -71,8 +72,7 @@ def create_treatment_plan(patient_id, doctor_id, department, creation_count, mai
     common_sheet["B4"] = patient_info.iloc[4]
     common_sheet["B5"] = "男性" if patient_info.iloc[5] == 1 else "女性"
     common_sheet["B6"] = patient_info.iloc[6]
-    # common_sheet["B6"] = patient_info.iloc[6].strftime("%Y/%m/%d")
-    common_sheet["B8"] = creation_count
+    common_sheet["B8"] = doctor_name
     common_sheet["B1"] = datetime.now().strftime("%Y/%m/%d")
     common_sheet["B7"] = doctor_id
     common_sheet["B13"] = patient_info.iloc[10]
@@ -201,6 +201,7 @@ def main(page: ft.Page):
     def create_new_plan(e):
         patient_id = patient_id_value.value.strip()
         doctor_id = doctor_id_value.value.strip()
+        doctor_name = doctor_name_value.value
         if not patient_id or not doctor_id:
             page.snack_bar = ft.SnackBar(content=ft.Text("患者IDと医師IDは必須です"))
             page.snack_bar.open = True
@@ -212,7 +213,7 @@ def main(page: ft.Page):
         sheet_name = sheet_name_dropdown.value
         weight = float(weight_value.value)
 
-        create_treatment_plan(int(patient_id), int(doctor_id), department, creation_count, main_disease, sheet_name,
+        create_treatment_plan(int(patient_id), int(doctor_id), doctor_name, department, creation_count, main_disease, sheet_name,
                               weight, df_patients)
         page.snack_bar = ft.SnackBar(content=ft.Text("計画書ファイルが作成されました"))
         page.snack_bar.open = True
