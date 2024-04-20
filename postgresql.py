@@ -4,3 +4,5 @@ SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://{user}:{password}@{host}/{name}
     'host': 'localhost',
     'name': 'fletapp'  # 事前に作成したデータベース名
 })
+
+print(SQLALCHEMY_DATABASE_URI)

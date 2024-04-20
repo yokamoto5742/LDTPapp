@@ -7,12 +7,15 @@ from openpyxl import load_workbook
 from sqlalchemy import create_engine, Column, Integer, String, Float, Date
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
-from postgresql import SQLALCHEMY_DATABASE_URI as DATABASE_URI
+# from postgresql import SQLALCHEMY_DATABASE_URI as DATABASE_URI
 
 # SQLAlchemyの設定
 # db_url = "sqlite:///ldtp_app.db"
-db_url = DATABASE_URI
-engine = create_engine(db_url)
+# db_url = DATABASE_URI
+# engine = create_engine("postgresql+psycopg2://postgres:postgres@localhost/fletapp")
+
+engine = create_engine("postgresql+psycopg2://postgres:postgres@192.168.3.5/fletapp")
+
 Session = sessionmaker(bind=engine)
 
 Base = declarative_base()
