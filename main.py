@@ -7,10 +7,14 @@ from openpyxl import load_workbook
 from sqlalchemy import create_engine, Column, Integer, String, Float, Date
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
+from postgresql import SQLALCHEMY_DATABASE_URI as DATABASE_URI
 
 # SQLAlchemyの設定
-engine = create_engine("sqlite:///ldtp_app.db")
+# db_url = "sqlite:///ldtp_app.db"
+db_url = DATABASE_URI
+engine = create_engine(db_url)
 Session = sessionmaker(bind=engine)
+
 Base = declarative_base()
 
 
