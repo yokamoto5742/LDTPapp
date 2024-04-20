@@ -32,9 +32,12 @@ openpyxl==3.1.2
 packaging==24.0
 pandas==2.2.2
 pefile==2023.2.7
+psycopg2==2.9.9
 pydantic==2.7.0
 pydantic_core==2.18.1
 Pygments==2.17.2
+pyinstaller==6.6.0
+pyinstaller-hooks-contrib==2024.4
 pypng==0.20220715.0
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
