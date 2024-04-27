@@ -141,9 +141,9 @@ def format_date(date_str):
 
 
 def main(page: ft.Page):
-    page.title = "生活習慣病療養計画書アプリ"
-    page.window_width = 500
-    page.window_height = 700
+    page.title = "生活習慣病療養計画書"
+    page.window_width = 1000
+    page.window_height = 800
 
     # 初期データの挿入
     session = Session()
@@ -189,7 +189,6 @@ def main(page: ft.Page):
             gender_value.value = "男性" if patient_info.iloc[5] == 1 else "女性"
             birthdate = patient_info.iloc[6]
             birthdate_value.value = format_date(birthdate)
-            # birthdate_value.value = birthdate.strftime("%Y/%m/%d")
             doctor_id_value.value = str(patient_info.iloc[9])
             doctor_name_value.value = patient_info.iloc[10]
             department_value.value = patient_info.iloc[14]
@@ -251,23 +250,23 @@ def main(page: ft.Page):
         if patient_id:
             load_patient_info(int(patient_id))
 
-    patient_id_value = ft.TextField(label="患者ID", on_change=on_patient_id_change, value=initial_patient_id)
-    issue_date_value = ft.TextField(label="発行日", read_only=True)
-    name_value = ft.TextField(label="氏名", read_only=True)
-    kana_value = ft.TextField(label="カナ", read_only=True)
-    gender_value = ft.TextField(label="性別", read_only=True)
-    birthdate_value = ft.TextField(label="生年月日", read_only=True)
+    patient_id_value = ft.TextField(label="患者ID", on_change=on_patient_id_change, value=initial_patient_id, width=150)
+    issue_date_value = ft.TextField(label="発行日", read_only=True, width=150)
+    name_value = ft.TextField(label="氏名", read_only=True, width=150)
+    kana_value = ft.TextField(label="カナ", read_only=True, width=150)
+    gender_value = ft.TextField(label="性別", read_only=True, width=150)
+    birthdate_value = ft.TextField(label="生年月日", read_only=True, width=150)
 
     main_disease_options = load_main_diseases()
     sheet_name_options = load_sheet_names()
 
-    doctor_id_value = ft.TextField(label="医師ID", read_only=True)
-    doctor_name_value = ft.TextField(label="医師名", read_only=True)
-    department_value = ft.TextField(label="診療科", read_only=True)
-    creation_count_value = ft.TextField(label="作成回数")
-    main_disease_dropdown = ft.Dropdown(label="主病名", options=main_disease_options)
-    sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options)
-    weight_value = ft.TextField(label="体重")
+    doctor_id_value = ft.TextField(label="医師ID", read_only=True, width=150)
+    doctor_name_value = ft.TextField(label="医師名", read_only=True, width=150)
+    department_value = ft.TextField(label="診療科", read_only=True, width=150)
+    creation_count_value = ft.TextField(label="作成回数", width=150)
+    main_disease_dropdown = ft.Dropdown(label="主病名", options=main_disease_options, width=150)
+    sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=150)
+    weight_value = ft.TextField(label="目標体重", width=150)
 
     create_button = ft.ElevatedButton("登録", on_click=create_new_plan)
     print_button = ft.ElevatedButton("印刷", on_click=print_plan)
@@ -281,8 +280,6 @@ def main(page: ft.Page):
         title=ft.Text("医師記入欄"),
         content=ft.Column([
             ft.Text("発行日"),
-            doctor_id_value,
-            doctor_name_value,
             creation_count_value,
             main_disease_dropdown,
             sheet_name_dropdown,
@@ -297,21 +294,37 @@ def main(page: ft.Page):
     )
 
     page.add(
-        ft.Text("生活習慣病療養計画書", size=20),
-        ft.Row([
-            ft.Column([
+        ft.Row(
+            controls=[
                 patient_id_value,
                 issue_date_value,
                 name_value,
                 kana_value,
                 gender_value,
                 birthdate_value
-            ]),
-            ft.Column([
+            ]
+        ),
+        ft.Row(
+            controls=[
+                doctor_id_value,
+                doctor_name_value,
+                department_value,
+            ]
+        ),
+        ft.Row(
+            controls=[
+                main_disease_dropdown,
+                sheet_name_dropdown,
+                creation_count_value,
+                weight_value
+            ]
+        ),
+        ft.Row(
+            controls=[
                 ft.ElevatedButton("新規作成", on_click=lambda _: setattr(dialog, "open", True)),
                 view_issued_button
-            ])
-        ]),
+            ]
+    ),
         ft.Divider(),
         issued_plans_textfield,
         dialog
