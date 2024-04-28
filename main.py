@@ -230,7 +230,7 @@ def main(page: ft.Page):
     def view_issued_plans(e):
         issued_plans = get_issued_plans()
         plans_text = "\n".join([
-            f"発行日: {str(plan.issue_date)}, ファイルパス: {str(plan.file_path)}"
+            f"発行日:{str(plan.issue_date)},患者ID:{str(plan.patient_id)},{plan.department},{plan.main_disease}{plan.sheet_name},{str(plan.creation_count)}回目"
             for plan in issued_plans])
         issued_plans_textfield.value = plans_text
         page.update()
@@ -322,7 +322,11 @@ def main(page: ft.Page):
         ft.Row(
             controls=[
                 ft.ElevatedButton("新規作成", on_click=lambda _: setattr(dialog, "open", True)),
-                view_issued_button
+                view_issued_button,
+                create_button,
+                print_button,
+                delete_button,
+                close_button
             ]
     ),
         ft.Divider(),
