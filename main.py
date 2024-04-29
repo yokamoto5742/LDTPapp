@@ -222,8 +222,6 @@ def main(page: ft.Page):
         create_treatment_plan(int(patient_id), int(doctor_id), doctor_name, department, creation_count, main_disease, sheet_name,
                               weight, df_patients)
         page.snack_bar = ft.SnackBar(content=ft.Text("計画書ファイルが作成されました"))
-        page.snack_bar.open = True
-        setattr(dialog, "open", False)
         view_issued_plans(None)
         page.update()
 
@@ -266,10 +264,6 @@ def main(page: ft.Page):
         session.close()
         page.update()
 
-    def close_dialog(e):
-        setattr(dialog, "open", False)
-        page.update()
-
     def on_patient_id_change(e):
         patient_id = patient_id_value.value.strip()
         if patient_id:
@@ -293,10 +287,10 @@ def main(page: ft.Page):
     sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=150)
     weight_value = ft.TextField(label="目標体重", width=150)
 
-    create_button = ft.ElevatedButton("登録", on_click=create_new_plan)
+    create_button = ft.ElevatedButton("新規登録", on_click=create_new_plan)
     print_button = ft.ElevatedButton("印刷", on_click=print_plan)
     delete_button = ft.ElevatedButton("削除", on_click=delete_plan)
-    close_button = ft.ElevatedButton("閉じる", on_click=close_dialog)
+    close_button = ft.ElevatedButton("閉じる", on_click=lambda e: None )
 
     issued_plans_table = ft.DataTable(
         columns=[
@@ -311,24 +305,22 @@ def main(page: ft.Page):
         rows=[],  # データは後で追加
     )
 
-    view_issued_button = ft.ElevatedButton("発行履歴", on_click=view_issued_plans)
-
-    dialog = ft.AlertDialog(
-        title=ft.Text("医師記入欄"),
-        content=ft.Column([
-            ft.Text("発行日"),
-            creation_count_value,
-            main_disease_dropdown,
-            sheet_name_dropdown,
-            weight_value
-        ]),
-        actions=[
-            create_button,
-            print_button,
-            delete_button,
-            close_button
-        ],
-    )
+    # dialog = ft.AlertDialog(
+    #     title=ft.Text("医師記入欄"),
+    #     content=ft.Column([
+    #         ft.Text("発行日"),
+    #         creation_count_value,
+    #         main_disease_dropdown,
+    #         sheet_name_dropdown,
+    #         weight_value
+    #     ]),
+    #     actions=[
+    #         create_button,
+    #         print_button,
+    #         delete_button,
+    #         close_button
+    #     ],
+    # )
 
     page.add(
         ft.Row(
@@ -358,8 +350,6 @@ def main(page: ft.Page):
         ),
         ft.Row(
             controls=[
-                ft.ElevatedButton("新規作成", on_click=lambda _: setattr(dialog, "open", True)),
-                view_issued_button,
                 create_button,
                 print_button,
                 delete_button,
@@ -368,7 +358,6 @@ def main(page: ft.Page):
         ),
         ft.Divider(),
         issued_plans_table,
-        dialog
     )
 
     # 初期患者情報を読み込む
