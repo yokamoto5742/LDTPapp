@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 
 import flet as ft
+from flet import AppBar, ElevatedButton, Page, Text, View
 import pandas as pd
 from openpyxl import load_workbook
 from sqlalchemy import create_engine, Column, Integer, String, Float, Date
@@ -169,11 +170,6 @@ def main(page: ft.Page):
 
     df_patients = load_patient_data()
     print(df_patients)
-    # df_patients.iloc[:, 6] = df_patients.iloc[:, 6].astype(str)
-
-    # 日付列を日付時刻型に変換
-    # df_patients.iloc[:, 6] = pd.to_datetime(df_patients.iloc[:, 6], format='%Y%m%d', errors='coerce')
-
     # CSVファイルから1行目の患者IDを取得
     initial_patient_id = ""
     if not df_patients.empty:
