@@ -229,42 +229,17 @@ def main(page: ft.Page):
 
     def view_issued_plans(e):
         issued_plans = get_issued_plans()
-        plans_data = []
-        for plan in issued_plans:
-            plans_data.append([
-                plan.id,
-                str(plan.issue_date),
-                str(plan.patient_id),
-                plan.department,
-                plan.main_disease,
-                plan.sheet_name,
-                str(plan.creation_count),
-            ])
-        issued_plans_table.rows = [ft.DataRow(cells=[ft.DataCell(ft.Text(cell)) for cell in row]) for row in plans_data]
+        plans_text = "\n".join([
+            f"発行日:{str(plan.issue_date)},患者ID:{str(plan.patient_id)},{plan.department},{plan.main_disease}{plan.sheet_name},{str(plan.creation_count)}回目"
+            for plan in issued_plans])
+        issued_plans_textfield.value = plans_text
         page.update()
 
     def print_plan(e):
         pass
 
     def delete_plan(e):
-        if not selected_plan_id:
-            page.snack_bar = ft.SnackBar(content=ft.Text("削除する計画書を選択してください"))
-            page.snack_bar.open = True
-            page.update()
-            return
-        session = Session()
-        plan = session.query(TreatmentPlan).filter_by(id=selected_plan_id).first()
-        if plan:
-            session.delete(plan)
-            session.commit()
-            view_issued_plans(None)
-            page.snack_bar = ft.SnackBar(content=ft.Text("選択した計画書を削除しました"))
-            page.snack_bar.open = True
-        else:
-            page.snack_bar = ft.SnackBar(content=ft.Text("選択した計画書は見つかりませんでした"))
-            page.snack_bar.open = True
-        session.close()
-        page.update()
+        pass
 
     def close_dialog(e):
         setattr(dialog, "open", False)
@@ -298,19 +273,7 @@ def main(page: ft.Page):
     delete_button = ft.ElevatedButton("削除", on_click=delete_plan)
     close_button = ft.ElevatedButton("閉じる", on_click=close_dialog)
 
-    issued_plans_table = ft.DataTable(
-        columns=[
-            ft.DataColumn(ft.Text("ID")),
-            ft.DataColumn(ft.Text("発行日")),
-            ft.DataColumn(ft.Text("患者ID")),
-            ft.DataColumn(ft.Text("診療科")),
-            ft.DataColumn(ft.Text("主病名")),
-            ft.DataColumn(ft.Text("シート名")),
-            ft.DataColumn(ft.Text("作成回数")),
-        ],
-        rows=[],  # データは後で追加
-    )
-
+    issued_plans_textfield = ft.TextField(multiline=True, read_only=True)
     view_issued_button = ft.ElevatedButton("発行履歴", on_click=view_issued_plans)
 
     dialog = ft.AlertDialog(
@@ -365,17 +328,15 @@ def main(page: ft.Page):
                 delete_button,
                 close_button
             ]
-        ),
+    ),
         ft.Divider(),
-        issued_plans_table,
+        issued_plans_textfield,
         dialog
     )
 
     # 初期患者情報を読み込む
     if initial_patient_id:
         load_patient_info(initial_patient_id)
-        selected_plan_id = None
-        view_issued_plans(None)
 
 
 ft.app(target=main)
