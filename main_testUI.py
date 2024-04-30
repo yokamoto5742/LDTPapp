@@ -267,8 +267,6 @@ def main(page: ft.Page):
 
     def route_change(e):
         print("Route change:", e.route)
-
-        # ページクリア
         page.views.clear()
 
         # トップページ（常にviewに追加する）
@@ -321,8 +319,18 @@ def main(page: ft.Page):
                 View(
                     "/test",
                     [
-                        AppBar(title=Text("テストページ")),
-                        Text("これはテストページです"),
+                        ft.Row(
+                            controls=[
+                                main_disease_dropdown,
+                                sheet_name_dropdown,
+                                creation_count_value,
+                                weight_value
+                            ]
+                        ),
+                        goal1,
+                        goal2,
+                        guidance_items,
+                        buttons
                     ],
                 )
             )
@@ -341,7 +349,8 @@ def main(page: ft.Page):
     def open_test(e):
         page.go("/test")
 
-
+    def route_test(e):
+        page.go("/")
 
     patient_id_value = ft.TextField(label="患者ID", on_change=on_patient_id_change, value=initial_patient_id, width=150)
     issue_date_value = ft.TextField(label="発行日", read_only=True, width=150)
@@ -366,6 +375,41 @@ def main(page: ft.Page):
     delete_button = ft.ElevatedButton("削除", on_click=delete_plan)
     close_button = ft.ElevatedButton("閉じる", on_click=lambda e: None )
 
+    goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=600, value="")
+    goal2 = ft.TextField(label="②行動目標：患者と相談した目標", width=600, value="")
+
+    # Guidance Items
+    guidance_items = ft.Column([
+        ft.TextField(
+            label="食事",
+            multiline=True,
+            disabled=False,
+            value="食事量を適正にする\n食物繊維の摂取量を増やす\nゆっくり食べる\n間食を減らす",
+            width=400,
+        ),
+        ft.TextField(label="運動処方", width=400, value="ウォーキング"),
+        ft.Row([
+            ft.TextField(label="時間", value="30分以上", width=200),
+            ft.TextField(label="頻度", value="ほぼ毎日", width=200),
+            ft.TextField(label="強度", value="少し汗をかく程度", width=200),
+        ]),
+        ft.TextField(label="日常生活の活動量増加", value="1日8000歩以上", width=400),
+        ft.Text("たばこ", size=14),
+        ft.Row([
+            ft.Checkbox(label="非喫煙者である"),
+            ft.Checkbox(label="禁煙の実施方法等を指示"),
+        ]),
+        ft.Row([
+            ft.TextField(label="その他1", value="睡眠の確保１日７時間", width=300),
+            ft.TextField(label="その他2", value="家庭での毎日の歩数の測定", width=300),
+        ]),
+    ])
+
+    buttons = ft.Row([
+        ft.ElevatedButton("戻る", on_click=route_test),
+        ft.ElevatedButton("保存", on_click=lambda e: None),
+    ])
+
     issued_plans_table = ft.DataTable(
         columns=[
             ft.DataColumn(ft.Text("ID")),
@@ -379,44 +423,6 @@ def main(page: ft.Page):
         rows=[],  # データは後で追加
     )
 
-    # page.add(
-    #     ft.Row(
-    #         controls=[
-    #             patient_id_value,
-    #             issue_date_value,
-    #             name_value,
-    #             kana_value,
-    #             gender_value,
-    #             birthdate_value
-    #         ]
-    #     ),
-    #     ft.Row(
-    #         controls=[
-    #             doctor_id_value,
-    #             doctor_name_value,
-    #             department_value,
-    #         ]
-    #     ),
-    #     ft.Row(
-    #         controls=[
-    #             main_disease_dropdown,
-    #             sheet_name_dropdown,
-    #             creation_count_value,
-    #             weight_value
-    #         ]
-    #     ),
-    #     ft.Row(
-    #         controls=[
-    #             create_button,
-    #             print_button,
-    #             delete_button,
-    #             close_button
-    #         ]
-    #     ),
-    #     ft.Divider(),
-    #     issued_plans_table,
-    # )
-
     # 初期患者情報を読み込む
     if initial_patient_id:
         load_patient_info(initial_patient_id)
@@ -427,6 +433,7 @@ def main(page: ft.Page):
     page.on_route_change = route_change
     # AppBarの戻るボタンクリック時、前のページへ戻る
     page.on_view_pop = view_pop
+
     page.go(page.route)
 
 

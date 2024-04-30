@@ -8,18 +8,13 @@ def main(page: ft.Page):
         pass
 
     # Patient Information
-    patient_id = ft.TextField(label="患者ID", width=200, value="")
-    name = ft.TextField(label="氏名", width=200, value="")
-    kana = ft.TextField(label="カナ", width=200, value="")
-    gender = ft.TextField(label="性別", width=200, value="")
-    dob = ft.TextField(label="生年月日", width=200, value="")
     main_diagnosis = ft.TextField(label="主病名", width=200, value="")
     creation_count = ft.TextField(label="作成回数", width=150, value="")
+    target_weight = ft.TextField(label="目標体重", width=150, value="")
 
     # Goals
     goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=600, value="")
     goal2 = ft.TextField(label="②行動目標：患者と相談した目標", width=600, value="")
-    target_weight = ft.TextField(label="目標体重", width=150, value="")
 
     # Guidance Items
     guidance_items = ft.Column([
@@ -64,7 +59,7 @@ def main(page: ft.Page):
         goal2,
         guidance_items,
         buttons
-    ], scroll="auto")
+    ])
 
     page.add(layout)
 
