@@ -153,12 +153,35 @@ def main(page: ft.Page):
         history.value = df
 
     def on_row_selected(e):
-        nonlocal selected_row
-        if e.control.selected_row is not None:
-            selected_row = e.control.selected_row
-        else:
-            selected_row = None
-        page.update()
+        if e.data == "true":
+            row_index = history.rows.index(e.control)
+            print(f"行が選択されました。行のインデックス: {row_index}")
+            # 選択された行に対する処理を行う
+
+    def fetch_data():
+        # データベースやAPIからデータを取得するなどの処理を行う
+        # ここでは例としてダミーデータを使用
+        data = [
+            {"id": "1", "disease": "糖尿病", "count": "3"},
+            {"id": "2", "disease": "高血圧", "count": "2"},
+            {"id": "3", "disease": "脂質異常症", "count": "1"},
+        ]
+        return data
+
+    def create_data_rows(data):
+        rows = []
+        for item in data:
+            row = ft.DataRow(
+                cells=[
+                    ft.DataCell(ft.Text(item["id"])),
+                    ft.DataCell(ft.Text(item["disease"])),
+                    ft.DataCell(ft.Text(item["count"])),
+                ],
+                on_select_changed=on_row_selected,
+            )
+            rows.append(row)
+        return rows
+
 
     def edit_history(e):
         if selected_row is not None:
@@ -237,18 +260,16 @@ def main(page: ft.Page):
     selected_row = None
 
     # History
+    data = fetch_data()
+    rows = create_data_rows(data)
+
     history = ft.DataTable(
         columns=[
             ft.DataColumn(ft.Text("ID")),
             ft.DataColumn(ft.Text("主病名")),
             ft.DataColumn(ft.Text("作成回数")),
         ],
-        rows=[
-            ft.DataRow(cells=[ft.DataCell(ft.Text("1")), ft.DataCell(ft.Text("糖尿病")), ft.DataCell(ft.Text("3"))]),
-            ft.DataRow(cells=[ft.DataCell(ft.Text("2")), ft.DataCell(ft.Text("高血圧")), ft.DataCell(ft.Text("2"))]),
-            ft.DataRow(
-                cells=[ft.DataCell(ft.Text("3")), ft.DataCell(ft.Text("脂質異常症")), ft.DataCell(ft.Text("1"))]),
-        ],
+        rows=rows,
         width=1200,
         height=400,
     )
