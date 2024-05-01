@@ -40,31 +40,57 @@ def main(page: ft.Page):
 
     def save_data(e):
         session = Session()
-        patient_info = PatientInfo(
-            main_diagnosis=main_diagnosis.value,
-            creation_count=creation_count.value,
-            target_weight=target_weight.value,
-            goal1=goal1.value,
-            goal2=goal2.value,
-            diet=diet.value,
-            exercise_prescription=exercise_prescription.value,
-            exercise_time=exercise_time.value,
-            exercise_frequency=exercise_frequency.value,
-            exercise_intensity=exercise_intensity.value,
-            daily_activity=daily_activity.value,
-            nonsmoker=str(nonsmoker.value),
-            smoking_cessation=str(smoking_cessation.value),
-            other1=other1.value,
-            other2=other2.value
-        )
-        session.add(patient_info)
-        session.commit()
+        if selected_row is not None:
+            patient_info = session.query(PatientInfo).filter(PatientInfo.id == selected_row['ID']).first()
+            if patient_info:
+                patient_info.main_diagnosis = main_diagnosis.value
+                patient_info.creation_count = creation_count.value
+                patient_info.target_weight = target_weight.value
+                patient_info.goal1 = goal1.value
+                patient_info.goal2 = goal2.value
+                patient_info.diet = diet.value
+                patient_info.exercise_prescription = exercise_prescription.value
+                patient_info.exercise_time = exercise_time.value
+                patient_info.exercise_frequency = exercise_frequency.value
+                patient_info.exercise_intensity = exercise_intensity.value
+                patient_info.daily_activity = daily_activity.value
+                patient_info.nonsmoker = str(nonsmoker.value)
+                patient_info.smoking_cessation = str(smoking_cessation.value)
+                patient_info.other1 = other1.value
+                patient_info.other2 = other2.value
+                session.commit()
+                page.snack_bar = ft.SnackBar(
+                    ft.Text("データが更新されました"),
+                    action="閉じる",
+                )
+                page.snack_bar.open = True
+        else:
+            patient_info = PatientInfo(
+                main_diagnosis=main_diagnosis.value,
+                creation_count=creation_count.value,
+                target_weight=target_weight.value,
+                goal1=goal1.value,
+                goal2=goal2.value,
+                diet=diet.value,
+                exercise_prescription=exercise_prescription.value,
+                exercise_time=exercise_time.value,
+                exercise_frequency=exercise_frequency.value,
+                exercise_intensity=exercise_intensity.value,
+                daily_activity=daily_activity.value,
+                nonsmoker=str(nonsmoker.value),
+                smoking_cessation=str(smoking_cessation.value),
+                other1=other1.value,
+                other2=other2.value
+            )
+            session.add(patient_info)
+            session.commit()
+            page.snack_bar = ft.SnackBar(
+                ft.Text("データが保存されました"),
+                action="閉じる",
+            )
+            page.snack_bar.open = True
+
         session.close()
-        page.snack_bar = ft.SnackBar(
-            ft.Text("データが保存されました"),
-            action="閉じる",
-        )
-        page.snack_bar.open = True
         update_history()
         page.update()
 
@@ -106,66 +132,49 @@ def main(page: ft.Page):
         page.update()
 
     def update_history():
-        session = Session()
-        patient_info_list = session.query(PatientInfo).all()
-        session.close()
-
-        data = []
-        for info in patient_info_list:
-            data.append([
-                info.id,
-                info.main_diagnosis,
-                info.creation_count,
-                info.target_weight,
-                info.goal1,
-                info.goal2,
-                info.diet,
-                info.exercise_prescription,
-                info.exercise_time,
-                info.exercise_frequency,
-                info.exercise_intensity,
-                info.daily_activity,
-                info.nonsmoker,
-                info.smoking_cessation,
-                info.other1,
-                info.other2
-            ])
-
-        df = pd.DataFrame(data, columns=[
-            'ID',
-            '主病名',
-            '作成回数',
-            '目標体重',
-            '達成目標',
-            '行動目標',
-            '食事',
-            '運動処方',
-            '時間',
-            '頻度',
-            '強度',
-            '日常生活の活動量増加',
-            '非喫煙者である',
-            '禁煙の実施方法等を指示',
-            'その他1',
-            'その他2'
-        ])
-
-        history.value = df
+        data = fetch_data()
+        history.rows = create_data_rows(data)
+        page.update()
 
     def on_row_selected(e):
         if e.data == "true":
             row_index = history.rows.index(e.control)
-            print(f"行が選択されました。行のインデックス: {row_index}")
-            # 選択された行に対する処理を行う
+            selected_row = history.rows[row_index].data
+
+            session = Session()
+            patient_info = session.query(PatientInfo).filter(PatientInfo.id == selected_row['ID']).first()
+            if patient_info:
+                main_diagnosis.value = patient_info.main_diagnosis
+                creation_count.value = patient_info.creation_count
+                target_weight.value = patient_info.target_weight
+                goal1.value = patient_info.goal1
+                goal2.value = patient_info.goal2
+                diet.value = patient_info.diet
+                exercise_prescription.value = patient_info.exercise_prescription
+                exercise_time.value = patient_info.exercise_time
+                exercise_frequency.value = patient_info.exercise_frequency
+                exercise_intensity.value = patient_info.exercise_intensity
+                daily_activity.value = patient_info.daily_activity
+                nonsmoker.value = patient_info.nonsmoker == 'True'
+                smoking_cessation.value = patient_info.smoking_cessation == 'True'
+                other1.value = patient_info.other1
+                other2.value = patient_info.other2
+            session.close()
+            page.update()
 
     def fetch_data():
-        # データベースやAPIからデータを取得するなどの処理を行う
-        # ここでは例としてダミーデータを使用
-        data = [
-            {"id": "1", "disease": "糖尿病", "count": "3"},
-            {"id": "2", "disease": "高血圧", "count": "2"},
-            {"id": "3", "disease": "脂質異常症", "count": "1"},
-        ]
+        session = Session()
+        patient_info_list = session.query(PatientInfo.id, PatientInfo.main_diagnosis, PatientInfo.creation_count).all()
+        session.close()
+
+        data = []
+        for info in patient_info_list:
+            data.append({
+                "id": str(info.id),
+                "disease": info.main_diagnosis,
+                "count": info.creation_count
+            })
+
         return data
 
     def create_data_rows(data):
@@ -178,10 +187,10 @@ def main(page: ft.Page):
                     ft.DataCell(ft.Text(item["count"])),
                 ],
                 on_select_changed=on_row_selected,
+                data={'ID': item["id"]}  # 行のデータに'ID'カラムを追加
             )
             rows.append(row)
         return rows
-
 
     def edit_history(e):
         if selected_row is not None:
@@ -218,7 +227,6 @@ def main(page: ft.Page):
             session.close()
             update_history()
         page.update()
-
 
     # Patient Information
     main_diagnosis = ft.TextField(label="主病名", width=200, value="")
@@ -259,7 +267,6 @@ def main(page: ft.Page):
 
     selected_row = None
 
-    # History
     data = fetch_data()
     rows = create_data_rows(data)
 
@@ -273,30 +280,6 @@ def main(page: ft.Page):
         width=1200,
         height=400,
     )
-    # history = ft.DataTable(
-    #     columns=[
-    #         ft.DataColumn(ft.Text("ID")),
-    #         ft.DataColumn(ft.Text("主病名")),
-    #         ft.DataColumn(ft.Text("作成回数")),
-    #         ft.DataColumn(ft.Text("目標体重")),
-    #         ft.DataColumn(ft.Text("達成目標")),
-    #         ft.DataColumn(ft.Text("行動目標")),
-    #         ft.DataColumn(ft.Text("食事")),
-    #         ft.DataColumn(ft.Text("運動処方")),
-    #         ft.DataColumn(ft.Text("時間")),
-    #         ft.DataColumn(ft.Text("頻度")),
-    #         ft.DataColumn(ft.Text("強度")),
-    #         ft.DataColumn(ft.Text("日常生活の活動量増加")),
-    #         ft.DataColumn(ft.Text("非喫煙者である")),
-    #         ft.DataColumn(ft.Text("禁煙の実施方法等を指示")),
-    #         ft.DataColumn(ft.Text("その他1")),
-    #         ft.DataColumn(ft.Text("その他2")),
-    #     ],
-    #     rows=[],
-    #     width=1200,
-    #     height=400,
-    #     on_select_changed=on_row_selected
-    # )
 
     # Buttons
     buttons = ft.Row([
