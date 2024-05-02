@@ -39,6 +39,7 @@ def main(page: ft.Page):
     page.scroll = "auto"
 
     def save_data(e):
+        print(selected_row)
         session = Session()
         if selected_row is not None:
             patient_info = session.query(PatientInfo).filter(PatientInfo.id == selected_row['ID']).first()
@@ -192,42 +193,6 @@ def main(page: ft.Page):
             rows.append(row)
         return rows
 
-    def edit_history(e):
-        if selected_row is not None:
-            selected_id = selected_row['ID']
-            session = Session()
-            patient_info = session.query(PatientInfo).filter(PatientInfo.id == selected_id).first()
-            if patient_info:
-                main_diagnosis.value = patient_info.main_diagnosis
-                creation_count.value = patient_info.creation_count
-                target_weight.value = patient_info.target_weight
-                goal1.value = patient_info.goal1
-                goal2.value = patient_info.goal2
-                diet.value = patient_info.diet
-                exercise_prescription.value = patient_info.exercise_prescription
-                exercise_time.value = patient_info.exercise_time
-                exercise_frequency.value = patient_info.exercise_frequency
-                exercise_intensity.value = patient_info.exercise_intensity
-                daily_activity.value = patient_info.daily_activity
-                nonsmoker.value = patient_info.nonsmoker == 'True'
-                smoking_cessation.value = patient_info.smoking_cessation == 'True'
-                other1.value = patient_info.other1
-                other2.value = patient_info.other2
-            session.close()
-        page.update()
-
-    def delete_history(e):
-        if selected_row is not None:
-            selected_id = selected_row['ID']
-            session = Session()
-            patient_info = session.query(PatientInfo).filter(PatientInfo.id == selected_id).first()
-            if patient_info:
-                session.delete(patient_info)
-                session.commit()
-            session.close()
-            update_history()
-        page.update()
-
     # Patient Information
     main_diagnosis = ft.TextField(label="主病名", width=200, value="")
     creation_count = ft.TextField(label="作成回数", width=150, value="")
@@ -265,10 +230,9 @@ def main(page: ft.Page):
         ft.Row([other1, other2]),
     ])
 
-    selected_row = None
-
     data = fetch_data()
     rows = create_data_rows(data)
+    selected_row = None
 
     history = ft.DataTable(
         columns=[
@@ -281,14 +245,11 @@ def main(page: ft.Page):
         height=400,
     )
 
-    # Buttons
     buttons = ft.Row([
         ft.ElevatedButton("戻る", on_click=lambda _: page.go("/")),
         ft.ElevatedButton("保存", on_click=save_data),
         ft.ElevatedButton("読込", on_click=load_data),
         ft.ElevatedButton("削除", on_click=delete_data),
-        ft.ElevatedButton("履歴編集", on_click=edit_history),
-        ft.ElevatedButton("履歴削除", on_click=delete_history),
     ])
 
     # Layout
