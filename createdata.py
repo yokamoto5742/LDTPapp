@@ -2,7 +2,6 @@ import flet as ft
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import declarative_base
-import pandas as pd
 
 # SQLAlchemyの設定
 engine = create_engine('sqlite:///patient_info.db')
@@ -14,6 +13,7 @@ Base = declarative_base()
 class PatientInfo(Base):
     __tablename__ = 'patient_info'
     id = Column(Integer, primary_key=True)
+    karte_id = Column(Integer)
     main_diagnosis = Column(String)
     creation_count = Column(String)
     target_weight = Column(String)
@@ -33,6 +33,8 @@ class PatientInfo(Base):
 
 Base.metadata.create_all(engine)
 
+selected_row = None
+
 
 def main(page: ft.Page):
     page.title = "Patient Information"
@@ -44,6 +46,7 @@ def main(page: ft.Page):
         if selected_row is not None:
             patient_info = session.query(PatientInfo).filter(PatientInfo.id == selected_row['ID']).first()
             if patient_info:
+                patient_info.karte_id = int(karte_id.value)
                 patient_info.main_diagnosis = main_diagnosis.value
                 patient_info.creation_count = creation_count.value
                 patient_info.target_weight = target_weight.value
@@ -66,8 +69,8 @@ def main(page: ft.Page):
                 )
                 page.snack_bar.open = True
         else:
-            selected_row = None
             patient_info = PatientInfo(
+                karte_id=int(karte_id.value),
                 main_diagnosis=main_diagnosis.value,
                 creation_count=creation_count.value,
                 target_weight=target_weight.value,
@@ -100,6 +103,7 @@ def main(page: ft.Page):
         session = Session()
         patient_info = session.query(PatientInfo).order_by(PatientInfo.id.desc()).first()
         if patient_info:
+            karte_id.value = patient_info.karte_id
             main_diagnosis.value = patient_info.main_diagnosis
             creation_count.value = patient_info.creation_count
             target_weight.value = patient_info.target_weight
@@ -147,6 +151,7 @@ def main(page: ft.Page):
             session = Session()
             patient_info = session.query(PatientInfo).filter(PatientInfo.id == selected_row['ID']).first()
             if patient_info:
+                karte_id.value = patient_info.karte_id
                 main_diagnosis.value = patient_info.main_diagnosis
                 creation_count.value = patient_info.creation_count
                 target_weight.value = patient_info.target_weight
@@ -171,13 +176,15 @@ def main(page: ft.Page):
 
     def fetch_data():
         session = Session()
-        patient_info_list = session.query(PatientInfo.id, PatientInfo.main_diagnosis, PatientInfo.creation_count).all()
+        patient_info_list = session.query(PatientInfo.id, PatientInfo.karte_id, PatientInfo.main_diagnosis,
+                                          PatientInfo.creation_count).all()
         session.close()
 
         data = []
         for info in patient_info_list:
             data.append({
                 "id": str(info.id),
+                "karte_id": info.karte_id,
                 "disease": info.main_diagnosis,
                 "count": info.creation_count
             })
@@ -190,6 +197,7 @@ def main(page: ft.Page):
             row = ft.DataRow(
                 cells=[
                     ft.DataCell(ft.Text(item["id"])),
+                    ft.DataCell(ft.Text(item["karte_id"])),
                     ft.DataCell(ft.Text(item["disease"])),
                     ft.DataCell(ft.Text(item["count"])),
                 ],
@@ -203,6 +211,7 @@ def main(page: ft.Page):
     main_diagnosis = ft.TextField(label="主病名", width=200, value="")
     creation_count = ft.TextField(label="作成回数", width=150, value="")
     target_weight = ft.TextField(label="目標体重", width=150, value="")
+    karte_id = ft.TextField(label="カルテID", width=150, value="")
 
     # Goals
     goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=600, value="")
@@ -240,10 +249,10 @@ def main(page: ft.Page):
     data = fetch_data()
     rows = create_data_rows(data)
 
-
     history = ft.DataTable(
         columns=[
             ft.DataColumn(ft.Text("ID")),
+            ft.DataColumn(ft.Text("カルテID")),
             ft.DataColumn(ft.Text("主病名")),
             ft.DataColumn(ft.Text("作成回数")),
         ],
@@ -262,6 +271,7 @@ def main(page: ft.Page):
     # Layout
     layout = ft.Column([
         ft.Row([
+            karte_id,
             main_diagnosis,
             creation_count, ft.Text("回目", size=14), target_weight, ft.Text("kg", size=14)
         ]),
