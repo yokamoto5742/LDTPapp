@@ -39,7 +39,7 @@ def main(page: ft.Page):
     page.scroll = "auto"
 
     def save_data(e):
-        print(selected_row)
+        global selected_row
         session = Session()
         if selected_row is not None:
             patient_info = session.query(PatientInfo).filter(PatientInfo.id == selected_row['ID']).first()
@@ -66,6 +66,7 @@ def main(page: ft.Page):
                 )
                 page.snack_bar.open = True
         else:
+            selected_row = None
             patient_info = PatientInfo(
                 main_diagnosis=main_diagnosis.value,
                 creation_count=creation_count.value,
@@ -138,6 +139,7 @@ def main(page: ft.Page):
         page.update()
 
     def on_row_selected(e):
+        global selected_row
         if e.data == "true":
             row_index = history.rows.index(e.control)
             selected_row = history.rows[row_index].data
@@ -162,6 +164,10 @@ def main(page: ft.Page):
                 other2.value = patient_info.other2
             session.close()
             page.update()
+
+        if e.data == "true":
+            row_index = history.rows.index(e.control)
+            selected_row = history.rows[row_index].data
 
     def fetch_data():
         session = Session()
@@ -230,9 +236,10 @@ def main(page: ft.Page):
         ft.Row([other1, other2]),
     ])
 
+    selected_row = None
     data = fetch_data()
     rows = create_data_rows(data)
-    selected_row = None
+
 
     history = ft.DataTable(
         columns=[
