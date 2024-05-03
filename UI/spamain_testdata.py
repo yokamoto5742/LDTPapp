@@ -9,8 +9,10 @@ from sqlalchemy import create_engine, Column, Integer, String, Float, Date
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+# SQLAlchemyの設定
 db_url = "sqlite:///ldtp_app.db"
 engine = create_engine(db_url)
+
 # engine = create_engine("postgresql+psycopg2://postgres:postgres@localhost/fletapp")
 # engine = create_engine("postgresql+psycopg2://postgres:postgres@192.168.3.5/fletapp")
 
@@ -155,7 +157,7 @@ def main(page: ft.Page):
     page.window_width = 1000
     page.window_height = 800
     page.scroll = "auto"
-
+    
     # 初期データの挿入
     session = Session()
     if session.query(MainDisease).count() == 0:
@@ -245,7 +247,7 @@ def main(page: ft.Page):
                 plan.sheet_name,
                 str(plan.creation_count),
             ])
-        issued_plans_table.rows = [ft.DataRow(cells=[ft.DataCell(ft.Text(cell)) for cell in row]) for row in plans_data]
+        history.rows = [ft.DataRow(cells=[ft.DataCell(ft.Text(cell)) for cell in row]) for row in plans_data]
         page.update()
 
     def print_plan(e):
@@ -304,14 +306,6 @@ def main(page: ft.Page):
                     ),
                     ft.Row(
                         controls=[
-                            main_disease_dropdown,
-                            sheet_name_dropdown,
-                            creation_count_value,
-                            weight_value
-                        ]
-                    ),
-                    ft.Row(
-                        controls=[
                             create_button,
                             print_button,
                             delete_button,
@@ -320,7 +314,7 @@ def main(page: ft.Page):
                     ),
                     ElevatedButton("テストページへ移動", on_click=open_test),
                     ft.Divider(),
-                    issued_plans_table,
+                    history,
                 ],
             )
         )
@@ -363,41 +357,75 @@ def main(page: ft.Page):
     def route_test(e):
         page.go("/")
 
+    page.title = "Patient Information"
+    page.scroll = "auto"
+
     def save_data(e):
+        global selected_row
         session = Session()
-        patient_info = TreatmentPlan(
-            main_disease=main_disease_dropdown.value,
-            creation_count=creation_count_value.value,
-            weight=weight_value.value,
-            goal1=goal1.value,
-            goal2=goal2.value,
-            diet=diet.value,
-            exercise_prescription=exercise_prescription.value,
-            exercise_time=exercise_time.value,
-            exercise_frequency=exercise_frequency.value,
-            exercise_intensity=exercise_intensity.value,
-            daily_activity=daily_activity.value,
-            nonsmoker=str(nonsmoker.value),
-            smoking_cessation=str(smoking_cessation.value),
-            other1=other1.value,
-            other2=other2.value
-        )
-        session.add(patient_info)
-        session.commit()
+        if selected_row is not None:
+            patient_info = session.query(TreatmentPlan).filter(TreatmentPlan.id == selected_row['ID']).first()
+            if patient_info:
+                patient_info.patient_id_value = int(patient_id_value.value)
+                patient_info.main_disease_dropdown = main_disease_dropdown.value
+                patient_info.creation_count = creation_count_value.value
+                patient_info.weight = weight_value.value
+                patient_info.goal1 = goal1.value
+                patient_info.goal2 = goal2.value
+                patient_info.diet = diet.value
+                patient_info.exercise_prescription = exercise_prescription.value
+                patient_info.exercise_time = exercise_time.value
+                patient_info.exercise_frequency = exercise_frequency.value
+                patient_info.exercise_intensity = exercise_intensity.value
+                patient_info.daily_activity = daily_activity.value
+                patient_info.nonsmoker = str(nonsmoker.value)
+                patient_info.smoking_cessation = str(smoking_cessation.value)
+                patient_info.other1 = other1.value
+                patient_info.other2 = other2.value
+                session.commit()
+                page.snack_bar = ft.SnackBar(
+                    ft.Text("データが更新されました"),
+                    action="閉じる",
+                )
+                page.snack_bar.open = True
+        else:
+            patient_info = TreatmentPlan(
+                patient_id_value=int(patient_id_value.value),
+                main_disease_dropdown=main_disease_dropdown.value,
+                creation_count=creation_count_value.value,
+                weight=weight_value.value,
+                goal1=goal1.value,
+                goal2=goal2.value,
+                diet=diet.value,
+                exercise_prescription=exercise_prescription.value,
+                exercise_time=exercise_time.value,
+                exercise_frequency=exercise_frequency.value,
+                exercise_intensity=exercise_intensity.value,
+                daily_activity=daily_activity.value,
+                nonsmoker=str(nonsmoker.value),
+                smoking_cessation=str(smoking_cessation.value),
+                other1=other1.value,
+                other2=other2.value
+            )
+            session.add(patient_info)
+            session.commit()
+            page.snack_bar = ft.SnackBar(
+                ft.Text("データが保存されました"),
+                action="閉じる",
+            )
+            page.snack_bar.open = True
+
         session.close()
-        page.snack_bar = ft.SnackBar(
-            ft.Text("データが保存されました"),
-            action="閉じる",
-        )
-        page.snack_bar.open = True
+        update_history()
         page.update()
 
     def load_data(e):
         session = Session()
         patient_info = session.query(TreatmentPlan).order_by(TreatmentPlan.id.desc()).first()
         if patient_info:
-            main_disease_dropdown.value = patient_info.main_disease
-            creation_count_value.value = patient_info.creation_count
+            patient_id_value.value = patient_info.patient_id_value
+            main_disease_dropdown.value = patient_info.main_disease_dropdown
+            creation_count_value.value = patient_info.creation_count_value
             weight_value.value = patient_info.weight
             goal1.value = patient_info.goal1
             goal2.value = patient_info.goal2
@@ -426,7 +454,89 @@ def main(page: ft.Page):
             )
             page.snack_bar.open = True
         session.close()
+        update_history()
         page.update()
+
+    def filter_data(e):
+        update_history(patient_id_value.value)
+
+    def update_history(filter_patient_id_value=None):
+        data = fetch_data(filter_patient_id_value)
+        history.rows = create_data_rows(data)
+        page.update()
+
+    def on_row_selected(e):
+        global selected_row
+        if e.data == "true":
+            row_index = history.rows.index(e.control)
+            selected_row = history.rows[row_index].data
+
+            session = Session()
+            patient_info = session.query(TreatmentPlan).filter(TreatmentPlan.id == selected_row['ID']).first()
+            if patient_info:
+                patient_id_value.value = patient_info.patient_id
+                main_disease_dropdown.value = patient_info.main_disease
+                creation_count_value.value = patient_info.creation_count
+                weight_value.value = patient_info.weight
+                goal1.value = patient_info.goal1
+                goal2.value = patient_info.goal2
+                diet.value = patient_info.diet
+                exercise_prescription.value = patient_info.exercise_prescription
+                exercise_time.value = patient_info.exercise_time
+                exercise_frequency.value = patient_info.exercise_frequency
+                exercise_intensity.value = patient_info.exercise_intensity
+                daily_activity.value = patient_info.daily_activity
+                nonsmoker.value = patient_info.nonsmoker == 'True'
+                smoking_cessation.value = patient_info.smoking_cessation == 'True'
+                other1.value = patient_info.other1
+                other2.value = patient_info.other2
+            session.close()
+            page.update()
+
+        if e.data == "true":
+            row_index = history.rows.index(e.control)
+            selected_row = history.rows[row_index].data
+
+    def fetch_data(filter_patient_id_value=None):
+        if not filter_patient_id_value:
+            return []
+
+        session = Session()
+        query = session.query(TreatmentPlan.id, TreatmentPlan.patient_id_value, TreatmentPlan.main_disease_dropdown,
+                              TreatmentPlan.creation_count). \
+            order_by(TreatmentPlan.patient_id_value.asc(), TreatmentPlan.id.desc())
+
+        query = query.filter(TreatmentPlan.patient_id_value == filter_patient_id_value)
+
+        patient_info_list = query.all()
+        session.close()
+
+        data = []
+        for info in patient_info_list:
+            data.append({
+                "id": str(info.id),
+                "patient_id_value": info.patient_id_value,
+                "disease": info.main_disease_dropdown,
+                "count": info.creation_count
+            })
+
+        return data
+
+    def create_data_rows(data):
+        rows = []
+        for item in data:
+            row = ft.DataRow(
+                cells=[
+                    ft.DataCell(ft.Text(item["id"])),
+                    ft.DataCell(ft.Text(item["patient_id_value"])),
+                    ft.DataCell(ft.Text(item["disease"])),
+                    ft.DataCell(ft.Text(item["count"])),
+                ],
+                on_select_changed=on_row_selected,
+                data={'ID': item["id"]}  # 行のデータに'ID'カラムを追加
+            )
+            rows.append(row)
+        return rows
 
     patient_id_value = ft.TextField(label="患者ID", on_change=on_patient_id_change, value=initial_patient_id, width=150)
     issue_date_value = ft.TextField(label="発行日", read_only=True, width=150)
@@ -434,8 +544,10 @@ def main(page: ft.Page):
     kana_value = ft.TextField(label="カナ", read_only=True, width=150)
     gender_value = ft.TextField(label="性別", read_only=True, width=150)
     birthdate_value = ft.TextField(label="生年月日", read_only=True, width=150)
+
     main_disease_options = load_main_diseases()
     sheet_name_options = load_sheet_names()
+
     doctor_id_value = ft.TextField(label="医師ID", read_only=True, width=150)
     doctor_name_value = ft.TextField(label="医師名", read_only=True, width=150)
     department_value = ft.TextField(label="診療科", read_only=True, width=150)
@@ -487,7 +599,7 @@ def main(page: ft.Page):
         ft.ElevatedButton("削除", on_click=delete_data),
     ])
 
-    issued_plans_table = ft.DataTable(
+    history = ft.DataTable(
         columns=[
             ft.DataColumn(ft.Text("ID")),
             ft.DataColumn(ft.Text("発行日")),
