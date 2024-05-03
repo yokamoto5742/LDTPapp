@@ -10,6 +10,7 @@ Base = declarative_base()
 
 selected_row = None
 
+
 # PatientInfoモデルの定義
 class PatientInfo(Base):
     __tablename__ = 'patient_info'
@@ -33,8 +34,6 @@ class PatientInfo(Base):
 
 
 Base.metadata.create_all(engine)
-
-
 
 
 def main(page: ft.Page):
@@ -138,8 +137,11 @@ def main(page: ft.Page):
         update_history()
         page.update()
 
-    def update_history():
-        data = fetch_data()
+    def filter_data(e):
+        update_history(karte_id.value)
+
+    def update_history(filter_karte_id=None):
+        data = fetch_data(filter_karte_id)
         history.rows = create_data_rows(data)
         page.update()
 
@@ -175,11 +177,18 @@ def main(page: ft.Page):
             row_index = history.rows.index(e.control)
             selected_row = history.rows[row_index].data
 
-    def fetch_data():
+    def fetch_data(filter_karte_id=None):
+        if not filter_karte_id:
+            return []
+
         session = Session()
-        patient_info_list = session.query(PatientInfo.id, PatientInfo.karte_id, PatientInfo.main_diagnosis,
-                                          PatientInfo.creation_count). \
-            order_by(PatientInfo.karte_id.asc(), PatientInfo.id.desc()).all()
+        query = session.query(PatientInfo.id, PatientInfo.karte_id, PatientInfo.main_diagnosis,
+                              PatientInfo.creation_count). \
+            order_by(PatientInfo.karte_id.asc(), PatientInfo.id.desc())
+
+        query = query.filter(PatientInfo.karte_id == filter_karte_id)
+
+        patient_info_list = query.all()
         session.close()
 
         data = []
@@ -213,7 +222,7 @@ def main(page: ft.Page):
     main_diagnosis = ft.TextField(label="主病名", width=200, value="")
     creation_count = ft.TextField(label="作成回数", width=150, value="")
     target_weight = ft.TextField(label="目標体重", width=150, value="")
-    karte_id = ft.TextField(label="カルテID", width=150, value="")
+    karte_id = ft.TextField(label="カルテID", width=150, value="", on_change=filter_data)
 
     # Goals
     goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=600, value="")
