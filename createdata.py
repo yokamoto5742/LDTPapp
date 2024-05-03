@@ -8,6 +8,7 @@ engine = create_engine('sqlite:///patient_info.db')
 Session = sessionmaker(bind=engine)
 Base = declarative_base()
 
+selected_row = None
 
 # PatientInfoモデルの定義
 class PatientInfo(Base):
@@ -33,7 +34,7 @@ class PatientInfo(Base):
 
 Base.metadata.create_all(engine)
 
-selected_row = None
+
 
 
 def main(page: ft.Page):
@@ -177,7 +178,8 @@ def main(page: ft.Page):
     def fetch_data():
         session = Session()
         patient_info_list = session.query(PatientInfo.id, PatientInfo.karte_id, PatientInfo.main_diagnosis,
-                                          PatientInfo.creation_count).all()
+                                          PatientInfo.creation_count). \
+            order_by(PatientInfo.karte_id.asc(), PatientInfo.id.desc()).all()
         session.close()
 
         data = []
@@ -258,7 +260,7 @@ def main(page: ft.Page):
         ],
         rows=rows,
         width=1200,
-        height=400,
+        height=200,
     )
 
     buttons = ft.Row([
@@ -267,6 +269,14 @@ def main(page: ft.Page):
         ft.ElevatedButton("読込", on_click=load_data),
         ft.ElevatedButton("削除", on_click=delete_data),
     ])
+
+    # Layout
+    history_container = ft.Column(
+        controls=[history],
+        width=1200,
+        height=200,  # 高さを調整
+        scroll=ft.ScrollMode.AUTO,
+    )
 
     # Layout
     layout = ft.Column([
@@ -279,7 +289,7 @@ def main(page: ft.Page):
         goal2,
         guidance_items,
         buttons,
-        history
+        history_container  # ft.Columnで囲む
     ])
 
     page.add(layout)
