@@ -212,6 +212,7 @@ def main(page: ft.Page):
         patient_id = patient_id_value.value.strip()
         if patient_id:
             load_patient_info(int(patient_id))
+        update_history(patient_id)
 
     def save_data(e):
         global selected_row
@@ -267,6 +268,12 @@ def main(page: ft.Page):
                 action="閉じる",
             )
             page.snack_bar.open = True
+
+        # 入力されている値をクリアする
+        for field in [patient_id, main_diagnosis, creation_count, target_weight, goal1, goal2, diet,
+                      exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
+                      daily_activity, nonsmoker, smoking_cessation, other1, other2]:
+            field.value = None if isinstance(field.value, (int, float)) else ""
 
         session.close()
         update_history()
