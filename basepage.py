@@ -69,16 +69,6 @@ def load_patient_data():
     return pd.read_csv(r"C:\InnoKarte\pat.csv", encoding="shift_jis", header=None, parse_dates=date_columns)
 
 
-
-
-
-def get_issued_plans():
-    session = Session()
-    issued_plans = session.query(PatientInfo).all()
-    session.close()
-    return issued_plans
-
-
 def load_main_diseases():
     session = Session()
     main_diseases = session.query(MainDisease).all()
@@ -163,25 +153,56 @@ def main(page: ft.Page):
         workbook = load_workbook(r"C:\Shinseikai\LDTPapp\生活習慣病療養計画書.xlsm", keep_vba=True)
         common_sheet = workbook["共通情報"]
 
-        patient_info = df_patients.loc[df_patients.iloc[:, 2] == patient_id]
+        patient_info_csv = df_patients.loc[df_patients.iloc[:, 2] == patient_id]
 
-        if patient_info.empty:
+        if patient_info_csv.empty:
             session.close()
             raise ValueError(f"患者ID {patient_id} が見つかりません。")
 
-        patient_info = patient_info.iloc[0]
+        patient_info = patient_info_csv.iloc[0]
+
+        # データベースに保存
+        treatment_plan = PatientInfo(
+            patient_id=patient_id,
+            issue_date=datetime.now().date(),
+            doctor_id=doctor_id,
+            doctor_name=doctor_name,
+            department=department,
+            # file_path=file_path,
+            main_diagnosis=main_diagnosis.value,
+            sheet_name=sheet_name_dropdown.value,
+            creation_count=creation_count.value,
+            target_weight=target_weight.value,
+            goal1=goal1.value,
+            goal2=goal2.value,
+            diet=diet.value,
+            exercise_prescription=exercise_prescription.value,
+            exercise_time=exercise_time.value,
+            exercise_frequency=exercise_frequency.value,
+            exercise_intensity=exercise_intensity.value,
+            daily_activity=daily_activity.value,
+            nonsmoker=str(nonsmoker.value),
+            smoking_cessation=str(smoking_cessation.value),
+            other1=other1.value,
+            other2=other2.value
+        )
+        session.add(treatment_plan)
+        session.commit()
 
         # 共通情報シートに必要な情報を設定
+        common_sheet["B1"] = datetime.now().strftime("%Y/%m/%d")
         common_sheet["B2"] = patient_info.iloc[2]
         common_sheet["B3"] = patient_info.iloc[3]
         common_sheet["B4"] = patient_info.iloc[4]
         common_sheet["B5"] = "男性" if patient_info.iloc[5] == 1 else "女性"
         common_sheet["B6"] = patient_info.iloc[6]
-        common_sheet["B8"] = doctor_name
-        common_sheet["B1"] = datetime.now().strftime("%Y/%m/%d")
         common_sheet["B7"] = doctor_id
-        common_sheet["B13"] = patient_info.iloc[10]
+        common_sheet["B8"] = doctor_name
         common_sheet["B10"] = department
+        common_sheet["B11"] = creation_count.value
+        common_sheet["B12"] = main_diagnosis.value
+        common_sheet["B13"] = target_weight.value
+        common_sheet["B14"] = sheet_name_dropdown.value
 
         new_file_name = f"生活習慣病療養計画書_{current_datetime}.xlsm"
         file_path = r"C:\Shinseikai\LDTPapp" + "\\" + new_file_name
@@ -191,51 +212,9 @@ def main(page: ft.Page):
         wb.save(file_path)
         os.startfile(file_path)
 
-        treatment_plan = PatientInfo(
-            patient_id=patient_id,
-            issue_date=datetime.now().date(),
-            doctor_id=doctor_id,
-            doctor_name=doctor_name,
-            department=department,
-            file_path=file_path,
-
-            main_diagnosis = main_diagnosis.value,
-            sheet_name = sheet_name_dropdown.value,
-            creation_count = creation_count.value,
-            target_weight = target_weight.value,
-            goal1 = goal1.value,
-            goal2 = goal2.value,
-            diet = diet.value,
-            exercise_prescription = exercise_prescription.value,
-            exercise_time = exercise_time.value,
-            exercise_frequency = exercise_frequency.value,
-            exercise_intensity = exercise_intensity.value,
-            daily_activity = daily_activity.value,
-            nonsmoker = str(nonsmoker.value),
-            smoking_cessation = str(smoking_cessation.value),
-            other1 = other1.value,
-            other2 = other2.value
-            )
-
-        session.add(treatment_plan)
-        session.commit()
-        page.snack_bar = ft.SnackBar(
-            ft.Text("データが保存されました"),
-            action="閉じる",
-        )
-        page.snack_bar.open = True
-
-        # 入力されている値をクリアする
-        # for field in [patient_id, main_diagnosis, creation_count, target_weight, goal1, goal2, diet,
-        #               exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
-        #               daily_activity, nonsmoker, smoking_cessation, other1, other2]:
-        #     field.value = None if isinstance(field.value, (int, float)) else ""
-
         session.close()
         update_history()
         page.update()
-        session.close()
-
 
     def create_new_plan(e):
         patient_id = patient_id_value.value.strip()
@@ -248,12 +227,7 @@ def main(page: ft.Page):
             return
         department = department_value.value
 
-        create_treatment_plan(int(patient_id), int(doctor_id), doctor_name, department,df_patients)
-        page.snack_bar = ft.SnackBar(content=ft.Text("計画書ファイルが作成されました"))
-        page.update()
-
-
-
+        create_treatment_plan(int(patient_id), int(doctor_id), doctor_name, department, df_patients)
 
     def on_patient_id_change(e):
         patient_id = patient_id_value.value.strip()
@@ -450,7 +424,8 @@ def main(page: ft.Page):
 
     # Patient Information
     patient_id_value = ft.TextField(label="患者ID", on_change=on_patient_id_change, value=initial_patient_id, width=150)
-    patient_id = ft.TextField(label="カルテID", width=150, value="", on_change=filter_data)  # patient_id_valueと区別するために変数名を変更
+    patient_id = ft.TextField(label="カルテID", width=150, value="",
+                              on_change=filter_data)  # patient_id_valueと区別するために変数名を変更
     issue_date_value = ft.TextField(label="発行日", read_only=True, width=150)
     name_value = ft.TextField(label="氏名", read_only=True, width=150)
     kana_value = ft.TextField(label="カナ", read_only=True, width=150)
