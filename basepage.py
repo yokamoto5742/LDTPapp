@@ -31,7 +31,7 @@ class PatientInfo(Base):
     department = Column(String)
     main_diagnosis = Column(String)
     creation_count = Column(Integer)
-    target_weight = Column(String)
+    target_weight = Column(Float)
     sheet_name = Column(String)
     file_path = Column(String)
     goal1 = Column(String)
@@ -134,7 +134,7 @@ def load_main_diseases():
     session = Session()
     main_diseases = session.query(MainDisease).all()
     session.close()
-    return [ft.dropdown.Option(disease.name) for disease in main_diseases]
+    return [ft.dropdown.Option(str(disease.name)) for disease in main_diseases]
 
 
 def load_sheet_names():
@@ -218,10 +218,11 @@ def main(page: ft.Page):
         global selected_row
         session = Session()
         if selected_row is not None:
-            patient_info = session.query(PatientInfo).filter(PatientInfo.id == selected_row['ID']).first()
+            patient_info = session.query(PatientInfo).filter(PatientInfo.id == selected_row['id']).first()
             if patient_info:
                 patient_info.patient_id = int(patient_id.value)
                 patient_info.main_diagnosis = main_diagnosis.value
+                patient_info.sheet_name = sheet_name_dropdown.value
                 patient_info.creation_count = creation_count.value
                 patient_info.target_weight = target_weight.value
                 patient_info.goal1 = goal1.value
@@ -244,10 +245,12 @@ def main(page: ft.Page):
                 page.snack_bar.open = True
         else:
             patient_info = PatientInfo(
-                patient_id=int(patient_id.value),
+                patient_id=patient_id.value,
                 main_diagnosis=main_diagnosis.value,
+                sheet_name=sheet_name_dropdown.value,
                 creation_count=creation_count.value,
                 target_weight=target_weight.value,
+
                 goal1=goal1.value,
                 goal2=goal2.value,
                 diet=diet.value,
@@ -332,7 +335,7 @@ def main(page: ft.Page):
             selected_row = history.rows[row_index].data
 
             session = Session()
-            patient_info = session.query(PatientInfo).filter(PatientInfo.id == selected_row['ID']).first()
+            patient_info = session.query(PatientInfo).filter(PatientInfo.id == selected_row['id']).first()
             if patient_info:
                 patient_id.value = patient_info.patient_id
                 main_diagnosis.value = patient_info.main_diagnosis
@@ -393,36 +396,34 @@ def main(page: ft.Page):
                     ft.DataCell(ft.Text(item["count"])),
                 ],
                 on_select_changed=on_row_selected,
-                data={'ID': item["id"]}  # 行のデータに'ID'カラムを追加
+                data=item
             )
             rows.append(row)
         return rows
 
     # Patient Information
     patient_id_value = ft.TextField(label="患者ID", on_change=on_patient_id_change, value=initial_patient_id, width=150)
+    patient_id = ft.TextField(label="カルテID", width=150, value="", on_change=filter_data)  # patient_id_valueと区別するために変数名を変更
     issue_date_value = ft.TextField(label="発行日", read_only=True, width=150)
     name_value = ft.TextField(label="氏名", read_only=True, width=150)
     kana_value = ft.TextField(label="カナ", read_only=True, width=150)
     gender_value = ft.TextField(label="性別", read_only=True, width=150)
     birthdate_value = ft.TextField(label="生年月日", read_only=True, width=150)
-    main_disease_options = load_main_diseases()
-    sheet_name_options = load_sheet_names()
     doctor_id_value = ft.TextField(label="医師ID", read_only=True, width=150)
     doctor_name_value = ft.TextField(label="医師名", read_only=True, width=150)
     department_value = ft.TextField(label="診療科", read_only=True, width=150)
-    creation_count_value = ft.TextField(label="作成回数", width=150)
-    main_disease_dropdown = ft.Dropdown(label="主病名", options=main_disease_options, width=150)
-    sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=150)
-    weight_value = ft.TextField(label="目標体重", width=150)
 
-    main_diagnosis = ft.TextField(label="主病名", width=200, value="")
+    main_disease_options = load_main_diseases()
+    # main_disease_dropdown = ft.Dropdown(label="主病名1", options=main_disease_options, width=150, value="")
+    sheet_name_options = load_sheet_names()
+    sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=150, value="")
+
+    main_diagnosis = ft.Dropdown(label="主病名2", options=main_disease_options, width=150, value="")
     creation_count = ft.TextField(label="作成回数", width=150, value="")
     target_weight = ft.TextField(label="目標体重", width=150, value="")
-    patient_id = ft.TextField(label="カルテID", width=150, value="", on_change=filter_data)
 
-    # Goals
-    goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=600, value="")
-    goal2 = ft.TextField(label="②行動目標：患者と相談した目標", width=600, value="")
+    goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=600, value="達成目標を入力してください")
+    goal2 = ft.TextField(label="②行動目標：患者と相談した目標", width=600, value="行動目標を入力してください")
 
     # Guidance Items
     diet = ft.TextField(
@@ -437,7 +438,7 @@ def main(page: ft.Page):
     exercise_frequency = ft.TextField(label="頻度", value="ほぼ毎日", width=200)
     exercise_intensity = ft.TextField(label="強度", value="少し汗をかく程度", width=200)
     daily_activity = ft.TextField(label="日常生活の活動量増加", value="1日8000歩以上", width=400)
-    nonsmoker = ft.Checkbox(label="非喫煙者である")
+    nonsmoker = ft.Checkbox(label="非喫煙者である", value=True)
     smoking_cessation = ft.Checkbox(label="禁煙の実施方法等を指示")
     other1 = ft.TextField(label="その他1", value="睡眠の確保１日７時間", width=300)
     other2 = ft.TextField(label="その他2", value="家庭での毎日の歩数の測定", width=300)
@@ -459,7 +460,7 @@ def main(page: ft.Page):
     history = ft.DataTable(
         columns=[
             ft.DataColumn(ft.Text("ID")),
-            ft.DataColumn(ft.Text("カルテID")),
+            ft.DataColumn(ft.Text("患者ID")),
             ft.DataColumn(ft.Text("主病名")),
             ft.DataColumn(ft.Text("作成回数")),
         ],
@@ -485,17 +486,39 @@ def main(page: ft.Page):
 
     # Layout
     layout = ft.Column([
-        ft.Row([
-            patient_id,
-            patient_id_value,
-            main_diagnosis,
-            creation_count, ft.Text("回目", size=14), target_weight, ft.Text("kg", size=14)
-        ]),
+        ft.Row(
+            controls=[
+                patient_id,
+                patient_id_value,
+                issue_date_value,
+                name_value,
+                kana_value,
+                gender_value,
+                birthdate_value
+            ]
+        ),
+        ft.Row(
+            controls=[
+                doctor_id_value,
+                doctor_name_value,
+                department_value,
+            ]
+        ),
+        ft.Row(
+            controls=[
+                main_diagnosis,
+                sheet_name_dropdown,
+                creation_count,
+                ft.Text("回目", size=14),
+                target_weight,
+                ft.Text("kg", size=14),
+            ]
+        ),
         goal1,
         goal2,
         guidance_items,
         buttons,
-        history_container  # ft.Columnで囲む
+        history_container
     ])
 
     page.add(layout)
