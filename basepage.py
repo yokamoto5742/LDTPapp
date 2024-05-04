@@ -69,58 +69,7 @@ def load_patient_data():
     return pd.read_csv(r"C:\InnoKarte\pat.csv", encoding="shift_jis", header=None, parse_dates=date_columns)
 
 
-def create_treatment_plan(patient_id, doctor_id, doctor_name, department, creation_count, main_disease, sheet_name,
-                          weight,
-                          df_patients):
-    session = Session()
-    current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
-    workbook = load_workbook(r"C:\Shinseikai\LDTPapp\生活習慣病療養計画書.xlsm", keep_vba=True)
-    common_sheet = workbook["共通情報"]
 
-    patient_info = df_patients.loc[df_patients.iloc[:, 2] == patient_id]
-
-    if patient_info.empty:
-        session.close()
-        raise ValueError(f"患者ID {patient_id} が見つかりません。")
-
-    patient_info = patient_info.iloc[0]
-
-    # 共通情報シートに必要な情報を設定
-    common_sheet["B2"] = patient_info.iloc[2]
-    common_sheet["B3"] = patient_info.iloc[3]
-    common_sheet["B4"] = patient_info.iloc[4]
-    common_sheet["B5"] = "男性" if patient_info.iloc[5] == 1 else "女性"
-    common_sheet["B6"] = patient_info.iloc[6]
-    common_sheet["B8"] = doctor_name
-    common_sheet["B1"] = datetime.now().strftime("%Y/%m/%d")
-    common_sheet["B7"] = doctor_id
-    common_sheet["B13"] = patient_info.iloc[10]
-    common_sheet["B10"] = department
-    common_sheet["B11"] = creation_count
-    common_sheet["B12"] = main_disease
-    common_sheet["B14"] = sheet_name
-    common_sheet["b13"] = weight
-
-    new_file_name = f"生活習慣病療養計画書_{current_datetime}.xlsm"
-    file_path = r"C:\Shinseikai\LDTPapp" + "\\" + new_file_name
-    workbook.save(file_path)
-    wb = load_workbook(file_path, read_only=False, keep_vba=True)
-    wb.active = wb[sheet_name]
-    wb.save(file_path)
-    os.startfile(file_path)
-
-    treatment_plan = PatientInfo(
-        patient_id=patient_id,
-        issue_date=datetime.now().date(),
-        doctor_id=doctor_id,
-        department=department,
-        creation_count=creation_count,
-        sheet_name=sheet_name,
-        file_path=file_path
-    )
-    session.add(treatment_plan)
-    session.commit()
-    session.close()
 
 
 def get_issued_plans():
@@ -207,6 +156,104 @@ def main(page: ft.Page):
             doctor_name_value.value = ""
             department_value.value = ""
         page.update()
+
+    def create_treatment_plan(patient_id, doctor_id, doctor_name, department, df_patients):
+        session = Session()
+        current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
+        workbook = load_workbook(r"C:\Shinseikai\LDTPapp\生活習慣病療養計画書.xlsm", keep_vba=True)
+        common_sheet = workbook["共通情報"]
+
+        patient_info = df_patients.loc[df_patients.iloc[:, 2] == patient_id]
+
+        if patient_info.empty:
+            session.close()
+            raise ValueError(f"患者ID {patient_id} が見つかりません。")
+
+        patient_info = patient_info.iloc[0]
+
+        # 共通情報シートに必要な情報を設定
+        common_sheet["B2"] = patient_info.iloc[2]
+        common_sheet["B3"] = patient_info.iloc[3]
+        common_sheet["B4"] = patient_info.iloc[4]
+        common_sheet["B5"] = "男性" if patient_info.iloc[5] == 1 else "女性"
+        common_sheet["B6"] = patient_info.iloc[6]
+        common_sheet["B8"] = doctor_name
+        common_sheet["B1"] = datetime.now().strftime("%Y/%m/%d")
+        common_sheet["B7"] = doctor_id
+        common_sheet["B13"] = patient_info.iloc[10]
+        common_sheet["B10"] = department
+
+        new_file_name = f"生活習慣病療養計画書_{current_datetime}.xlsm"
+        file_path = r"C:\Shinseikai\LDTPapp" + "\\" + new_file_name
+        workbook.save(file_path)
+        wb = load_workbook(file_path, read_only=False, keep_vba=True)
+        wb.active = wb["共通情報"]
+        wb.save(file_path)
+        os.startfile(file_path)
+
+        treatment_plan = PatientInfo(
+            patient_id=patient_id,
+            issue_date=datetime.now().date(),
+            doctor_id=doctor_id,
+            doctor_name=doctor_name,
+            department=department,
+            file_path=file_path,
+
+            main_diagnosis = main_diagnosis.value,
+            sheet_name = sheet_name_dropdown.value,
+            creation_count = creation_count.value,
+            target_weight = target_weight.value,
+            goal1 = goal1.value,
+            goal2 = goal2.value,
+            diet = diet.value,
+            exercise_prescription = exercise_prescription.value,
+            exercise_time = exercise_time.value,
+            exercise_frequency = exercise_frequency.value,
+            exercise_intensity = exercise_intensity.value,
+            daily_activity = daily_activity.value,
+            nonsmoker = str(nonsmoker.value),
+            smoking_cessation = str(smoking_cessation.value),
+            other1 = other1.value,
+            other2 = other2.value
+            )
+
+        session.add(treatment_plan)
+        session.commit()
+        page.snack_bar = ft.SnackBar(
+            ft.Text("データが保存されました"),
+            action="閉じる",
+        )
+        page.snack_bar.open = True
+
+        # 入力されている値をクリアする
+        # for field in [patient_id, main_diagnosis, creation_count, target_weight, goal1, goal2, diet,
+        #               exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
+        #               daily_activity, nonsmoker, smoking_cessation, other1, other2]:
+        #     field.value = None if isinstance(field.value, (int, float)) else ""
+
+        session.close()
+        update_history()
+        page.update()
+        session.close()
+
+
+    def create_new_plan(e):
+        patient_id = patient_id_value.value.strip()
+        doctor_id = doctor_id_value.value.strip()
+        doctor_name = doctor_name_value.value
+        if not patient_id or not doctor_id:
+            page.snack_bar = ft.SnackBar(content=ft.Text("患者IDと医師IDは必須です"))
+            page.snack_bar.open = True
+            page.update()
+            return
+        department = department_value.value
+
+        create_treatment_plan(int(patient_id), int(doctor_id), doctor_name, department,df_patients)
+        page.snack_bar = ft.SnackBar(content=ft.Text("計画書ファイルが作成されました"))
+        page.update()
+
+
+
 
     def on_patient_id_change(e):
         patient_id = patient_id_value.value.strip()
@@ -472,6 +519,7 @@ def main(page: ft.Page):
     buttons = ft.Row([
         ft.ElevatedButton("戻る", on_click=lambda _: page.go("/")),
         ft.ElevatedButton("保存", on_click=save_data),
+        ft.ElevatedButton("新規発行", on_click=create_new_plan),
         ft.ElevatedButton("読込", on_click=load_data),
         ft.ElevatedButton("削除", on_click=delete_data),
     ])
