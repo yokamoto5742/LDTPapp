@@ -57,6 +57,7 @@ class MainDisease(Base):
 class SheetName(Base):
     __tablename__ = "sheet_names"
     id = Column(Integer, primary_key=True)
+    main_disease_id = Column(Integer)
     name = Column(String)
 
 
@@ -76,9 +77,9 @@ def load_main_diseases():
     return [ft.dropdown.Option(str(disease.name)) for disease in main_diseases]
 
 
-def load_sheet_names():
+def load_sheet_names(main_disease):
     session = Session()
-    sheet_names = session.query(SheetName).all()
+    sheet_names = session.query(SheetName).filter(SheetName.main_disease_id == main_disease).all()
     session.close()
     return [ft.dropdown.Option(sheet.name) for sheet in sheet_names]
 
@@ -97,23 +98,46 @@ def main(page: ft.Page):
     session = Session()
     if session.query(MainDisease).count() == 0:
         main_diseases = [
-            MainDisease(name="高血圧"),
-            MainDisease(name="脂質異常症"),
-            MainDisease(name="糖尿病")
+            MainDisease(id=1, name="高血圧"),
+            MainDisease(id=2, name="脂質異常症"),
+            MainDisease(id=3, name="糖尿病")
         ]
         session.add_all(main_diseases)
         session.commit()
 
     if session.query(SheetName).count() == 0:
         sheet_names = [
-            SheetName(name="DM01"),
-            SheetName(name="DM02"),
-            SheetName(name="DM03")
+            SheetName(main_disease_id=1, name="血圧130-80以下"),
+            SheetName(main_disease_id=1, name="血圧140-90以下"),
+            SheetName(main_disease_id=2, name="LDL120以下"),
+            SheetName(main_disease_id=2, name="LDL100以下"),
+            SheetName(main_disease_id=2, name="LDL70以下"),
+            SheetName(main_disease_id=3, name="HbAc８％"),
+            SheetName(main_disease_id=3, name="HbAc７％"),
+            SheetName(main_disease_id=3, name="HbAc６％"),
         ]
         session.add_all(sheet_names)
         session.commit()
 
     session.close()
+
+    def on_main_diagnosis_change(e):
+        selected_main_disease = main_diagnosis.value
+        if selected_main_disease:  # 空文字列のチェックを追加
+            session = Session()
+            main_disease = session.query(MainDisease).filter(MainDisease.name == selected_main_disease).first()
+            session.close()
+            if main_disease:
+                sheet_name_options = load_sheet_names(main_disease.id)
+                sheet_name_dropdown.options = sheet_name_options
+                sheet_name_dropdown.value = sheet_name_options[0].key if sheet_name_options else None
+            else:
+                sheet_name_dropdown.options = []
+                sheet_name_dropdown.value = None
+        else:
+            sheet_name_dropdown.options = []
+            sheet_name_dropdown.value = None
+        page.update()
 
     df_patients = load_patient_data()
     print(df_patients)
@@ -424,8 +448,8 @@ def main(page: ft.Page):
 
     # Patient Information
     patient_id_value = ft.TextField(label="患者ID", on_change=on_patient_id_change, value=initial_patient_id, width=150)
-    patient_id = ft.TextField(label="カルテID", width=150, value="",
-                              on_change=filter_data)  # patient_id_valueと区別するために変数名を変更
+    patient_id = ft.TextField(label="カルテID", width=150, on_change=on_patient_id_change,
+                              value=initial_patient_id)  # patient_id_valueと区別するために変数名を変更
     issue_date_value = ft.TextField(label="発行日", read_only=True, width=150)
     name_value = ft.TextField(label="氏名", read_only=True, width=150)
     kana_value = ft.TextField(label="カナ", read_only=True, width=150)
@@ -436,11 +460,10 @@ def main(page: ft.Page):
     department_value = ft.TextField(label="診療科", read_only=True, width=150)
 
     main_disease_options = load_main_diseases()
-    # main_disease_dropdown = ft.Dropdown(label="主病名1", options=main_disease_options, width=150, value="")
-    sheet_name_options = load_sheet_names()
+    main_diagnosis = ft.Dropdown(label="主病名2", options=main_disease_options, width=150, value="",
+                                 on_change=on_main_diagnosis_change)
+    sheet_name_options = load_sheet_names(main_diagnosis.value)
     sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=150, value="")
-
-    main_diagnosis = ft.Dropdown(label="主病名2", options=main_disease_options, width=150, value="")
     creation_count = ft.TextField(label="作成回数", width=150, value="")
     target_weight = ft.TextField(label="目標体重", width=150, value="")
 
@@ -511,7 +534,6 @@ def main(page: ft.Page):
     layout = ft.Column([
         ft.Row(
             controls=[
-                patient_id,
                 patient_id_value,
                 issue_date_value,
                 name_value,
@@ -546,6 +568,12 @@ def main(page: ft.Page):
 
     page.add(layout)
     update_history()
+
+    if initial_patient_id:
+        load_patient_info(int(initial_patient_id))
+        patient_id.value = initial_patient_id
+        filter_data(None)
+        update_history(patient_id.value)
 
 
 ft.app(target=main)
