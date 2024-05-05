@@ -65,6 +65,58 @@ class SheetName(Base):
 Base.metadata.create_all(engine)
 
 
+class TemplateEditor(ft.Control):
+    def build(self):
+        self.main_disease_dropdown = ft.Dropdown(label="主病名", options=load_main_diseases(), width=150)
+        self.sheet_name_dropdown = ft.Dropdown(label="シート名", width=150)
+        self.goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=600)
+        self.goal2 = ft.TextField(label="②行動目標：患者と相談した目標", width=600)
+        self.diet = ft.TextField(label="食事", multiline=True, width=400)
+        self.exercise_prescription = ft.TextField(label="運動処方", width=400)
+        self.exercise_time = ft.TextField(label="時間", width=200)
+        self.exercise_frequency = ft.TextField(label="頻度", width=200)
+        self.exercise_intensity = ft.TextField(label="強度", width=200)
+        self.daily_activity = ft.TextField(label="日常生活の活動量増加", width=400)
+        self.nonsmoker = ft.Checkbox(label="非喫煙者である")
+        self.smoking_cessation = ft.Checkbox(label="禁煙の実施方法等を指示")
+        self.other1 = ft.TextField(label="その他1", width=300)
+        self.other2 = ft.TextField(label="その他2", width=300)
+
+        self.save_button = ft.ElevatedButton("保存", on_click=self.save_template)
+        self.cancel_button = ft.ElevatedButton("キャンセル", on_click=self.cancel_edit)
+
+        return ft.Column([
+            ft.Row([self.main_disease_dropdown, self.sheet_name_dropdown]),
+            self.goal1,
+            self.goal2,
+            self.diet,
+            ft.Row([self.exercise_prescription, self.exercise_time, self.exercise_frequency, self.exercise_intensity]),
+            self.daily_activity,
+            ft.Row([self.nonsmoker, self.smoking_cessation]),
+            ft.Row([self.other1, self.other2]),
+            ft.Row([self.save_button, self.cancel_button]),
+        ])
+
+    def save_template(self, e):
+        # テンプレートを保存する処理を実装
+        pass
+
+    def cancel_edit(self, e):
+        # テンプレート編集をキャンセルする処理を実装
+        pass
+
+
+class TemplateManager:
+    def __init__(self):
+        self.templates = {}
+
+    def add_template(self, main_disease, sheet_name, template_data):
+        self.templates[(main_disease, sheet_name)] = template_data
+
+    def get_template(self, main_disease, sheet_name):
+        return self.templates.get((main_disease, sheet_name))
+
+
 def load_patient_data():
     date_columns = [0, 6]
     return pd.read_csv(r"C:\InnoKarte\pat.csv", encoding="shift_jis", header=None, parse_dates=date_columns)
@@ -123,7 +175,8 @@ def main(page: ft.Page):
 
     def on_main_diagnosis_change(e):
         selected_main_disease = main_diagnosis.value
-        if selected_main_disease:  # 空文字列のチェックを追加
+        apply_template()
+        if selected_main_disease:
             session = Session()
             main_disease = session.query(MainDisease).filter(MainDisease.name == selected_main_disease).first()
             session.close()
@@ -131,12 +184,17 @@ def main(page: ft.Page):
                 sheet_name_options = load_sheet_names(main_disease.id)
                 sheet_name_dropdown.options = sheet_name_options
                 sheet_name_dropdown.value = sheet_name_options[0].key if sheet_name_options else None
+                apply_template()
             else:
                 sheet_name_dropdown.options = []
                 sheet_name_dropdown.value = None
         else:
             sheet_name_dropdown.options = []
             sheet_name_dropdown.value = None
+        page.update()
+
+    def on_sheet_name_change(e):
+        apply_template()
         page.update()
 
     df_patients = load_patient_data()
@@ -446,6 +504,49 @@ def main(page: ft.Page):
             rows.append(row)
         return rows
 
+    template_editor = TemplateEditor()
+
+    def edit_template(e):
+        dialog = ft.AlertDialog(
+            title=ft.Text("テンプレート編集"),
+            content=template_editor.build(),
+            actions=[],
+        )
+        page.dialog = dialog
+        dialog.open = True
+        page.update()
+
+    def apply_template(e=None):
+        template_data = template_manager.get_template(main_diagnosis.value, sheet_name_dropdown.value)
+        if template_data:
+            goal1.value = template_data["goal1"]
+            goal2.value = template_data["goal2"]
+            diet.value = template_data["diet"]
+            exercise_prescription.value = template_data["exercise_prescription"]
+            exercise_time.value = template_data["exercise_time"]
+            exercise_frequency.value = template_data["exercise_frequency"]
+            exercise_intensity.value = template_data["exercise_intensity"]
+            daily_activity.value = template_data["daily_activity"]
+            nonsmoker.value = template_data["nonsmoker"]
+            other1.value = template_data["other1"]
+            other2.value = template_data["other2"]
+
+    template_manager = TemplateManager()
+
+    template_manager.add_template("糖尿病", "HbAc７％", {
+        "goal1": "HbA1ｃ７％を目標体重を当初の－３Kgとする",
+        "goal2": "１日８０００歩以上の歩行間食の制限糖質の制限",
+        "diet": "・食事量を適正にする。\n・食物繊維の摂取量を増やす\n・ゆっくり食べる\n・間食を減らす",
+        "exercise_prescription": "ウォーキング",
+        "exercise_time": "3分以上",
+        "exercise_frequency": "ほぼ毎日",
+        "exercise_intensity": "少し汗をかく程度",
+        "daily_activity": "1日8000歩以上",
+        "nonsmoker": True,
+        "other1": "睡眠の確保１日７時間",
+        "other2": "家庭での毎日の歩数の測定",
+    })
+
     # Patient Information
     patient_id_value = ft.TextField(label="患者ID", on_change=on_patient_id_change, value=initial_patient_id, width=150)
     patient_id = ft.TextField(label="カルテID", width=150, on_change=on_patient_id_change,
@@ -463,7 +564,8 @@ def main(page: ft.Page):
     main_diagnosis = ft.Dropdown(label="主病名2", options=main_disease_options, width=150, value="",
                                  on_change=on_main_diagnosis_change)
     sheet_name_options = load_sheet_names(main_diagnosis.value)
-    sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=150, value="")
+    sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=150,
+                                      on_change=on_sheet_name_change)
     creation_count = ft.TextField(label="作成回数", width=150, value="")
     target_weight = ft.TextField(label="目標体重", width=150, value="")
 
@@ -520,6 +622,8 @@ def main(page: ft.Page):
         ft.ElevatedButton("新規発行", on_click=create_new_plan),
         ft.ElevatedButton("読込", on_click=load_data),
         ft.ElevatedButton("削除", on_click=delete_data),
+        ft.ElevatedButton("テンプレート", on_click=lambda _: apply_template()),
+        ft.ElevatedButton("テンプレート編集", on_click=edit_template),
     ])
 
     # Layout
