@@ -25,6 +25,10 @@ class PatientInfo(Base):
     __tablename__ = 'patient_info'
     id = Column(Integer, primary_key=True)
     patient_id = Column(Integer)
+    patient_name = Column(String)
+    kana = Column(String)
+    gender = Column(String)
+    birthdate = Column(Date)
     issue_date = Column(Date)
     doctor_id = Column(Integer)
     doctor_name = Column(String)
@@ -33,7 +37,6 @@ class PatientInfo(Base):
     creation_count = Column(Integer)
     target_weight = Column(Float)
     sheet_name = Column(String)
-    file_path = Column(String)
     goal1 = Column(String)
     goal2 = Column(String)
     diet = Column(String)
@@ -46,6 +49,7 @@ class PatientInfo(Base):
     smoking_cessation = Column(String)
     other1 = Column(String)
     other2 = Column(String)
+
 
 
 class MainDisease(Base):
@@ -246,11 +250,14 @@ def main(page: ft.Page):
         # データベースに保存
         treatment_plan = PatientInfo(
             patient_id=patient_id,
+            patient_name=patient_info.iloc[3],
+            kana=patient_info.iloc[4],
+            gender="男性" if patient_info.iloc[5] == 1 else "女性",
+            birthdate=patient_info.iloc[6],
             issue_date=datetime.now().date(),
             doctor_id=doctor_id,
             doctor_name=doctor_name,
             department=department,
-            # file_path=file_path,
             main_diagnosis=main_diagnosis.value,
             sheet_name=sheet_name_dropdown.value,
             creation_count=creation_count.value,
@@ -324,6 +331,14 @@ def main(page: ft.Page):
             patient_info = session.query(PatientInfo).filter(PatientInfo.id == selected_row['id']).first()
             if patient_info:
                 patient_info.patient_id = int(patient_id.value)
+                patient_info.patient_name = name_value.value
+                patient_info.kana = kana_value.value
+                patient_info.gender = gender_value.value
+                patient_info.birthdate = datetime.strptime(birthdate_value.value, "%Y/%m/%d").date()
+                patient_info.issue_date = datetime.strptime(issue_date_value.value, "%Y/%m/%d").date()
+                patient_info.doctor_id = int(doctor_id_value.value)
+                patient_info.doctor_name = doctor_name_value.value
+                patient_info.department = department_value.value
                 patient_info.main_diagnosis = main_diagnosis.value
                 patient_info.sheet_name = sheet_name_dropdown.value
                 patient_info.creation_count = creation_count.value
@@ -343,17 +358,19 @@ def main(page: ft.Page):
                 session.commit()
                 page.snack_bar = ft.SnackBar(
                     ft.Text("データが更新されました"),
-                    action="閉じる",
                 )
-                page.snack_bar.open = True
+
         else:
             patient_info = PatientInfo(
                 patient_id=patient_id.value,
+                patient_name=name_value.value,
+                kana=kana_value.value,
+                gender=gender_value.value,
+                birthdate=datetime.strptime(birthdate_value.value, "%Y/%m/%d").date(),
                 main_diagnosis=main_diagnosis.value,
                 sheet_name=sheet_name_dropdown.value,
                 creation_count=creation_count.value,
                 target_weight=target_weight.value,
-
                 goal1=goal1.value,
                 goal2=goal2.value,
                 diet=diet.value,
@@ -371,9 +388,7 @@ def main(page: ft.Page):
             session.commit()
             page.snack_bar = ft.SnackBar(
                 ft.Text("データが保存されました"),
-                action="閉じる",
             )
-            page.snack_bar.open = True
 
         # 入力されている値をクリアする
         for field in [patient_id, main_diagnosis, creation_count, target_weight, goal1, goal2, diet,
@@ -676,7 +691,7 @@ def main(page: ft.Page):
     if initial_patient_id:
         load_patient_info(int(initial_patient_id))
         patient_id.value = initial_patient_id
-        filter_data(None)
+        filter_data(patient_id.value)
         update_history(patient_id.value)
 
 
