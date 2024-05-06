@@ -279,19 +279,31 @@ def main(page: ft.Page):
         session.commit()
 
         # 共通情報シートに必要な情報を設定
-        common_sheet["B1"] = datetime.now().strftime("%Y/%m/%d")
         common_sheet["B2"] = patient_info.iloc[2]
         common_sheet["B3"] = patient_info.iloc[3]
         common_sheet["B4"] = patient_info.iloc[4]
         common_sheet["B5"] = "男性" if patient_info.iloc[5] == 1 else "女性"
         common_sheet["B6"] = patient_info.iloc[6]
-        common_sheet["B7"] = doctor_id
-        common_sheet["B8"] = doctor_name
+        common_sheet["B7"] = datetime.now().strftime("%Y/%m/%d")
+        common_sheet["B8"] = doctor_id
+        common_sheet["B9"] = doctor_name
         common_sheet["B10"] = department
-        common_sheet["B11"] = creation_count.value
-        common_sheet["B12"] = main_diagnosis.value
-        common_sheet["B13"] = target_weight.value
+        common_sheet["B11"] = main_diagnosis.value
+        common_sheet["B12"] = int(creation_count.value)
+        common_sheet["B13"] = float(target_weight.value)
         common_sheet["B14"] = sheet_name_dropdown.value
+        common_sheet["B15"] = goal1.value
+        common_sheet["B16"] = goal2.value
+        common_sheet["B17"] = diet.value
+        common_sheet["B18"] = exercise_prescription.value
+        common_sheet["B19"] = exercise_time.value
+        common_sheet["B20"] = exercise_frequency.value
+        common_sheet["B21"] = exercise_intensity.value
+        common_sheet["B22"] = daily_activity.value
+        common_sheet["B23"] = str(nonsmoker.value)
+        common_sheet["B24"] = str(smoking_cessation.value)
+        common_sheet["B25"] = other1.value
+        common_sheet["B26"] = other2.value
 
         new_file_name = f"生活習慣病療養計画書_{current_datetime}.xlsm"
         file_path = r"C:\Shinseikai\LDTPapp" + "\\" + new_file_name
