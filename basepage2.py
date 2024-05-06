@@ -489,7 +489,6 @@ def main(page: ft.Page):
         if e.data == "true":
             row_index = history.rows.index(e.control)
             selected_row = history.rows[row_index].data
-            open_test(e)
 
     def fetch_data(filter_patient_id=None):
         if not filter_patient_id:
@@ -601,15 +600,28 @@ def main(page: ft.Page):
                     ),
                     ft.Row(
                         controls=[
-                            buttons,
+                            main_diagnosis,
+                            sheet_name_dropdown,
+                            creation_count,
+                            ft.Text("回目", size=14),
+                            target_weight,
+                            ft.Text("kg", size=14),
+                        ]
+                    ),
+                    ft.Row(
+                        controls=[
+                            create_button,
+                            print_button,
+                            delete_button,
+                            close_button
                         ]
                     ),
                     ElevatedButton("新規作成画面へ移動", on_click=open_test),
-                    history_container,
+                    ft.Divider(),
+                    history,
                 ],
             )
         )
-
         # テストページ（テストページのときだけviewに追加する）
         if page.route == "/test":
             page.views.append(
@@ -737,7 +749,7 @@ def main(page: ft.Page):
     history_container = ft.Column(
         controls=[history],
         width=1200,
-        height=300,  # 高さを調整
+        height=200,  # 高さを調整
         scroll=ft.ScrollMode.AUTO,
     )
 
