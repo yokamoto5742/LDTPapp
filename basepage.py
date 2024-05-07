@@ -489,7 +489,7 @@ def main(page: ft.Page):
         if e.data == "true":
             row_index = history.rows.index(e.control)
             selected_row = history.rows[row_index].data
-            open_test(e)
+            open_edit(e)
 
     def fetch_data(filter_patient_id=None):
         if not filter_patient_id:
@@ -604,17 +604,16 @@ def main(page: ft.Page):
                             buttons,
                         ]
                     ),
-                    ElevatedButton("新規作成画面へ移動", on_click=open_test),
+                    ElevatedButton("新規作成画面へ移動", on_click=open_edit),
                     history_container,
                 ],
             )
         )
 
-        # テストページ（テストページのときだけviewに追加する）
-        if page.route == "/test":
+        if page.route == "/edit":
             page.views.append(
                 View(
-                    "/test",
+                    "/edit",
                     [
                         ft.Row(
                             controls=[
@@ -629,9 +628,9 @@ def main(page: ft.Page):
                         guidance_items,
                         buttons
                     ],
+                    auto_scroll=True,
                 )
             )
-
         page.update()
 
     # 現在のページを削除して、前のページに戻る
@@ -642,10 +641,10 @@ def main(page: ft.Page):
         page.go(top_view.route)
 
     # テストページへ移動
-    def open_test(e):
-        page.go("/test")
+    def open_edit(e):
+        page.go("/edit")
 
-    def route_test(e):
+    def route_edit(e):
         page.go("/")
 
     # Patient Information
@@ -730,7 +729,25 @@ def main(page: ft.Page):
         ft.ElevatedButton("削除", on_click=delete_data),
         ft.ElevatedButton("テンプレート", on_click=lambda _: apply_template()),
         ft.ElevatedButton("テンプレート編集", on_click=edit_template),
-        ElevatedButton("テストページへ移動", on_click=open_test),
+        ElevatedButton("テストページへ移動", on_click=open_edit),
+    ])
+
+    create_buttons = ft.Row([
+        ft.ElevatedButton("新規発行", on_click=create_new_plan),
+        ft.ElevatedButton("保存", on_click=save_data),
+        ft.ElevatedButton("削除", on_click=delete_data),
+        ft.ElevatedButton("テンプレート", on_click=lambda _: apply_template()),
+        ft.ElevatedButton("テンプレート編集", on_click=edit_template),
+        ft.ElevatedButton("戻る", on_click=lambda _: page.go("/")),
+    ])
+
+    edit_buttons = ft.Row([
+        ft.ElevatedButton("再発行", on_click=create_new_plan),
+        ft.ElevatedButton("保存", on_click=save_data),
+        ft.ElevatedButton("削除", on_click=delete_data),
+        ft.ElevatedButton("テンプレート", on_click=lambda _: apply_template()),
+        ft.ElevatedButton("テンプレート編集", on_click=edit_template),
+        ft.ElevatedButton("戻る", on_click=lambda _: page.go("/")),
     ])
 
     # Layout
