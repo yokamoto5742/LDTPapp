@@ -135,7 +135,10 @@ def load_main_diseases():
 
 def load_sheet_names(main_disease):
     session = Session()
-    sheet_names = session.query(SheetName).filter(SheetName.main_disease_id == main_disease).all()
+    if main_disease:
+        sheet_names = session.query(SheetName).filter(SheetName.main_disease_id == main_disease).all()
+    else:
+        sheet_names = session.query(SheetName).all()
     session.close()
     return [ft.dropdown.Option(sheet.name) for sheet in sheet_names]
 
@@ -187,15 +190,13 @@ def main(page: ft.Page):
             session.close()
             if main_disease:
                 sheet_name_options = load_sheet_names(main_disease.id)
-                sheet_name_dropdown.options = sheet_name_options
-                sheet_name_dropdown.value = sheet_name_options[0].key if sheet_name_options else None
-                apply_template()
             else:
-                sheet_name_dropdown.options = []
-                sheet_name_dropdown.value = None
+                sheet_name_options = []
         else:
-            sheet_name_dropdown.options = []
-            sheet_name_dropdown.value = None
+            sheet_name_options = load_sheet_names(None)
+
+        sheet_name_dropdown.options = sheet_name_options
+        sheet_name_dropdown.value = sheet_name_options[0].key if sheet_name_options else None
         page.update()
 
     def on_sheet_name_change(e):
@@ -515,7 +516,7 @@ def main(page: ft.Page):
                 "department": info.department,
                 "doctor_name": info.doctor_name,
                 "main_diagnosis": info.main_diagnosis,
-                "sheet_name": info[5],
+                "sheet_name": info.sheet_name,
                 "count": info.creation_count
             })
 
