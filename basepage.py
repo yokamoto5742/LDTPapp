@@ -152,7 +152,7 @@ def format_date(date_str):
 def main(page: ft.Page):
     page.title = "生活習慣病療養計画書"
     page.scroll = "auto"
-    page.route = "/home"
+    page.route = "/"
 
     # 初期データの挿入
     session = Session()
@@ -610,14 +610,53 @@ def main(page: ft.Page):
                     ),
                     ft.Row(
                         controls=[
-                            buttons,
+                            main_diagnosis,
+                            sheet_name_dropdown,
+                            creation_count,
+                            ft.Text("回目", size=14),
+                            target_weight,
+                            ft.Text("kg", size=14),
+                        ]
+                    ),
+                    ft.Row(
+                        controls=[
+                            create_button,
+                            print_button,
+                            delete_button,
+                            close_button
                         ]
                     ),
                     ElevatedButton("新規作成画面へ移動", on_click=open_edit),
-                    history_container,
+                    ft.Divider(),
+                    history,
                 ],
             )
         )
+
+        if page.route == "/create":
+            page.views.append(
+                View(
+                    "/create",
+                    [
+                        ft.Row(
+                            controls=[
+                                ft.Text("新規作成", size=14),
+                                main_diagnosis,
+                                sheet_name_dropdown,
+                                creation_count,
+                                ft.Text("回目", size=14),
+                                target_weight,
+                                ft.Text("kg", size=14),
+                            ]
+                        ),
+                        goal1,
+                        goal2,
+                        guidance_items,
+                        create_buttons,
+                    ],
+                )
+            )
+        page.update()
 
         if page.route == "/edit":
             page.views.append(
@@ -761,7 +800,7 @@ def main(page: ft.Page):
         ft.ElevatedButton("削除", on_click=delete_data),
         ft.ElevatedButton("テンプレート", on_click=lambda _: apply_template()),
         ft.ElevatedButton("テンプレート編集", on_click=edit_template),
-        ft.ElevatedButton("戻る", on_click=lambda _: page.go("/home")),
+        ft.ElevatedButton("戻る", on_click=lambda _: page.go("/")),
     ])
 
     # Layout
