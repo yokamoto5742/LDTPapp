@@ -654,7 +654,7 @@ def main(page: ft.Page):
         page.go(top_view.route)
 
     # テストページへ移動
-    def open_test(e):
+    def open_create(e):
         page.go("/test")
 
     def route_test(e):

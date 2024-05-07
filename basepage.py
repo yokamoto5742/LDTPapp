@@ -381,8 +381,12 @@ def main(page: ft.Page):
                 kana=kana_value.value,
                 gender=gender_value.value,
                 birthdate=datetime.strptime(birthdate_value.value, "%Y/%m/%d").date(),
+                issue_date=datetime.now().date(),  # 現在の日付を設定
+                doctor_id=int(doctor_id_value.value),  # doctor_id_value.valueを整数に変換して設定
+                doctor_name=doctor_name_value.value,
+                department=department_value.value,
                 main_diagnosis=main_diagnosis.value,
-                sheet_name=sheet_name_dropdown.value,
+                sheet_name=sheet_name_dropdown.value if sheet_name_dropdown.value else None,
                 creation_count=creation_count.value,
                 target_weight=target_weight.value,
                 goal1=goal1.value,
@@ -500,7 +504,7 @@ def main(page: ft.Page):
         session = Session()
         query = session.query(PatientInfo.id, PatientInfo.issue_date, PatientInfo.department,
                               PatientInfo.doctor_name, PatientInfo.main_diagnosis,
-                              PatientInfo.creation_count). \
+                              PatientInfo.sheet_name, PatientInfo.creation_count). \
             order_by(PatientInfo.patient_id.asc(), PatientInfo.id.desc())
 
         query = query.filter(PatientInfo.patient_id == filter_patient_id)
@@ -610,23 +614,9 @@ def main(page: ft.Page):
                     ),
                     ft.Row(
                         controls=[
-                            main_diagnosis,
-                            sheet_name_dropdown,
-                            creation_count,
-                            ft.Text("回目", size=14),
-                            target_weight,
-                            ft.Text("kg", size=14),
+                            buttons,
                         ]
                     ),
-                    ft.Row(
-                        controls=[
-                            create_button,
-                            print_button,
-                            delete_button,
-                            close_button
-                        ]
-                    ),
-                    ElevatedButton("新規作成画面へ移動", on_click=open_edit),
                     ft.Divider(),
                     history,
                 ],
@@ -690,11 +680,13 @@ def main(page: ft.Page):
         top_view = page.views[-1]
         page.go(top_view.route)
 
-    # テストページへ移動
+    def open_create(e):
+        page.go("/create")
+
     def open_edit(e):
         page.go("/edit")
 
-    def route_edit(e):
+    def open_route(e):
         page.go("/")
 
     # Patient Information
@@ -711,7 +703,7 @@ def main(page: ft.Page):
     department_value = ft.TextField(label="診療科", read_only=True, width=150)
 
     main_disease_options = load_main_diseases()
-    main_diagnosis = ft.Dropdown(label="主病名2", options=main_disease_options, width=150, value="",
+    main_diagnosis = ft.Dropdown(label="主病名", options=main_disease_options, width=150, value="",
                                  on_change=on_main_diagnosis_change)
     sheet_name_options = load_sheet_names(main_diagnosis.value)
     sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=150,
@@ -766,23 +758,14 @@ def main(page: ft.Page):
         ],
         rows=rows,
         width=1200,
-        height=200,
+        height=300,
     )
 
-    create_button = ft.ElevatedButton("新規作成", on_click=create_new_plan)
-    print_button = ft.ElevatedButton("印刷", on_click=lambda _: print("印刷"))
-    delete_button = ft.ElevatedButton("削除", on_click=delete_data)
-    close_button = ft.ElevatedButton("閉じる", on_click=lambda _: page.go("/"))
-
     buttons = ft.Row([
-        ft.ElevatedButton("戻る", on_click=lambda _: page.go("/")),
+        ft.ElevatedButton("新規作成", on_click=open_create),
         ft.ElevatedButton("保存", on_click=save_data),
-        ft.ElevatedButton("新規発行", on_click=create_new_plan),
         ft.ElevatedButton("読込", on_click=load_data),
         ft.ElevatedButton("削除", on_click=delete_data),
-        ft.ElevatedButton("テンプレート", on_click=lambda _: apply_template()),
-        ft.ElevatedButton("テンプレート編集", on_click=edit_template),
-        ElevatedButton("テストページへ移動", on_click=open_edit),
     ])
 
     create_buttons = ft.Row([
@@ -791,7 +774,7 @@ def main(page: ft.Page):
         ft.ElevatedButton("削除", on_click=delete_data),
         ft.ElevatedButton("テンプレート", on_click=lambda _: apply_template()),
         ft.ElevatedButton("テンプレート編集", on_click=edit_template),
-        ft.ElevatedButton("戻る", on_click=lambda _: page.go("/")),
+        ft.ElevatedButton("戻る", on_click=open_route),
     ])
 
     edit_buttons = ft.Row([
@@ -800,7 +783,7 @@ def main(page: ft.Page):
         ft.ElevatedButton("削除", on_click=delete_data),
         ft.ElevatedButton("テンプレート", on_click=lambda _: apply_template()),
         ft.ElevatedButton("テンプレート編集", on_click=edit_template),
-        ft.ElevatedButton("戻る", on_click=lambda _: page.go("/")),
+        ft.ElevatedButton("戻る", on_click=open_route),
     ])
 
     # Layout
