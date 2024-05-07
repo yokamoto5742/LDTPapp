@@ -149,6 +149,7 @@ def format_date(date_str):
 def main(page: ft.Page):
     page.title = "生活習慣病療養計画書"
     page.scroll = "auto"
+    page.route = "/home"
 
     # 初期データの挿入
     session = Session()
@@ -496,7 +497,8 @@ def main(page: ft.Page):
             return []
 
         session = Session()
-        query = session.query(PatientInfo.id, PatientInfo.patient_id, PatientInfo.main_diagnosis,
+        query = session.query(PatientInfo.id, PatientInfo.issue_date, PatientInfo.department,
+                              PatientInfo.doctor_name, PatientInfo.main_diagnosis,
                               PatientInfo.creation_count). \
             order_by(PatientInfo.patient_id.asc(), PatientInfo.id.desc())
 
@@ -509,8 +511,11 @@ def main(page: ft.Page):
         for info in patient_info_list:
             data.append({
                 "id": str(info.id),
-                "patient_id": info.patient_id,
-                "disease": info.main_diagnosis,
+                "issue_date": info.issue_date.strftime("%Y/%m/%d") if info.issue_date else "",
+                "department": info.department,
+                "doctor_name": info.doctor_name,
+                "main_diagnosis": info.main_diagnosis,
+                "sheet_name": info[5],
                 "count": info.creation_count
             })
 
@@ -522,8 +527,11 @@ def main(page: ft.Page):
             row = ft.DataRow(
                 cells=[
                     ft.DataCell(ft.Text(item["id"])),
-                    ft.DataCell(ft.Text(item["patient_id"])),
-                    ft.DataCell(ft.Text(item["disease"])),
+                    ft.DataCell(ft.Text(item["issue_date"])),
+                    ft.DataCell(ft.Text(item["department"])),
+                    ft.DataCell(ft.Text(item["doctor_name"])),
+                    ft.DataCell(ft.Text(item["main_diagnosis"])),
+                    ft.DataCell(ft.Text(item["sheet_name"])),
                     ft.DataCell(ft.Text(item["count"])),
                 ],
                 on_select_changed=on_row_selected,
@@ -617,18 +625,20 @@ def main(page: ft.Page):
                     [
                         ft.Row(
                             controls=[
-                                patient_id_value,
+                                ft.Text("編集", size=14),
+                                main_diagnosis,
                                 sheet_name_dropdown,
                                 creation_count,
+                                ft.Text("回目", size=14),
                                 target_weight,
+                                ft.Text("kg", size=14),
                             ]
                         ),
                         goal1,
                         goal2,
                         guidance_items,
-                        buttons
+                        edit_buttons,
                     ],
-                    auto_scroll=True,
                 )
             )
         page.update()
@@ -707,8 +717,11 @@ def main(page: ft.Page):
     history = ft.DataTable(
         columns=[
             ft.DataColumn(ft.Text("ID")),
-            ft.DataColumn(ft.Text("患者ID")),
+            ft.DataColumn(ft.Text("発行日")),
+            ft.DataColumn(ft.Text("診療科")),
+            ft.DataColumn(ft.Text("医師名")),
             ft.DataColumn(ft.Text("主病名")),
+            ft.DataColumn(ft.Text("シート名")),
             ft.DataColumn(ft.Text("作成回数")),
         ],
         rows=rows,
@@ -747,7 +760,7 @@ def main(page: ft.Page):
         ft.ElevatedButton("削除", on_click=delete_data),
         ft.ElevatedButton("テンプレート", on_click=lambda _: apply_template()),
         ft.ElevatedButton("テンプレート編集", on_click=edit_template),
-        ft.ElevatedButton("戻る", on_click=lambda _: page.go("/")),
+        ft.ElevatedButton("戻る", on_click=lambda _: page.go("/home")),
     ])
 
     # Layout
