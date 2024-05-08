@@ -76,7 +76,7 @@ class TemplateEditor(ft.Control):
         self.goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=600)
         self.goal2 = ft.TextField(label="②行動目標：患者と相談した目標", width=600)
         self.diet = ft.TextField(label="食事", multiline=True, width=400)
-        self.exercise_prescription = ft.TextField(label="運動処方", width=400)
+        self.exercise_prescription = ft.TextField(label="運動処方", width=300)
         self.exercise_time = ft.TextField(label="時間", width=200)
         self.exercise_frequency = ft.TextField(label="頻度", width=200)
         self.exercise_intensity = ft.TextField(label="強度", width=200)
@@ -635,11 +635,16 @@ def main(page: ft.Page):
                                 sheet_name_dropdown,
                                 creation_count,
                                 ft.Text("回目", size=14),
+                                ft.ElevatedButton("テンプレート", on_click=lambda _: apply_template()),
+                            ]
+                        ),
+                        ft.Row(
+                            controls=[
+                                goal1,
                                 target_weight,
                                 ft.Text("kg", size=14),
                             ]
                         ),
-                        goal1,
                         goal2,
                         guidance_items,
                         create_buttons,
@@ -660,11 +665,16 @@ def main(page: ft.Page):
                                 sheet_name_dropdown,
                                 creation_count,
                                 ft.Text("回目", size=14),
+                                ft.ElevatedButton("テンプレート", on_click=lambda _: apply_template()),
+                            ]
+                        ),
+                        ft.Row(
+                            controls=[
+                                goal1,
                                 target_weight,
                                 ft.Text("kg", size=14),
                             ]
                         ),
-                        goal1,
                         goal2,
                         guidance_items,
                         edit_buttons,
@@ -734,11 +744,9 @@ def main(page: ft.Page):
 
     guidance_items = ft.Column([
         diet,
-        exercise_prescription,
-        ft.Row([exercise_time, exercise_frequency, exercise_intensity]),
+        ft.Row([exercise_prescription,exercise_time, exercise_frequency, exercise_intensity]),
         daily_activity,
-        ft.Text("たばこ", size=14),
-        ft.Row([nonsmoker, smoking_cessation]),
+        ft.Row([ft.Text("たばこ", size=14),nonsmoker, smoking_cessation]),
         ft.Row([other1, other2]),
     ])
 
@@ -763,26 +771,21 @@ def main(page: ft.Page):
 
     buttons = ft.Row([
         ft.ElevatedButton("新規作成", on_click=open_create),
-        ft.ElevatedButton("保存", on_click=save_data),
-        ft.ElevatedButton("読込", on_click=load_data),
-        ft.ElevatedButton("削除", on_click=delete_data),
+        ft.ElevatedButton("前回コピー", on_click=load_data),
     ])
 
     create_buttons = ft.Row([
         ft.ElevatedButton("新規発行", on_click=create_new_plan),
         ft.ElevatedButton("保存", on_click=save_data),
+        ft.ElevatedButton("印刷", on_click=create_new_plan),
         ft.ElevatedButton("削除", on_click=delete_data),
-        ft.ElevatedButton("テンプレート", on_click=lambda _: apply_template()),
-        ft.ElevatedButton("テンプレート編集", on_click=edit_template),
         ft.ElevatedButton("戻る", on_click=open_route),
     ])
 
     edit_buttons = ft.Row([
-        ft.ElevatedButton("再発行", on_click=create_new_plan),
         ft.ElevatedButton("保存", on_click=save_data),
+        ft.ElevatedButton("印刷", on_click=create_new_plan),
         ft.ElevatedButton("削除", on_click=delete_data),
-        ft.ElevatedButton("テンプレート", on_click=lambda _: apply_template()),
-        ft.ElevatedButton("テンプレート編集", on_click=edit_template),
         ft.ElevatedButton("戻る", on_click=open_route),
     ])
 
