@@ -234,6 +234,33 @@ def main(page: ft.Page):
             department_value.value = ""
         page.update()
 
+    def populate_common_sheet(common_sheet, patient_info):
+        common_sheet["B2"] = patient_info.patient_id
+        common_sheet["B3"] = patient_info.patient_name
+        common_sheet["B4"] = patient_info.kana
+        common_sheet["B5"] = patient_info.gender
+        common_sheet["B6"] = patient_info.birthdate
+        common_sheet["B7"] = patient_info.issue_date.strftime("%Y/%m/%d")
+        common_sheet["B8"] = patient_info.doctor_id
+        common_sheet["B9"] = patient_info.doctor_name
+        common_sheet["B10"] = patient_info.department
+        common_sheet["B11"] = patient_info.main_diagnosis
+        common_sheet["B12"] = patient_info.creation_count
+        common_sheet["B13"] = patient_info.target_weight
+        common_sheet["B14"] = patient_info.sheet_name
+        common_sheet["B15"] = patient_info.goal1
+        common_sheet["B16"] = patient_info.goal2
+        common_sheet["B17"] = patient_info.diet
+        common_sheet["B18"] = patient_info.exercise_prescription
+        common_sheet["B19"] = patient_info.exercise_time
+        common_sheet["B20"] = patient_info.exercise_frequency
+        common_sheet["B21"] = patient_info.exercise_intensity
+        common_sheet["B22"] = patient_info.daily_activity
+        common_sheet["B23"] = str(patient_info.nonsmoker)
+        common_sheet["B24"] = str(patient_info.smoking_cessation)
+        common_sheet["B25"] = patient_info.other1
+        common_sheet["B26"] = patient_info.other2
+
     def create_treatment_plan(patient_id, doctor_id, doctor_name, department, df_patients):
         session = Session()
         current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -279,32 +306,7 @@ def main(page: ft.Page):
         session.add(treatment_plan)
         session.commit()
 
-        # 共通情報シートに必要な情報を設定
-        common_sheet["B2"] = patient_info.iloc[2]
-        common_sheet["B3"] = patient_info.iloc[3]
-        common_sheet["B4"] = patient_info.iloc[4]
-        common_sheet["B5"] = "男性" if patient_info.iloc[5] == 1 else "女性"
-        common_sheet["B6"] = patient_info.iloc[6]
-        common_sheet["B7"] = datetime.now().strftime("%Y/%m/%d")
-        common_sheet["B8"] = doctor_id
-        common_sheet["B9"] = doctor_name
-        common_sheet["B10"] = department
-        common_sheet["B11"] = main_diagnosis.value
-        common_sheet["B12"] = int(creation_count.value)
-        common_sheet["B13"] = float(target_weight.value) if target_weight.value else ""
-        common_sheet["B14"] = sheet_name_dropdown.value
-        common_sheet["B15"] = goal1.value
-        common_sheet["B16"] = goal2.value
-        common_sheet["B17"] = diet.value
-        common_sheet["B18"] = exercise_prescription.value
-        common_sheet["B19"] = exercise_time.value
-        common_sheet["B20"] = exercise_frequency.value
-        common_sheet["B21"] = exercise_intensity.value
-        common_sheet["B22"] = daily_activity.value
-        common_sheet["B23"] = str(nonsmoker.value)
-        common_sheet["B24"] = str(smoking_cessation.value)
-        common_sheet["B25"] = other1.value
-        common_sheet["B26"] = other2.value
+        populate_common_sheet(common_sheet, treatment_plan)
 
         new_file_name = f"生活習慣病療養計画書_{current_datetime}.xlsm"
         file_path = r"C:\Shinseikai\LDTPapp" + "\\" + new_file_name
@@ -330,6 +332,28 @@ def main(page: ft.Page):
         page.go("/")
         update_history(patient_id)
         page.update()
+
+    def print_plan(e):
+        global selected_row
+        session = Session()
+        if selected_row is not None:
+            patient_info = session.query(PatientInfo).filter(PatientInfo.id == selected_row['id']).first()
+            if patient_info:
+                current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
+                workbook = load_workbook(r"C:\Shinseikai\LDTPapp\生活習慣病療養計画書.xlsm", keep_vba=True)
+                common_sheet = workbook["共通情報"]
+
+                populate_common_sheet(common_sheet, patient_info)
+
+                new_file_name = f"生活習慣病療養計画書_{current_datetime}.xlsm"
+                file_path = r"C:\Shinseikai\LDTPapp" + "\\" + new_file_name
+                workbook.save(file_path)
+                wb = load_workbook(file_path, read_only=False, keep_vba=True)
+                wb.active = wb["共通情報"]
+                wb.save(file_path)
+                os.startfile(file_path)
+
+        session.close()
 
     def create_new_plan(e):
         patient_id = patient_id_value.value.strip()
@@ -461,12 +485,11 @@ def main(page: ft.Page):
             session.commit()
             page.snack_bar = ft.SnackBar(
                 ft.Text("データが削除されました"),
-                action="閉じる",
+                duration=2000,
             )
             page.snack_bar.open = True
         session.close()
-        update_history()
-        page.update()
+        open_route(e)
 
     def filter_data(e):
         update_history(patient_id.value)
@@ -810,7 +833,7 @@ def main(page: ft.Page):
 
     edit_buttons = ft.Row([
         ft.ElevatedButton("保存", on_click=save_data),
-        ft.ElevatedButton("印刷", on_click=create_new_plan),
+        ft.ElevatedButton("印刷", on_click=print_plan),
         ft.ElevatedButton("削除", on_click=delete_data),
         ft.ElevatedButton("戻る", on_click=open_route),
     ])
