@@ -408,8 +408,9 @@ def main(page: ft.Page):
                 session.commit()
                 page.snack_bar = ft.SnackBar(
                     ft.Text("データが更新されました"),
+                    duration=2000,
                 )
-
+                page.snack_bar.open = True
         else:
             patient_info = PatientInfo(
                 patient_id=patient_id.value,
@@ -442,16 +443,11 @@ def main(page: ft.Page):
             session.commit()
             page.snack_bar = ft.SnackBar(
                 ft.Text("データが保存されました"),
+                duration=2000,
             )
-
-        # 入力されている値をクリアする
-        for field in [patient_id, main_diagnosis, creation_count, target_weight, goal1, goal2, diet,
-                      exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
-                      daily_activity, nonsmoker, smoking_cessation, other1, other2]:
-            field.value = None if isinstance(field.value, (int, float)) else ""
+            page.snack_bar.open = True
 
         session.close()
-        update_history()
         page.update()
 
     def load_data(e):
