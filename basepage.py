@@ -629,6 +629,12 @@ def main(page: ft.Page):
                             buttons,
                         ]
                     ),
+                    ft.Row(
+                        controls=[
+                            ft.Text("計画書一覧", size=16),
+                            ft.Text("計画書をクリックすると編集画面が表示されます", size=14),
+                        ]
+                    ),
                     ft.Divider(),
                     history,
                 ],
