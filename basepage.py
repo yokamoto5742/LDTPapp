@@ -2,8 +2,8 @@ import os
 from datetime import datetime
 
 import flet as ft
-from flet import AppBar, ElevatedButton, Page, Text, View
 import pandas as pd
+from flet import View
 from openpyxl import load_workbook
 from sqlalchemy import create_engine, Column, Integer, String, Float, Date
 from sqlalchemy.orm import declarative_base
@@ -49,7 +49,6 @@ class PatientInfo(Base):
     smoking_cessation = Column(String)
     other1 = Column(String)
     other2 = Column(String)
-
 
 
 class MainDisease(Base):
@@ -263,7 +262,7 @@ def main(page: ft.Page):
             main_diagnosis=main_diagnosis.value,
             sheet_name=sheet_name_dropdown.value,
             creation_count=creation_count.value,
-            target_weight=target_weight.value,
+            target_weight=float(target_weight.value) if target_weight.value else None,
             goal1=goal1.value,
             goal2=goal2.value,
             diet=diet.value,
@@ -292,7 +291,7 @@ def main(page: ft.Page):
         common_sheet["B10"] = department
         common_sheet["B11"] = main_diagnosis.value
         common_sheet["B12"] = int(creation_count.value)
-        common_sheet["B13"] = float(target_weight.value)
+        common_sheet["B13"] = float(target_weight.value) if target_weight.value else ""
         common_sheet["B14"] = sheet_name_dropdown.value
         common_sheet["B15"] = goal1.value
         common_sheet["B16"] = goal2.value
@@ -316,7 +315,20 @@ def main(page: ft.Page):
         os.startfile(file_path)
 
         session.close()
-        update_history()
+
+        # 画面の初期化
+        for field in [main_diagnosis, target_weight, goal1, goal2, diet,
+                      exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
+                      daily_activity, other1, other2]:
+            field.value = ""
+
+        creation_count.value = ""
+        nonsmoker.value = False
+        smoking_cessation.value = False
+
+        # ルート画面に戻る
+        page.go("/")
+        update_history(patient_id)
         page.update()
 
     def create_new_plan(e):
@@ -697,7 +709,18 @@ def main(page: ft.Page):
         page.go("/edit")
 
     def open_route(e):
+        for field in [main_diagnosis, target_weight, goal1, goal2, diet,
+                      exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
+                      daily_activity, other1, other2]:
+            field.value = ""
+
+        creation_count.value = ""
+        nonsmoker.value = False
+        smoking_cessation.value = False
+
         page.go("/")
+        update_history(int(patient_id.value))
+        page.update()
 
     # Patient Information
     patient_id_value = ft.TextField(label="患者ID", on_change=on_patient_id_change, value=initial_patient_id, width=150)
@@ -744,9 +767,9 @@ def main(page: ft.Page):
 
     guidance_items = ft.Column([
         diet,
-        ft.Row([exercise_prescription,exercise_time, exercise_frequency, exercise_intensity]),
+        ft.Row([exercise_prescription, exercise_time, exercise_frequency, exercise_intensity]),
         daily_activity,
-        ft.Row([ft.Text("たばこ", size=14),nonsmoker, smoking_cessation]),
+        ft.Row([ft.Text("たばこ", size=14), nonsmoker, smoking_cessation]),
         ft.Row([other1, other2]),
     ])
 
@@ -776,9 +799,6 @@ def main(page: ft.Page):
 
     create_buttons = ft.Row([
         ft.ElevatedButton("新規発行", on_click=create_new_plan),
-        ft.ElevatedButton("保存", on_click=save_data),
-        ft.ElevatedButton("印刷", on_click=create_new_plan),
-        ft.ElevatedButton("削除", on_click=delete_data),
         ft.ElevatedButton("戻る", on_click=open_route),
     ])
 
