@@ -317,21 +317,7 @@ def main(page: ft.Page):
         os.startfile(file_path)
 
         session.close()
-
-        # 画面の初期化
-        for field in [main_diagnosis, target_weight, goal1, goal2, diet,
-                      exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
-                      daily_activity, other1, other2]:
-            field.value = ""
-
-        creation_count.value = ""
-        nonsmoker.value = False
-        smoking_cessation.value = False
-
-        # ルート画面に戻る
-        page.go("/")
-        update_history(patient_id)
-        page.update()
+        open_route(None)
 
     def print_plan(e):
         global selected_row
@@ -392,7 +378,7 @@ def main(page: ft.Page):
                 patient_info.main_diagnosis = main_diagnosis.value
                 patient_info.sheet_name = sheet_name_dropdown.value
                 patient_info.creation_count = creation_count.value
-                patient_info.target_weight = target_weight.value
+                patient_info.target_weight = target_weight.value if target_weight.value else None
                 patient_info.goal1 = goal1.value
                 patient_info.goal2 = goal2.value
                 patient_info.diet = diet.value
@@ -425,7 +411,7 @@ def main(page: ft.Page):
                 main_diagnosis=main_diagnosis.value,
                 sheet_name=sheet_name_dropdown.value if sheet_name_dropdown.value else None,
                 creation_count=creation_count.value,
-                target_weight=target_weight.value,
+                target_weight=target_weight.value if target_weight.value else None,
                 goal1=goal1.value,
                 goal2=goal2.value,
                 diet=diet.value,
@@ -500,12 +486,12 @@ def main(page: ft.Page):
         if e.data == "true":
             row_index = history.rows.index(e.control)
             selected_row = history.rows[row_index].data
-
             session = Session()
             patient_info = session.query(PatientInfo).filter(PatientInfo.id == selected_row['id']).first()
             if patient_info:
                 patient_id.value = patient_info.patient_id
                 main_diagnosis.value = patient_info.main_diagnosis
+                sheet_name_dropdown.value = patient_info.sheet_name
                 creation_count.value = patient_info.creation_count
                 target_weight.value = patient_info.target_weight
                 goal1.value = patient_info.goal1
@@ -521,7 +507,7 @@ def main(page: ft.Page):
                 other1.value = patient_info.other1
                 other2.value = patient_info.other2
             session.close()
-            page.update()
+            page.update()  # 画面を更新
 
         if e.data == "true":
             row_index = history.rows.index(e.control)
@@ -739,6 +725,7 @@ def main(page: ft.Page):
                       daily_activity, other1, other2]:
             field.value = ""
 
+        sheet_name_dropdown.value = ""
         creation_count.value = ""
         nonsmoker.value = False
         smoking_cessation.value = False
