@@ -658,7 +658,6 @@ def main(page: ft.Page):
                                 sheet_name_dropdown,
                                 creation_count,
                                 ft.Text("回目", size=14),
-                                ft.ElevatedButton("テンプレート", on_click=lambda _: apply_template()),
                             ]
                         ),
                         ft.Row(
@@ -688,7 +687,6 @@ def main(page: ft.Page):
                                 sheet_name_dropdown,
                                 creation_count,
                                 ft.Text("回目", size=14),
-                                ft.ElevatedButton("テンプレート", on_click=lambda _: apply_template()),
                             ]
                         ),
                         ft.Row(
@@ -752,7 +750,7 @@ def main(page: ft.Page):
                                  on_change=on_main_diagnosis_change, autofocus=True)
     sheet_name_options = load_sheet_names(main_diagnosis.value)
     sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=150,
-                                      on_change=on_sheet_name_change)
+                                      on_change=on_sheet_name_change,autofocus=True)
     creation_count = ft.TextField(label="作成回数", width=150, value="", autofocus=True)
     target_weight = ft.TextField(label="目標体重", width=150, value="", on_submit=lambda _: goal1.focus())
     goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=600, value="達成目標を入力してください")
