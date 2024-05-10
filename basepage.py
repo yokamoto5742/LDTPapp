@@ -312,7 +312,7 @@ def main(page: ft.Page):
         file_path = r"C:\Shinseikai\LDTPapp" + "\\" + new_file_name
         workbook.save(file_path)
         wb = load_workbook(file_path, read_only=False, keep_vba=True)
-        wb.active = wb["共通情報"]
+        wb.active = wb["計画書"]
         wb.save(file_path)
         os.startfile(file_path)
 
@@ -335,7 +335,7 @@ def main(page: ft.Page):
                 file_path = r"C:\Shinseikai\LDTPapp" + "\\" + new_file_name
                 workbook.save(file_path)
                 wb = load_workbook(file_path, read_only=False, keep_vba=True)
-                wb.active = wb["共通情報"]
+                wb.active = wb["計画書"]
                 wb.save(file_path)
                 os.startfile(file_path)
 
@@ -592,11 +592,11 @@ def main(page: ft.Page):
     template_manager = TemplateManager()
 
     template_manager.add_template("糖尿病", "HbAc７％", {
-        "goal1": "HbA1ｃ７％を目標体重を当初の－３Kgとする",
-        "goal2": "１日８０００歩以上の歩行間食の制限糖質の制限",
-        "diet": "・食事量を適正にする。\n・食物繊維の摂取量を増やす\n・ゆっくり食べる\n・間食を減らす",
+        "goal1": "HbA1ｃ７％を目標/体重を当初の－３Kgとする",
+        "goal2": "１日８０００歩以上の歩行/間食の制限/糖質の制限",
+        "diet": "・食事量を適正にする\n・食物繊維の摂取量を増やす\n・ゆっくり食べる\n・間食を減らす",
         "exercise_prescription": "ウォーキング",
-        "exercise_time": "3分以上",
+        "exercise_time": "30分以上",
         "exercise_frequency": "ほぼ毎日",
         "exercise_intensity": "少し汗をかく程度",
         "daily_activity": "1日8000歩以上",
