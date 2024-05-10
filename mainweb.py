@@ -878,4 +878,4 @@ def main(page: ft.Page):
     page.go(page.route)
 
 
-ft.app(target=main)
+app = ft.app(main, export_asgi_app=True)
