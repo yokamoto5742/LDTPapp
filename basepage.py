@@ -750,28 +750,43 @@ def main(page: ft.Page):
                                  on_change=on_main_diagnosis_change, autofocus=True)
     sheet_name_options = load_sheet_names(main_diagnosis.value)
     sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=150,
-                                      on_change=on_sheet_name_change,autofocus=True)
-    creation_count = ft.TextField(label="作成回数", width=150, value="", autofocus=True)
-    target_weight = ft.TextField(label="目標体重", width=150, value="", on_submit=lambda _: goal1.focus())
-    goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=600, value="達成目標を入力してください")
-    goal2 = ft.TextField(label="②行動目標：患者と相談した目標", width=600, value="行動目標を入力してください")
+                                      on_change=on_sheet_name_change, autofocus=True)
+    creation_count = ft.TextField(label="作成回数", width=150, value="", on_submit=lambda _: goal1.focus())
+    target_weight = ft.TextField(label="目標体重", width=150, value="", on_submit=lambda _: goal2.focus())
+    goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=600, value="達成目標を入力してください",
+                         on_submit=lambda _: target_weight.focus())
+    goal2 = ft.TextField(label="②行動目標：患者と相談した目標", width=600, value="行動目標を入力してください",
+                         on_submit=lambda _: diet.focus())
 
-    # Guidance Items
     diet = ft.TextField(
         label="食事",
         multiline=True,
         disabled=False,
         value="食事量を適正にする\n食物繊維の摂取量を増やす\nゆっくり食べる\n間食を減らす",
         width=400,
+        on_submit=lambda _: exercise_prescription.focus()
     )
-    exercise_prescription = ft.TextField(label="運動処方", width=400, value="ウォーキング")
-    exercise_time = ft.TextField(label="時間", value="30分以上", width=200)
-    exercise_frequency = ft.TextField(label="頻度", value="ほぼ毎日", width=200)
-    exercise_intensity = ft.TextField(label="強度", value="少し汗をかく程度", width=200)
-    daily_activity = ft.TextField(label="日常生活の活動量増加", value="1日8000歩以上", width=400)
+    diet = ft.TextField(
+        label="食事",
+        multiline=True,
+        disabled=False,
+        value="食事量を適正にする\n食物繊維の摂取量を増やす\nゆっくり食べる\n間食を減らす",
+        width=400,
+        on_submit=lambda _: exercise_prescription.focus()
+    )
+    exercise_prescription = ft.TextField(label="運動処方", width=400, value="ウォーキング",
+                                         on_submit=lambda _: exercise_time.focus())
+    exercise_time = ft.TextField(label="時間", value="30分以上", width=200,
+                                 on_submit=lambda _: exercise_frequency.focus())
+    exercise_frequency = ft.TextField(label="頻度", value="ほぼ毎日", width=200,
+                                      on_submit=lambda _: exercise_intensity.focus())
+    exercise_intensity = ft.TextField(label="強度", value="少し汗をかく程度", width=200,
+                                      on_submit=lambda _: daily_activity.focus())
+    daily_activity = ft.TextField(label="日常生活の活動量増加", value="1日8000歩以上", width=400,
+                                  on_submit=lambda _: other1.focus())
     nonsmoker = ft.Checkbox(label="非喫煙者である", value=True)
     smoking_cessation = ft.Checkbox(label="禁煙の実施方法等を指示")
-    other1 = ft.TextField(label="その他1", value="睡眠の確保１日７時間", width=300)
+    other1 = ft.TextField(label="その他1", value="睡眠の確保１日７時間", width=300, on_submit=lambda _: other2.focus())
     other2 = ft.TextField(label="その他2", value="家庭での毎日の歩数の測定", width=300)
 
     guidance_items = ft.Column([
