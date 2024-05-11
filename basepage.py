@@ -268,7 +268,7 @@ def main(page: ft.Page):
             sheet_name_options = load_sheet_names(None)
 
         sheet_name_dropdown.options = sheet_name_options
-        sheet_name_dropdown.value = sheet_name_options[0].key if sheet_name_options else None
+        sheet_name_dropdown.value = ""
         page.update()
 
     def on_sheet_name_change(e):
@@ -889,7 +889,7 @@ def main(page: ft.Page):
     main_diagnosis = ft.Dropdown(label="主病名", options=main_disease_options, width=150, value="",
                                  on_change=on_main_diagnosis_change, autofocus=True)
     sheet_name_options = load_sheet_names(main_diagnosis.value)
-    sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=150,
+    sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=150,value="",
                                       on_change=on_sheet_name_change, autofocus=True)
     creation_count = ft.TextField(label="作成回数", width=150, value="", on_submit=lambda _: goal1.focus())
     target_weight = ft.TextField(label="目標体重", width=150, value="", on_submit=lambda _: goal2.focus())
