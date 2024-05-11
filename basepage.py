@@ -5,7 +5,7 @@ import flet as ft
 import pandas as pd
 from flet import View
 from openpyxl import load_workbook
-from sqlalchemy import create_engine, Column, Integer, String, Float, Date
+from sqlalchemy import create_engine, Column, Integer, String, Float, Date, Boolean
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -49,6 +49,7 @@ class PatientInfo(Base):
     smoking_cessation = Column(String)
     other1 = Column(String)
     other2 = Column(String)
+    template = Column(String)
 
 
 class MainDisease(Base):
@@ -63,6 +64,22 @@ class SheetName(Base):
     main_disease_id = Column(Integer)
     name = Column(String)
 
+class Template(Base):
+    __tablename__ = 'templates'
+    id = Column(Integer, primary_key=True)
+    main_disease = Column(String)
+    sheet_name = Column(String)
+    goal1 = Column(String)
+    goal2 = Column(String)
+    diet = Column(String)
+    exercise_prescription = Column(String)
+    exercise_time = Column(String)
+    exercise_frequency = Column(String)
+    exercise_intensity = Column(String)
+    daily_activity = Column(String)
+    nonsmoker = Column(Boolean)
+    other1 = Column(String)
+    other2 = Column(String)
 
 # テーブルの作成
 Base.metadata.create_all(engine)
@@ -176,6 +193,62 @@ def main(page: ft.Page):
             SheetName(main_disease_id=3, name="HbAc６％"),
         ]
         session.add_all(sheet_names)
+        session.commit()
+
+    if session.query(Template).count() == 0:
+        templates = [
+            Template(main_disease="糖尿病", sheet_name="HbAc８％", goal1="HbA1ｃを低血糖に注意して下げる",
+                     goal2="ストレッチを中心とした運動/間食の制限/糖質の制限",
+                     diet="・食事量を適正にする\n・食物繊維の摂取量を増やす\n・ゆっくり食べる\n・間食を減らす",
+                     exercise_prescription="ストレッチ運動", exercise_time="10分以上", exercise_frequency="１週間に２回以上",
+                     exercise_intensity="息切れしない程度", daily_activity="ストレッチ運動を主に行う", nonsmoker=True,
+                     other1="睡眠の確保１日７時間", other2="家庭での毎日の歩数の測定"),
+            Template(main_disease="糖尿病", sheet_name="HbAc７％", goal1="HbA1ｃ７％を目標/体重を当初の－３Kgとする",
+                     goal2="１日８０００歩以上の歩行/間食の制限/糖質の制限",
+                     diet="・食事量を適正にする\n・食物繊維の摂取量を増やす\n・ゆっくり食べる\n・間食を減らす",
+                     exercise_prescription="ウォーキング", exercise_time="30分以上", exercise_frequency="ほぼ毎日",
+                     exercise_intensity="少し汗をかく程度", daily_activity="1日8000歩以上", nonsmoker=True,
+                     other1="睡眠の確保１日７時間", other2="家庭での毎日の歩数の測定"),
+            Template(main_disease="糖尿病", sheet_name="HbAc６％", goal1="HbA1ｃを正常化",
+                     goal2="１日５０００歩以上の歩行/間食の制限/糖質の制限",
+                     diet="・食事量を適正にする\n・食物繊維の摂取量を増やす\n・ゆっくり食べる\n・間食を減らす",
+                     exercise_prescription="ウォーキング", exercise_time="30分以上", exercise_frequency="１週間に５回以上",
+                     exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上", nonsmoker=True,
+                     other1="睡眠の確保１日７時間", other2="家庭での毎日の歩数の測定"),
+            Template(main_disease="高血圧", sheet_name="血圧130-80mmHg以下",
+                     goal1="家庭血圧が測定でき、朝と就寝前のいずれかで130/80mmHg以下",
+                     goal2="塩分を控えた食事と運動習慣を目標にする",
+                     diet="・塩分量を適正にする\n・食物繊維の摂取量を増やす\n・ゆっくり食べる\n・間食を減らす",
+                     exercise_prescription="ウォーキング", exercise_time="30分以上", exercise_frequency="１週間に２回以上",
+                     exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上", nonsmoker=True,
+                     other1="睡眠の確保１日７時間", other2="家庭での毎日の歩数の測定"),
+            Template(main_disease="高血圧", sheet_name="血圧140-80mmHg以下",
+                     goal1="家庭血圧が測定でき、朝と就寝前のいずれかで140/90mmHg以下",
+                     goal2="塩分を控えた食事と運動習慣を目標にする",
+                     diet="・塩分量を適正にする\n・食物繊維の摂取量を増やす\n・ゆっくり食べる\n・間食を減らす",
+                     exercise_prescription="ストレッチ運動", exercise_time="30分以上", exercise_frequency="１週間に２回以上",
+                     exercise_intensity="少し汗をかく程度", daily_activity="ストレッチ運動を主に行う", nonsmoker=True,
+                     other1="睡眠の確保１日７時間", other2="家庭での毎日の歩数の測定"),
+            Template(main_disease="脂質異常症", sheet_name="LDL120以下", goal1="LDLコレステロール＜120/TG＜150/HDL≧40",
+                     goal2="毎日の有酸素運動と食習慣の改善",
+                     diet="・食事摂取量を適正にする\n・食物繊維の摂取量を増やす\n・ゆっくり食べる\n・間食を減らす",
+                     exercise_prescription="ウォーキング", exercise_time="30分以上", exercise_frequency="１週間に２回以上",
+                     exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上", nonsmoker=True,
+                     other1="飲酒の制限、肥満度の改善", other2="家庭での毎日の歩数の測定"),
+            Template(main_disease="脂質異常症", sheet_name="LDL100以下", goal1="LDLコレステロール＜100/TG＜150/HDL≧40",
+                     goal2="毎日の有酸素運動と食習慣の改善",
+                     diet="・食事摂取量を適正にする\n・食物繊維の摂取量を増やす\n・ゆっくり食べる\n・間食を減らす",
+                     exercise_prescription="ウォーキング", exercise_time="30分以上", exercise_frequency="１週間に２回以上",
+                     exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上", nonsmoker=True,
+                     other1="飲酒の制限、肥満度の改善", other2="家庭での毎日の歩数の測定"),
+            Template(main_disease="脂質異常症", sheet_name="LDL70以下", goal1="LDLコレステロール＜100/TG＜150/HDL≧40",
+                     goal2="毎日の有酸素運動と食習慣の改善",
+                     diet="・脂肪の多い食品や甘い物を控える\n・食物繊維の摂取量を増やす\n・ゆっくり食べる\n・間食を減らす",
+                     exercise_prescription="ウォーキング", exercise_time="30分以上", exercise_frequency="１週間に２回以上",
+                     exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上", nonsmoker=True,
+                     other1="飲酒の制限、肥満度の改善", other2="家庭での毎日の歩数の測定"),
+        ]
+        session.add_all(templates)
         session.commit()
 
     session.close()
@@ -575,19 +648,22 @@ def main(page: ft.Page):
         page.update()
 
     def apply_template(e=None):
-        template_data = template_manager.get_template(main_diagnosis.value, sheet_name_dropdown.value)
-        if template_data:
-            goal1.value = template_data["goal1"]
-            goal2.value = template_data["goal2"]
-            diet.value = template_data["diet"]
-            exercise_prescription.value = template_data["exercise_prescription"]
-            exercise_time.value = template_data["exercise_time"]
-            exercise_frequency.value = template_data["exercise_frequency"]
-            exercise_intensity.value = template_data["exercise_intensity"]
-            daily_activity.value = template_data["daily_activity"]
-            nonsmoker.value = template_data["nonsmoker"]
-            other1.value = template_data["other1"]
-            other2.value = template_data["other2"]
+        session = Session()
+        template = session.query(Template).filter(Template.main_disease == main_diagnosis.value,
+                                                  Template.sheet_name == sheet_name_dropdown.value).first()
+        if template:
+            goal1.value = template.goal1
+            goal2.value = template.goal2
+            diet.value = template.diet
+            exercise_prescription.value = template.exercise_prescription
+            exercise_time.value = template.exercise_time
+            exercise_frequency.value = template.exercise_frequency
+            exercise_intensity.value = template.exercise_intensity
+            daily_activity.value = template.daily_activity
+            nonsmoker.value = template.nonsmoker
+            other1.value = template.other1
+            other2.value = template.other2
+        session.close()
 
     template_manager = TemplateManager()
 
@@ -604,6 +680,45 @@ def main(page: ft.Page):
         "other1": "睡眠の確保１日７時間",
         "other2": "家庭での毎日の歩数の測定",
     })
+
+    def save_template(e):
+        session = Session()
+        template = session.query(Template).filter(Template.main_disease == main_diagnosis.value,
+                                                  Template.sheet_name == sheet_name_dropdown.value).first()
+        if template:
+            template.goal1 = goal1.value
+            template.goal2 = goal2.value
+            template.diet = diet.value
+            template.exercise_prescription = exercise_prescription.value
+            template.exercise_time = exercise_time.value
+            template.exercise_frequency = exercise_frequency.value
+            template.exercise_intensity = exercise_intensity.value
+            template.daily_activity = daily_activity.value
+            template.nonsmoker = nonsmoker.value
+            template.other1 = other1.value
+            template.other2 = other2.value
+        else:
+            template = Template(
+                main_disease=main_diagnosis.value,
+                sheet_name=sheet_name_dropdown.value,
+                goal1=goal1.value,
+                goal2=goal2.value,
+                diet=diet.value,
+                exercise_prescription=exercise_prescription.value,
+                exercise_time=exercise_time.value,
+                exercise_frequency=exercise_frequency.value,
+                exercise_intensity=exercise_intensity.value,
+                daily_activity=daily_activity.value,
+                nonsmoker=nonsmoker.value,
+                other1=other1.value,
+                other2=other2.value
+            )
+            session.add(template)
+        session.commit()
+        session.close()
+        page.snack_bar = ft.SnackBar(content=ft.Text("テンプレートが保存されました"), duration=2000)
+        page.snack_bar.open = True
+        page.update()
 
     def route_change(e):
         print("Route change:", e.route)
@@ -699,6 +814,31 @@ def main(page: ft.Page):
                         goal2,
                         guidance_items,
                         edit_buttons,
+                    ],
+                )
+            )
+        page.update()
+
+        if page.route == "/templete":
+            page.views.append(
+                View(
+                    "/templete",
+                    [
+                        ft.Row(
+                            controls=[
+                                ft.Text("テンプレート", size=14),
+                                main_diagnosis,
+                                sheet_name_dropdown,
+                            ]
+                        ),
+                        ft.Row(
+                            controls=[
+                                goal1,
+                            ]
+                        ),
+                        goal2,
+                        guidance_items,
+                        templete_buttons,
                     ],
                 )
             )
@@ -830,6 +970,11 @@ def main(page: ft.Page):
         ft.ElevatedButton("保存", on_click=save_data),
         ft.ElevatedButton("印刷", on_click=print_plan),
         ft.ElevatedButton("削除", on_click=delete_data),
+        ft.ElevatedButton("戻る", on_click=open_route),
+    ])
+
+    templete_buttons = ft.Row([
+        ft.ElevatedButton("保存", on_click=save_template),
         ft.ElevatedButton("戻る", on_click=open_route),
     ])
 
