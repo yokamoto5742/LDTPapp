@@ -1029,47 +1029,47 @@ def main(page: ft.Page):
     ])
 
     # Layout
-    history_container = ft.Column(
-        controls=[history],
-        width=1200,
-        height=300,  # 高さを調整
-        scroll=ft.ScrollMode.AUTO,
-    )
+    # history_container = ft.Column(
+    #     controls=[history],
+    #     width=1200,
+    #     height=300,  # 高さを調整
+    #     scroll=ft.ScrollMode.AUTO,
+    # )
 
     # Layout
     layout = ft.Column([
         ft.Row(
             controls=[
-                patient_id_value,
-                issue_date_value,
-                name_value,
-                kana_value,
-                gender_value,
-                birthdate_value
+                # patient_id_value,
+                # issue_date_value,
+                # name_value,
+                # kana_value,
+                # gender_value,
+                # birthdate_value
             ]
         ),
-        ft.Row(
-            controls=[
-                doctor_id_value,
-                doctor_name_value,
-                department_value,
-            ]
-        ),
-        ft.Row(
-            controls=[
-                main_diagnosis,
-                sheet_name_dropdown,
-                creation_count,
-                ft.Text("回目", size=14),
-                target_weight,
-                ft.Text("kg", size=14),
-            ]
-        ),
-        goal1,
-        goal2,
-        guidance_items,
-        buttons,
-        history_container
+        # ft.Row(
+        #     controls=[
+        #         doctor_id_value,
+        #         doctor_name_value,
+        #         department_value,
+        #     ]
+        # ),
+        # ft.Row(
+        #     controls=[
+        #         main_diagnosis,
+        #         sheet_name_dropdown,
+        #         creation_count,
+        #         ft.Text("回目", size=14),
+        #         target_weight,
+        #         ft.Text("kg", size=14),
+        #     ]
+        # ),
+        # goal1,
+        # goal2,
+        # guidance_items,
+        # buttons,
+        # history_container
     ])
 
     page.add(layout)
