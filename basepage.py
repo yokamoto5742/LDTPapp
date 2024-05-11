@@ -515,6 +515,7 @@ def main(page: ft.Page):
         if patient_info:
             patient_id.value = patient_info.patient_id
             main_diagnosis.value = patient_info.main_diagnosis
+            sheet_name_dropdown.value = patient_info.sheet_name
             creation_count.value = patient_info.creation_count
             target_weight.value = patient_info.target_weight
             goal1.value = patient_info.goal1
@@ -531,6 +532,7 @@ def main(page: ft.Page):
             other2.value = patient_info.other2
         session.close()
         page.update()
+        open_copy(e)
 
     def delete_data(e):
         session = Session()
@@ -835,6 +837,35 @@ def main(page: ft.Page):
             )
         page.update()
 
+        if page.route == "/copy":
+            page.views.append(
+                View(
+                    "/copy",
+                    [
+                        ft.Row(
+                            controls=[
+                                ft.Text("前回コピー", size=14),
+                                main_diagnosis,
+                                sheet_name_dropdown,
+                                creation_count_plus,
+                                ft.Text("回目", size=14),
+                            ]
+                        ),
+                        ft.Row(
+                            controls=[
+                                goal1,
+                                target_weight,
+                                ft.Text("kg", size=14),
+                            ]
+                        ),
+                        goal2,
+                        guidance_items,
+                        create_buttons,
+                    ],
+                )
+            )
+        page.update()
+
     # 現在のページを削除して、前のページに戻る
     def view_pop(e):
         print("View pop:", e.view)
@@ -850,6 +881,9 @@ def main(page: ft.Page):
 
     def open_templete(e):
         page.go("/templete")
+
+    def open_copy(e):
+        page.go("/copy")
 
     def open_route(e):
         for field in [main_diagnosis, target_weight, goal1, goal2, diet,
@@ -885,7 +919,28 @@ def main(page: ft.Page):
     sheet_name_options = load_sheet_names(main_diagnosis.value)
     sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=150,value="",
                                       on_change=on_sheet_name_change, autofocus=True)
-    creation_count = ft.TextField(label="作成回数", width=150, value="", on_submit=lambda _: goal1.focus())
+
+    def update_creation_count(e):
+        try:
+            count = int(creation_count.value)
+            creation_count_plus.value = str(count + 1)
+            goal1.focus()
+        except ValueError:
+            pass
+
+    creation_count = ft.TextField(
+        label="作成回数",
+        width=150,
+        value="1",
+        on_submit=update_creation_count,
+    )
+
+    creation_count_plus = ft.TextField(
+        label="作成回数",
+        width=150,
+        value="1",
+        on_submit=update_creation_count,
+    )
     target_weight = ft.TextField(label="目標体重", width=150, value="", on_submit=lambda _: goal2.focus())
     goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=600, value="達成目標を入力してください",
                          on_submit=lambda _: target_weight.focus())
