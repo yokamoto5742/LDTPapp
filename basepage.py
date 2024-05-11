@@ -635,18 +635,6 @@ def main(page: ft.Page):
             rows.append(row)
         return rows
 
-    template_editor = TemplateEditor()
-
-    def edit_template(e):
-        dialog = ft.AlertDialog(
-            title=ft.Text("テンプレート編集"),
-            content=template_editor.build(),
-            actions=[],
-        )
-        page.dialog = dialog
-        dialog.open = True
-        page.update()
-
     def apply_template(e=None):
         session = Session()
         template = session.query(Template).filter(Template.main_disease == main_diagnosis.value,
@@ -716,9 +704,12 @@ def main(page: ft.Page):
             session.add(template)
         session.commit()
         session.close()
-        page.snack_bar = ft.SnackBar(content=ft.Text("テンプレートが保存されました"), duration=2000)
+        page.snack_bar = ft.SnackBar(
+            content=ft.Text("テンプレートが保存されました"),
+            duration=2000)
         page.snack_bar.open = True
         page.update()
+        open_route(None)
 
     def route_change(e):
         print("Route change:", e.route)
@@ -857,6 +848,9 @@ def main(page: ft.Page):
     def open_edit(e):
         page.go("/edit")
 
+    def open_templete(e):
+        page.go("/templete")
+
     def open_route(e):
         for field in [main_diagnosis, target_weight, goal1, goal2, diet,
                       exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
@@ -959,6 +953,7 @@ def main(page: ft.Page):
     buttons = ft.Row([
         ft.ElevatedButton("新規作成", on_click=open_create),
         ft.ElevatedButton("前回コピー", on_click=load_data),
+        ft.ElevatedButton("テンプレート編集", on_click=open_templete),
     ])
 
     create_buttons = ft.Row([
