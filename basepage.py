@@ -166,8 +166,8 @@ def main(page: ft.Page):
 
     if session.query(SheetName).count() == 0:
         sheet_names = [
-            SheetName(main_disease_id=1, name="血圧130-80以下"),
             SheetName(main_disease_id=1, name="血圧140-90以下"),
+            SheetName(main_disease_id=1, name="血圧130-80以下"),
             SheetName(main_disease_id=2, name="LDL120以下"),
             SheetName(main_disease_id=2, name="LDL100以下"),
             SheetName(main_disease_id=2, name="LDL70以下"),
