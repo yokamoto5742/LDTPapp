@@ -509,32 +509,52 @@ def main(page: ft.Page):
         session.close()
         page.update()
 
-    def load_data(e):
+    def copy_data(e):
         session = Session()
-        patient_info = session.query(PatientInfo).order_by(PatientInfo.id.desc()).first()
+        patient_info = session.query(PatientInfo). \
+            filter(PatientInfo.patient_id == patient_id.value). \
+            order_by(PatientInfo.id.desc()).first()
         if patient_info:
-            patient_id.value = patient_info.patient_id
-            main_diagnosis.value = patient_info.main_diagnosis
-            sheet_name_dropdown.value = patient_info.sheet_name
-            patient_info.creation_count = patient_info.creation_count
-            target_weight.value = patient_info.target_weight
-            goal1.value = patient_info.goal1
-            goal2.value = patient_info.goal2
-            diet.value = patient_info.diet
-            exercise_prescription.value = patient_info.exercise_prescription
-            exercise_time.value = patient_info.exercise_time
-            exercise_frequency.value = patient_info.exercise_frequency
-            exercise_intensity.value = patient_info.exercise_intensity
-            daily_activity.value = patient_info.daily_activity
-            nonsmoker.value = patient_info.nonsmoker == 'True'
-            smoking_cessation.value = patient_info.smoking_cessation == 'True'
-            other1.value = patient_info.other1
-            other2.value = patient_info.other2
+            new_patient_info = PatientInfo(
+                patient_id=patient_info.patient_id,
+                patient_name=patient_info.patient_name,
+                kana=patient_info.kana,
+                gender=patient_info.gender,
+                birthdate=patient_info.birthdate,
+                issue_date=datetime.now().date(),
+                doctor_id=patient_info.doctor_id,
+                doctor_name=patient_info.doctor_name,
+                department=patient_info.department,
+                main_diagnosis=patient_info.main_diagnosis,
+                sheet_name=patient_info.sheet_name,
+                creation_count=patient_info.creation_count + 1,
+                target_weight=patient_info.target_weight,
+                goal1=patient_info.goal1,
+                goal2=patient_info.goal2,
+                diet=patient_info.diet,
+                exercise_prescription=patient_info.exercise_prescription,
+                exercise_time=patient_info.exercise_time,
+                exercise_frequency=patient_info.exercise_frequency,
+                exercise_intensity=patient_info.exercise_intensity,
+                daily_activity=patient_info.daily_activity,
+                nonsmoker=patient_info.nonsmoker,
+                smoking_cessation=patient_info.smoking_cessation,
+                other1=patient_info.other1,
+                other2=patient_info.other2
+            )
+            session.add(new_patient_info)
+            session.commit()
+            selected_row = {"id": PatientInfo.id + 1}
+            session.close()
+            page.snack_bar = ft.SnackBar(
+                ft.Text("前回データをコピーしました"),
+                duration=2000,
+            )
+            page.snack_bar.open = True
 
         session.close()
+        update_history(int(patient_id.value))
         page.update()
-        open_copy(e)
-
 
     def delete_data(e):
         session = Session()
@@ -992,7 +1012,7 @@ def main(page: ft.Page):
 
     buttons = ft.Row([
         ft.ElevatedButton("新規作成", on_click=open_create),
-        ft.ElevatedButton("前回コピー", on_click=load_data),
+        ft.ElevatedButton("前回コピー", on_click=copy_data),
         ft.ElevatedButton("テンプレート編集", on_click=open_templete),
     ])
 
