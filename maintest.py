@@ -516,7 +516,7 @@ def main(page: ft.Page):
             patient_id.value = patient_info.patient_id
             main_diagnosis.value = patient_info.main_diagnosis
             sheet_name_dropdown.value = patient_info.sheet_name
-            creation_count.value = patient_info.creation_count
+            patient_info.creation_count = patient_info.creation_count
             target_weight.value = patient_info.target_weight
             goal1.value = patient_info.goal1
             goal2.value = patient_info.goal2
@@ -530,9 +530,11 @@ def main(page: ft.Page):
             smoking_cessation.value = patient_info.smoking_cessation == 'True'
             other1.value = patient_info.other1
             other2.value = patient_info.other2
+
         session.close()
         page.update()
         open_copy(e)
+
 
     def delete_data(e):
         session = Session()
@@ -847,7 +849,7 @@ def main(page: ft.Page):
                                 ft.Text("前回コピー", size=14),
                                 main_diagnosis,
                                 sheet_name_dropdown,
-                                creation_count_plus,
+                                creation_count,
                                 ft.Text("回目", size=14),
                             ]
                         ),
@@ -919,27 +921,11 @@ def main(page: ft.Page):
     sheet_name_options = load_sheet_names(main_diagnosis.value)
     sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=150,value="",
                                       on_change=on_sheet_name_change, autofocus=True)
-
-    def update_creation_count(e):
-        try:
-            count = int(creation_count.value)
-            creation_count_plus.value = str(count + 1)
-            goal1.focus()
-        except ValueError:
-            pass
-
     creation_count = ft.TextField(
         label="作成回数",
         width=150,
         value="1",
-        on_submit=update_creation_count,
-    )
-
-    creation_count_plus = ft.TextField(
-        label="作成回数",
-        width=150,
-        value="1",
-        on_submit=update_creation_count,
+        on_submit=lambda _: goal1.focus()
     )
     target_weight = ft.TextField(label="目標体重", width=150, value="", on_submit=lambda _: goal2.focus())
     goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=600, value="達成目標を入力してください",
