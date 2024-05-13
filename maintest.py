@@ -167,8 +167,8 @@ def format_date(date_str):
 
 def main(page: ft.Page):
     page.title = "生活習慣病療養計画書"
-    page.scroll = "auto"
-    page.route = "/"
+    page.window_width = 1200
+    page.window_height = 800
 
     # 初期データの挿入
     session = Session()
