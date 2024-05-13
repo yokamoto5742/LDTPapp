@@ -385,7 +385,11 @@ def main(page: ft.Page):
         file_path = r"C:\Shinseikai\LDTPapp" + "\\" + new_file_name
         workbook.save(file_path)
         wb = load_workbook(file_path, read_only=False, keep_vba=True)
-        wb.active = wb["計画書"]
+        ws_common = wb["共通情報"]
+        ws_common.sheet_view.tabSelected = False
+        ws_plan = wb["計画書"]
+        ws_plan.sheet_view.tabSelected = True
+        wb.active = ws_plan
         wb.save(file_path)
         os.startfile(file_path)
 
@@ -408,7 +412,11 @@ def main(page: ft.Page):
                 file_path = r"C:\Shinseikai\LDTPapp" + "\\" + new_file_name
                 workbook.save(file_path)
                 wb = load_workbook(file_path, read_only=False, keep_vba=True)
-                wb.active = wb["計画書"]
+                ws_common = wb["共通情報"]
+                ws_common.sheet_view.tabSelected = False
+                ws_plan = wb["計画書"]
+                ws_plan.sheet_view.tabSelected = True
+                wb.active = ws_plan
                 wb.save(file_path)
                 os.startfile(file_path)
 
