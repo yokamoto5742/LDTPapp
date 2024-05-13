@@ -87,20 +87,20 @@ Base.metadata.create_all(engine)
 
 class TemplateEditor(ft.Control):
     def build(self):
-        self.main_disease_dropdown = ft.Dropdown(label="主病名", options=load_main_diseases(), width=150)
-        self.sheet_name_dropdown = ft.Dropdown(label="シート名", width=150)
-        self.goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=600)
-        self.goal2 = ft.TextField(label="②行動目標：患者と相談した目標", width=600)
+        self.main_disease_dropdown = ft.Dropdown(label="主病名", options=load_main_diseases(), width=200)
+        self.sheet_name_dropdown = ft.Dropdown(label="シート名", width=300)
+        self.goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=700)
+        self.goal2 = ft.TextField(label="②行動目標：患者と相談した目標", width=700)
         self.diet = ft.TextField(label="食事", multiline=True, width=400)
-        self.exercise_prescription = ft.TextField(label="運動処方", width=300)
+        self.exercise_prescription = ft.TextField(label="運動処方", width=200)
         self.exercise_time = ft.TextField(label="時間", width=200)
-        self.exercise_frequency = ft.TextField(label="頻度", width=200)
-        self.exercise_intensity = ft.TextField(label="強度", width=200)
+        self.exercise_frequency = ft.TextField(label="頻度", width=300)
+        self.exercise_intensity = ft.TextField(label="強度", width=300)
         self.daily_activity = ft.TextField(label="日常生活の活動量増加", width=400)
         self.nonsmoker = ft.Checkbox(label="非喫煙者である")
         self.smoking_cessation = ft.Checkbox(label="禁煙の実施方法等を指示")
-        self.other1 = ft.TextField(label="その他1", width=300)
-        self.other2 = ft.TextField(label="その他2", width=300)
+        self.other1 = ft.TextField(label="その他1", width=400)
+        self.other2 = ft.TextField(label="その他2", width=400)
 
         self.save_button = ft.ElevatedButton("保存", on_click=self.save_template)
         self.cancel_button = ft.ElevatedButton("キャンセル", on_click=self.cancel_edit)
@@ -167,8 +167,8 @@ def format_date(date_str):
 
 def main(page: ft.Page):
     page.title = "生活習慣病療養計画書"
-    page.scroll = "auto"
-    page.route = "/"
+    page.window_width = 1200
+    page.window_height = 800
 
     # 初期データの挿入
     session = Session()
@@ -385,7 +385,11 @@ def main(page: ft.Page):
         file_path = r"C:\Shinseikai\LDTPapp" + "\\" + new_file_name
         workbook.save(file_path)
         wb = load_workbook(file_path, read_only=False, keep_vba=True)
-        wb.active = wb["計画書"]
+        ws_common = wb["共通情報"]
+        ws_common.sheet_view.tabSelected = False
+        ws_plan = wb["計画書"]
+        ws_plan.sheet_view.tabSelected = True
+        wb.active = ws_plan
         wb.save(file_path)
         os.startfile(file_path)
 
@@ -408,7 +412,11 @@ def main(page: ft.Page):
                 file_path = r"C:\Shinseikai\LDTPapp" + "\\" + new_file_name
                 workbook.save(file_path)
                 wb = load_workbook(file_path, read_only=False, keep_vba=True)
-                wb.active = wb["計画書"]
+                ws_common = wb["共通情報"]
+                ws_common.sheet_view.tabSelected = False
+                ws_plan = wb["計画書"]
+                ws_plan.sheet_view.tabSelected = True
+                wb.active = ws_plan
                 wb.save(file_path)
                 os.startfile(file_path)
 
@@ -904,53 +912,46 @@ def main(page: ft.Page):
     department_value = ft.TextField(label="診療科", read_only=True, width=150)
 
     main_disease_options = load_main_diseases()
-    main_diagnosis = ft.Dropdown(label="主病名", options=main_disease_options, width=150, value="",
+    main_diagnosis = ft.Dropdown(label="主病名", options=main_disease_options, width=200, value="",
                                  on_change=on_main_diagnosis_change, autofocus=True)
     sheet_name_options = load_sheet_names(main_diagnosis.value)
-    sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=150,value="",
+    sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=300,value="",
                                       on_change=on_sheet_name_change, autofocus=True)
     creation_count = ft.TextField(
         label="作成回数",
-        width=150,
+        width=100,
         value="1",
         on_submit=lambda _: goal1.focus()
     )
-    target_weight = ft.TextField(label="目標体重", width=150, value="", on_submit=lambda _: goal2.focus())
-    goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=600, value="達成目標を入力してください",
+    target_weight = ft.TextField(label="目標体重", width=100, value="", on_submit=lambda _: goal2.focus())
+    goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=700, value="達成目標を入力してください",
                          on_submit=lambda _: target_weight.focus())
-    goal2 = ft.TextField(label="②行動目標：患者と相談した目標", width=600, value="行動目標を入力してください",
+    goal2 = ft.TextField(label="②行動目標：患者と相談した目標", width=700, value="行動目標を入力してください",
                          on_submit=lambda _: diet.focus())
 
     diet = ft.TextField(
         label="食事",
         multiline=True,
         disabled=False,
-        value="食事量を適正にする\n食物繊維の摂取量を増やす\nゆっくり食べる\n間食を減らす",
+        value="",
         width=400,
         on_submit=lambda _: exercise_prescription.focus()
     )
-    diet = ft.TextField(
-        label="食事",
-        multiline=True,
-        disabled=False,
-        value="食事量を適正にする\n食物繊維の摂取量を増やす\nゆっくり食べる\n間食を減らす",
-        width=400,
-        on_submit=lambda _: exercise_prescription.focus()
-    )
-    exercise_prescription = ft.TextField(label="運動処方", width=400, value="ウォーキング",
+
+    exercise_prescription = ft.TextField(label="運動処方", width=200, value="ウォーキング",
                                          on_submit=lambda _: exercise_time.focus())
     exercise_time = ft.TextField(label="時間", value="30分以上", width=200,
                                  on_submit=lambda _: exercise_frequency.focus())
-    exercise_frequency = ft.TextField(label="頻度", value="ほぼ毎日", width=200,
+    exercise_frequency = ft.TextField(label="頻度", value="ほぼ毎日", width=300,
                                       on_submit=lambda _: exercise_intensity.focus())
-    exercise_intensity = ft.TextField(label="強度", value="少し汗をかく程度", width=200,
+    exercise_intensity = ft.TextField(label="強度", value="少し汗をかく程度", width=300,
                                       on_submit=lambda _: daily_activity.focus())
     daily_activity = ft.TextField(label="日常生活の活動量増加", value="1日8000歩以上", width=400,
                                   on_submit=lambda _: other1.focus())
     nonsmoker = ft.Checkbox(label="非喫煙者である", value=True)
     smoking_cessation = ft.Checkbox(label="禁煙の実施方法等を指示")
-    other1 = ft.TextField(label="その他1", value="睡眠の確保１日７時間", width=300, on_submit=lambda _: other2.focus())
-    other2 = ft.TextField(label="その他2", value="家庭での毎日の歩数の測定", width=300)
+    other1 = ft.TextField(label="その他1", value="睡眠の確保１日７時間", width=400, on_submit=lambda _: other2.focus())
+    other2 = ft.TextField(label="その他2", value="家庭での毎日の歩数の測定", width=400)
 
     guidance_items = ft.Column([
         diet,
