@@ -859,35 +859,6 @@ def main(page: ft.Page):
             )
         page.update()
 
-        if page.route == "/copy":
-            page.views.append(
-                View(
-                    "/copy",
-                    [
-                        ft.Row(
-                            controls=[
-                                ft.Text("前回コピー", size=14),
-                                main_diagnosis,
-                                sheet_name_dropdown,
-                                creation_count,
-                                ft.Text("回目", size=14),
-                            ]
-                        ),
-                        ft.Row(
-                            controls=[
-                                goal1,
-                                target_weight,
-                                ft.Text("kg", size=14),
-                            ]
-                        ),
-                        goal2,
-                        guidance_items,
-                        create_buttons,
-                    ],
-                )
-            )
-        page.update()
-
     # 現在のページを削除して、前のページに戻る
     def view_pop(e):
         print("View pop:", e.view)
@@ -903,9 +874,6 @@ def main(page: ft.Page):
 
     def open_templete(e):
         page.go("/templete")
-
-    def open_copy(e):
-        page.go("/copy")
 
     def open_route(e):
         for field in [main_diagnosis, target_weight, goal1, goal2, diet,
