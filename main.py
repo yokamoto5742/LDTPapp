@@ -509,30 +509,52 @@ def main(page: ft.Page):
         session.close()
         page.update()
 
-    def load_data(e):
+    def copy_data(e):
         session = Session()
-        patient_info = session.query(PatientInfo).order_by(PatientInfo.id.desc()).first()
+        patient_info = session.query(PatientInfo). \
+            filter(PatientInfo.patient_id == patient_id.value). \
+            order_by(PatientInfo.id.desc()).first()
         if patient_info:
-            patient_id.value = patient_info.patient_id
-            main_diagnosis.value = patient_info.main_diagnosis
-            sheet_name_dropdown.value = patient_info.sheet_name
-            creation_count.value = patient_info.creation_count
-            target_weight.value = patient_info.target_weight
-            goal1.value = patient_info.goal1
-            goal2.value = patient_info.goal2
-            diet.value = patient_info.diet
-            exercise_prescription.value = patient_info.exercise_prescription
-            exercise_time.value = patient_info.exercise_time
-            exercise_frequency.value = patient_info.exercise_frequency
-            exercise_intensity.value = patient_info.exercise_intensity
-            daily_activity.value = patient_info.daily_activity
-            nonsmoker.value = patient_info.nonsmoker == 'True'
-            smoking_cessation.value = patient_info.smoking_cessation == 'True'
-            other1.value = patient_info.other1
-            other2.value = patient_info.other2
+            new_patient_info = PatientInfo(
+                patient_id=patient_info.patient_id,
+                patient_name=patient_info.patient_name,
+                kana=patient_info.kana,
+                gender=patient_info.gender,
+                birthdate=patient_info.birthdate,
+                issue_date=datetime.now().date(),
+                doctor_id=patient_info.doctor_id,
+                doctor_name=patient_info.doctor_name,
+                department=patient_info.department,
+                main_diagnosis=patient_info.main_diagnosis,
+                sheet_name=patient_info.sheet_name,
+                creation_count=patient_info.creation_count + 1,
+                target_weight=patient_info.target_weight,
+                goal1=patient_info.goal1,
+                goal2=patient_info.goal2,
+                diet=patient_info.diet,
+                exercise_prescription=patient_info.exercise_prescription,
+                exercise_time=patient_info.exercise_time,
+                exercise_frequency=patient_info.exercise_frequency,
+                exercise_intensity=patient_info.exercise_intensity,
+                daily_activity=patient_info.daily_activity,
+                nonsmoker=patient_info.nonsmoker,
+                smoking_cessation=patient_info.smoking_cessation,
+                other1=patient_info.other1,
+                other2=patient_info.other2
+            )
+            session.add(new_patient_info)
+            session.commit()
+            selected_row = {"id": PatientInfo.id + 1}
+            session.close()
+            page.snack_bar = ft.SnackBar(
+                ft.Text("前回データをコピーしました"),
+                duration=2000,
+            )
+            page.snack_bar.open = True
+
         session.close()
+        update_history(int(patient_id.value))
         page.update()
-        open_copy(e)
 
     def delete_data(e):
         session = Session()
@@ -837,35 +859,6 @@ def main(page: ft.Page):
             )
         page.update()
 
-        if page.route == "/copy":
-            page.views.append(
-                View(
-                    "/copy",
-                    [
-                        ft.Row(
-                            controls=[
-                                ft.Text("前回コピー", size=14),
-                                main_diagnosis,
-                                sheet_name_dropdown,
-                                creation_count_plus,
-                                ft.Text("回目", size=14),
-                            ]
-                        ),
-                        ft.Row(
-                            controls=[
-                                goal1,
-                                target_weight,
-                                ft.Text("kg", size=14),
-                            ]
-                        ),
-                        goal2,
-                        guidance_items,
-                        create_buttons,
-                    ],
-                )
-            )
-        page.update()
-
     # 現在のページを削除して、前のページに戻る
     def view_pop(e):
         print("View pop:", e.view)
@@ -881,9 +874,6 @@ def main(page: ft.Page):
 
     def open_templete(e):
         page.go("/templete")
-
-    def open_copy(e):
-        page.go("/copy")
 
     def open_route(e):
         for field in [main_diagnosis, target_weight, goal1, goal2, diet,
@@ -919,27 +909,11 @@ def main(page: ft.Page):
     sheet_name_options = load_sheet_names(main_diagnosis.value)
     sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=150,value="",
                                       on_change=on_sheet_name_change, autofocus=True)
-
-    def update_creation_count(e):
-        try:
-            count = int(creation_count.value)
-            creation_count_plus.value = str(count + 1)
-            goal1.focus()
-        except ValueError:
-            pass
-
     creation_count = ft.TextField(
         label="作成回数",
         width=150,
         value="1",
-        on_submit=update_creation_count,
-    )
-
-    creation_count_plus = ft.TextField(
-        label="作成回数",
-        width=150,
-        value="1",
-        on_submit=update_creation_count,
+        on_submit=lambda _: goal1.focus()
     )
     target_weight = ft.TextField(label="目標体重", width=150, value="", on_submit=lambda _: goal2.focus())
     goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=600, value="達成目標を入力してください",
@@ -1006,7 +980,7 @@ def main(page: ft.Page):
 
     buttons = ft.Row([
         ft.ElevatedButton("新規作成", on_click=open_create),
-        ft.ElevatedButton("前回コピー", on_click=load_data),
+        ft.ElevatedButton("前回コピー", on_click=copy_data),
         ft.ElevatedButton("テンプレート編集", on_click=open_templete),
     ])
 
