@@ -116,7 +116,7 @@ def load_sheet_names(main_disease):
     else:
         sheet_names = session.query(SheetName).all()
     session.close()
-    return [ft.dropdown.Option(sheet.name) for sheet in sheet_names]
+    return [ft.dropdown.Option(str(sheet.name)) for sheet in sheet_names]
 
 
 def format_date(date_str):
@@ -289,8 +289,8 @@ def main(page: ft.Page):
         common_sheet["B20"] = patient_info.exercise_frequency
         common_sheet["B21"] = patient_info.exercise_intensity
         common_sheet["B22"] = patient_info.daily_activity
-        common_sheet["B23"] = str(patient_info.nonsmoker)
-        common_sheet["B24"] = str(patient_info.smoking_cessation)
+        common_sheet["B23"] = patient_info.nonsmoker
+        common_sheet["B24"] = patient_info.smoking_cessation
         common_sheet["B25"] = patient_info.other1
         common_sheet["B26"] = patient_info.other2
 
@@ -321,7 +321,7 @@ def main(page: ft.Page):
             department=department,
             main_diagnosis=main_diagnosis.value,
             sheet_name=sheet_name_dropdown.value,
-            creation_count=creation_count.value,
+            creation_count=int(creation_count.value),
             target_weight=float(target_weight.value) if target_weight.value else None,
             goal1=goal1.value,
             goal2=goal2.value,
@@ -331,8 +331,8 @@ def main(page: ft.Page):
             exercise_frequency=exercise_frequency.value,
             exercise_intensity=exercise_intensity.value,
             daily_activity=daily_activity.value,
-            nonsmoker=str(nonsmoker.value),
-            smoking_cessation=str(smoking_cessation.value),
+            nonsmoker=nonsmoker.value,
+            smoking_cessation=smoking_cessation.value,
             other1=other1.value,
             other2=other2.value
         )
@@ -428,8 +428,8 @@ def main(page: ft.Page):
                 patient_info.exercise_frequency = exercise_frequency.value
                 patient_info.exercise_intensity = exercise_intensity.value
                 patient_info.daily_activity = daily_activity.value
-                patient_info.nonsmoker = str(nonsmoker.value)
-                patient_info.smoking_cessation = str(smoking_cessation.value)
+                patient_info.nonsmoker = nonsmoker.value
+                patient_info.smoking_cessation = smoking_cessation.value
                 patient_info.other1 = other1.value
                 patient_info.other2 = other2.value
                 session.commit()
@@ -461,8 +461,8 @@ def main(page: ft.Page):
                 exercise_frequency=exercise_frequency.value,
                 exercise_intensity=exercise_intensity.value,
                 daily_activity=daily_activity.value,
-                nonsmoker=str(nonsmoker.value),
-                smoking_cessation=str(smoking_cessation.value),
+                nonsmoker=nonsmoker.value,
+                smoking_cessation=smoking_cessation.value,
                 other1=other1.value,
                 other2=other2.value
             )
@@ -567,8 +567,8 @@ def main(page: ft.Page):
                 exercise_frequency.value = patient_info.exercise_frequency
                 exercise_intensity.value = patient_info.exercise_intensity
                 daily_activity.value = patient_info.daily_activity
-                nonsmoker.value = patient_info.nonsmoker == 'True'
-                smoking_cessation.value = patient_info.smoking_cessation == 'True'
+                nonsmoker.value = patient_info.nonsmoker
+                smoking_cessation.value = patient_info.smoking_cessation
                 other1.value = patient_info.other1
                 other2.value = patient_info.other2
             session.close()
