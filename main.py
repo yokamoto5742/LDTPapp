@@ -44,8 +44,8 @@ class PatientInfo(Base):
     exercise_frequency = Column(String)
     exercise_intensity = Column(String)
     daily_activity = Column(String)
-    nonsmoker = Column(String)
-    smoking_cessation = Column(String)
+    nonsmoker = Column(Boolean)
+    smoking_cessation = Column(Boolean)
     other1 = Column(String)
     other2 = Column(String)
     template = Column(String)
@@ -54,14 +54,15 @@ class PatientInfo(Base):
 class MainDisease(Base):
     __tablename__ = "main_diseases"
     id = Column(Integer, primary_key=True)
-    name = Column(String)
+    name = Column(String)  # 主病名
 
 
 class SheetName(Base):
     __tablename__ = "sheet_names"
     id = Column(Integer, primary_key=True)
     main_disease_id = Column(Integer)
-    name = Column(String)
+    name = Column(String)  # シート名
+
 
 class Template(Base):
     __tablename__ = 'templates'
@@ -80,49 +81,9 @@ class Template(Base):
     other1 = Column(String)
     other2 = Column(String)
 
+
 # テーブルの作成
 Base.metadata.create_all(engine)
-
-
-class TemplateEditor(ft.Control):
-    def build(self):
-        self.main_disease_dropdown = ft.Dropdown(label="主病名", options=load_main_diseases(), width=200)
-        self.sheet_name_dropdown = ft.Dropdown(label="シート名", width=300)
-        self.goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=700)
-        self.goal2 = ft.TextField(label="②行動目標：患者と相談した目標", width=700)
-        self.diet = ft.TextField(label="食事", multiline=True, width=400)
-        self.exercise_prescription = ft.TextField(label="運動処方", width=200)
-        self.exercise_time = ft.TextField(label="時間", width=200)
-        self.exercise_frequency = ft.TextField(label="頻度", width=300)
-        self.exercise_intensity = ft.TextField(label="強度", width=300)
-        self.daily_activity = ft.TextField(label="日常生活の活動量増加", width=400)
-        self.nonsmoker = ft.Checkbox(label="非喫煙者である")
-        self.smoking_cessation = ft.Checkbox(label="禁煙の実施方法等を指示")
-        self.other1 = ft.TextField(label="その他1", width=400)
-        self.other2 = ft.TextField(label="その他2", width=400)
-
-        self.save_button = ft.ElevatedButton("保存", on_click=self.save_template)
-        self.cancel_button = ft.ElevatedButton("キャンセル", on_click=self.cancel_edit)
-
-        return ft.Column([
-            ft.Row([self.main_disease_dropdown, self.sheet_name_dropdown]),
-            self.goal1,
-            self.goal2,
-            self.diet,
-            ft.Row([self.exercise_prescription, self.exercise_time, self.exercise_frequency, self.exercise_intensity]),
-            self.daily_activity,
-            ft.Row([self.nonsmoker, self.smoking_cessation]),
-            ft.Row([self.other1, self.other2]),
-            ft.Row([self.save_button, self.cancel_button]),
-        ])
-
-    def save_template(self, e):
-        # テンプレートを保存する処理を実装
-        pass
-
-    def cancel_edit(self, e):
-        # テンプレート編集をキャンセルする処理を実装
-        pass
 
 
 class TemplateManager:
