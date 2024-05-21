@@ -12,33 +12,32 @@ from sqlalchemy.orm import sessionmaker
 # SQLAlchemyの設定
 db_url = "sqlite:///ldtp_app.db"
 engine = create_engine(db_url)
-# engine = create_engine("postgresql+psycopg2://postgres:postgres@localhost/fletapp")
-# engine = create_engine("postgresql+psycopg2://postgres:postgres@192.168.3.5/fletapp")
 Session = sessionmaker(bind=engine)
 Base = declarative_base()
 
+# 治療計画書の履歴の選択を空欄にする(初期値)
 selected_row = None
 
 
 # PatientInfoモデルの定義
 class PatientInfo(Base):
     __tablename__ = 'patient_info'
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True) # 管理用ID
     patient_id = Column(Integer)
     patient_name = Column(String)
     kana = Column(String)
     gender = Column(String)
     birthdate = Column(Date)
-    issue_date = Column(Date)
+    issue_date = Column(Date) # 発行日
     doctor_id = Column(Integer)
     doctor_name = Column(String)
     department = Column(String)
     main_diagnosis = Column(String)
-    creation_count = Column(Integer)
-    target_weight = Column(Float)
     sheet_name = Column(String)
-    goal1 = Column(String)
-    goal2 = Column(String)
+    creation_count = Column(Integer)
+    goal1 = Column(String) # ①達成目標
+    goal2 = Column(String) # ②行動目標
+    target_weight = Column(Float)
     diet = Column(String)
     exercise_prescription = Column(String)
     exercise_time = Column(String)
