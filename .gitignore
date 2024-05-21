@@ -2,8 +2,5 @@ build/
 dist/
 flutter/
 
-
 ldtpapp.spec
-dist/ldtpapp/pat.csv
 ldtp_app.db
-patient_info.db
