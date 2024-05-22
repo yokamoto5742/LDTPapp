@@ -8,9 +8,14 @@ from openpyxl import load_workbook
 from sqlalchemy import create_engine, Column, Integer, String, Float, Date, Boolean
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
+import configparser
+
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+db_url = config.get('database', 'db_url')
 
 # SQLAlchemyの設定
-db_url = "sqlite:///ldtp_app.db"
 engine = create_engine(db_url)
 Session = sessionmaker(bind=engine)
 Base = declarative_base()
@@ -180,7 +185,7 @@ def main(page: ft.Page):
             Template(main_disease="高血圧", sheet_name="血圧130-80以下",
                      goal1="家庭血圧が測定でき、朝と就寝前のいずれかで130/80mmHg以下",
                      goal2="塩分を控えた食事と運動習慣を目標にする",
-                     diet="・塩分量を適正にする\n・食物繊維の摂取量を増やす\n・ゆっくり食べる\n・間食を減らす",
+                     diet="塩分量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
                      exercise_prescription="ウォーキング", exercise_time="30分以上",
                      exercise_frequency="１週間に２回以上",
                      exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上", nonsmoker=True,
@@ -188,7 +193,7 @@ def main(page: ft.Page):
             Template(main_disease="高血圧", sheet_name="血圧140-90以下",
                      goal1="家庭血圧が測定でき、朝と就寝前のいずれかで140/90mmHg以下",
                      goal2="塩分を控えた食事と運動習慣を目標にする",
-                     diet="・塩分量を適正にする\n・食物繊維の摂取量を増やす\n・ゆっくり食べる\n・間食を減らす",
+                     diet="塩分量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
                      exercise_prescription="ストレッチ運動", exercise_time="30分以上",
                      exercise_frequency="１週間に２回以上",
                      exercise_intensity="少し汗をかく程度", daily_activity="ストレッチ運動を主に行う", nonsmoker=True,
