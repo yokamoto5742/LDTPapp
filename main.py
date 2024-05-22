@@ -22,21 +22,21 @@ selected_row = None
 # PatientInfoモデルの定義
 class PatientInfo(Base):
     __tablename__ = 'patient_info'
-    id = Column(Integer, primary_key=True) # 管理用ID
+    id = Column(Integer, primary_key=True)  # 管理用ID
     patient_id = Column(Integer)
     patient_name = Column(String)
     kana = Column(String)
     gender = Column(String)
     birthdate = Column(Date)
-    issue_date = Column(Date) # 発行日
+    issue_date = Column(Date)  # 発行日
     doctor_id = Column(Integer)
     doctor_name = Column(String)
     department = Column(String)
     main_diagnosis = Column(String)
     sheet_name = Column(String)
     creation_count = Column(Integer)
-    goal1 = Column(String) # ①達成目標
-    goal2 = Column(String) # ②行動目標
+    goal1 = Column(String)  # ①達成目標
+    goal2 = Column(String)  # ②行動目標
     target_weight = Column(Float)
     diet = Column(String)
     exercise_prescription = Column(String)
@@ -120,7 +120,7 @@ def load_sheet_names(main_disease):
 
 
 def format_date(date_str):
-    if pd.isna(date_str):
+    if pd.isna(date_str):  # pd.isna()で欠損値かどうかを判定
         return ""
     return pd.to_datetime(date_str).strftime("%Y/%m/%d")
 
@@ -159,52 +159,59 @@ def main(page: ft.Page):
         templates = [
             Template(main_disease="糖尿病", sheet_name="HbAc８％", goal1="HbA1ｃを低血糖に注意して下げる",
                      goal2="ストレッチを中心とした運動/間食の制限/糖質の制限",
-                     diet="・食事量を適正にする\n・食物繊維の摂取量を増やす\n・ゆっくり食べる\n・間食を減らす",
-                     exercise_prescription="ストレッチ運動", exercise_time="10分以上", exercise_frequency="１週間に２回以上",
+                     diet="食事量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
+                     exercise_prescription="ストレッチ運動", exercise_time="10分以上",
+                     exercise_frequency="１週間に２回以上",
                      exercise_intensity="息切れしない程度", daily_activity="ストレッチ運動を主に行う", nonsmoker=True,
                      other1="睡眠の確保１日７時間", other2="家庭での毎日の歩数の測定"),
             Template(main_disease="糖尿病", sheet_name="HbAc７％", goal1="HbA1ｃ７％を目標/体重を当初の－３Kgとする",
                      goal2="１日８０００歩以上の歩行/間食の制限/糖質の制限",
-                     diet="・食事量を適正にする\n・食物繊維の摂取量を増やす\n・ゆっくり食べる\n・間食を減らす",
+                     diet="食事量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
                      exercise_prescription="ウォーキング", exercise_time="30分以上", exercise_frequency="ほぼ毎日",
                      exercise_intensity="少し汗をかく程度", daily_activity="1日8000歩以上", nonsmoker=True,
                      other1="睡眠の確保１日７時間", other2="家庭での毎日の歩数の測定"),
             Template(main_disease="糖尿病", sheet_name="HbAc６％", goal1="HbA1ｃを正常化",
                      goal2="１日５０００歩以上の歩行/間食の制限/糖質の制限",
-                     diet="・食事量を適正にする\n・食物繊維の摂取量を増やす\n・ゆっくり食べる\n・間食を減らす",
-                     exercise_prescription="ウォーキング", exercise_time="30分以上", exercise_frequency="１週間に５回以上",
+                     diet="食事量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
+                     exercise_prescription="ウォーキング", exercise_time="30分以上",
+                     exercise_frequency="１週間に５回以上",
                      exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上", nonsmoker=True,
                      other1="睡眠の確保１日７時間", other2="家庭での毎日の歩数の測定"),
             Template(main_disease="高血圧", sheet_name="血圧130-80以下",
                      goal1="家庭血圧が測定でき、朝と就寝前のいずれかで130/80mmHg以下",
                      goal2="塩分を控えた食事と運動習慣を目標にする",
                      diet="・塩分量を適正にする\n・食物繊維の摂取量を増やす\n・ゆっくり食べる\n・間食を減らす",
-                     exercise_prescription="ウォーキング", exercise_time="30分以上", exercise_frequency="１週間に２回以上",
+                     exercise_prescription="ウォーキング", exercise_time="30分以上",
+                     exercise_frequency="１週間に２回以上",
                      exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上", nonsmoker=True,
                      other1="睡眠の確保１日７時間", other2="家庭での毎日の歩数の測定"),
             Template(main_disease="高血圧", sheet_name="血圧140-90以下",
                      goal1="家庭血圧が測定でき、朝と就寝前のいずれかで140/90mmHg以下",
                      goal2="塩分を控えた食事と運動習慣を目標にする",
                      diet="・塩分量を適正にする\n・食物繊維の摂取量を増やす\n・ゆっくり食べる\n・間食を減らす",
-                     exercise_prescription="ストレッチ運動", exercise_time="30分以上", exercise_frequency="１週間に２回以上",
+                     exercise_prescription="ストレッチ運動", exercise_time="30分以上",
+                     exercise_frequency="１週間に２回以上",
                      exercise_intensity="少し汗をかく程度", daily_activity="ストレッチ運動を主に行う", nonsmoker=True,
                      other1="睡眠の確保１日７時間", other2="家庭での毎日の歩数の測定"),
             Template(main_disease="脂質異常症", sheet_name="LDL120以下", goal1="LDLコレステロール＜120/TG＜150/HDL≧40",
                      goal2="毎日の有酸素運動と食習慣の改善",
                      diet="・食事摂取量を適正にする\n・食物繊維の摂取量を増やす\n・ゆっくり食べる\n・間食を減らす",
-                     exercise_prescription="ウォーキング", exercise_time="30分以上", exercise_frequency="１週間に２回以上",
+                     exercise_prescription="ウォーキング", exercise_time="30分以上",
+                     exercise_frequency="１週間に２回以上",
                      exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上", nonsmoker=True,
                      other1="飲酒の制限、肥満度の改善", other2="家庭での毎日の歩数の測定"),
             Template(main_disease="脂質異常症", sheet_name="LDL100以下", goal1="LDLコレステロール＜100/TG＜150/HDL≧40",
                      goal2="毎日の有酸素運動と食習慣の改善",
                      diet="・食事摂取量を適正にする\n・食物繊維の摂取量を増やす\n・ゆっくり食べる\n・間食を減らす",
-                     exercise_prescription="ウォーキング", exercise_time="30分以上", exercise_frequency="１週間に２回以上",
+                     exercise_prescription="ウォーキング", exercise_time="30分以上",
+                     exercise_frequency="１週間に２回以上",
                      exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上", nonsmoker=True,
                      other1="飲酒の制限、肥満度の改善", other2="家庭での毎日の歩数の測定"),
             Template(main_disease="脂質異常症", sheet_name="LDL70以下", goal1="LDLコレステロール＜100/TG＜150/HDL≧40",
                      goal2="毎日の有酸素運動と食習慣の改善",
                      diet="・脂肪の多い食品や甘い物を控える\n・食物繊維の摂取量を増やす\n・ゆっくり食べる\n・間食を減らす",
-                     exercise_prescription="ウォーキング", exercise_time="30分以上", exercise_frequency="１週間に２回以上",
+                     exercise_prescription="ウォーキング", exercise_time="30分以上",
+                     exercise_frequency="１週間に２回以上",
                      exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上", nonsmoker=True,
                      other1="飲酒の制限、肥満度の改善", other2="家庭での毎日の歩数の測定"),
         ]
@@ -440,7 +447,7 @@ def main(page: ft.Page):
                 page.snack_bar.open = True
         else:
             patient_info = PatientInfo(
-                patient_id=patient_id.value,
+                patient_id=int(patient_id.value),
                 patient_name=name_value.value,
                 kana=kana_value.value,
                 gender=gender_value.value,
@@ -650,7 +657,7 @@ def main(page: ft.Page):
     template_manager.add_template("糖尿病", "HbAc７％", {
         "goal1": "HbA1ｃ７％を目標/体重を当初の－３Kgとする",
         "goal2": "１日８０００歩以上の歩行/間食の制限/糖質の制限",
-        "diet": "・食事量を適正にする\n・食物繊維の摂取量を増やす\n・ゆっくり食べる\n・間食を減らす",
+        "diet": "食事量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
         "exercise_prescription": "ウォーキング",
         "exercise_time": "30分以上",
         "exercise_frequency": "ほぼ毎日",
@@ -875,7 +882,7 @@ def main(page: ft.Page):
     main_diagnosis = ft.Dropdown(label="主病名", options=main_disease_options, width=200, value="",
                                  on_change=on_main_diagnosis_change, autofocus=True)
     sheet_name_options = load_sheet_names(main_diagnosis.value)
-    sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=300,value="",
+    sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=300, value="",
                                       on_change=on_sheet_name_change, autofocus=True)
     creation_count = ft.TextField(
         label="作成回数",
