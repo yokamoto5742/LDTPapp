@@ -133,7 +133,7 @@ def format_date(date_str):
 def main(page: ft.Page):
     page.title = "生活習慣病療養計画書"
     page.window_width = 1200
-    page.window_height = 800
+    page.window_height = 900
 
     # 初期データの挿入
     session = Session()
@@ -200,21 +200,21 @@ def main(page: ft.Page):
                      other1="睡眠の確保１日７時間", other2="家庭での毎日の歩数の測定"),
             Template(main_disease="脂質異常症", sheet_name="LDL120以下", goal1="LDLコレステロール＜120/TG＜150/HDL≧40",
                      goal2="毎日の有酸素運動と食習慣の改善",
-                     diet="・食事摂取量を適正にする\n・食物繊維の摂取量を増やす\n・ゆっくり食べる\n・間食を減らす",
+                     diet="食事摂取量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
                      exercise_prescription="ウォーキング", exercise_time="30分以上",
                      exercise_frequency="１週間に２回以上",
                      exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上", nonsmoker=True,
                      other1="飲酒の制限、肥満度の改善", other2="家庭での毎日の歩数の測定"),
             Template(main_disease="脂質異常症", sheet_name="LDL100以下", goal1="LDLコレステロール＜100/TG＜150/HDL≧40",
                      goal2="毎日の有酸素運動と食習慣の改善",
-                     diet="・食事摂取量を適正にする\n・食物繊維の摂取量を増やす\n・ゆっくり食べる\n・間食を減らす",
+                     diet="食事摂取量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
                      exercise_prescription="ウォーキング", exercise_time="30分以上",
                      exercise_frequency="１週間に２回以上",
                      exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上", nonsmoker=True,
                      other1="飲酒の制限、肥満度の改善", other2="家庭での毎日の歩数の測定"),
             Template(main_disease="脂質異常症", sheet_name="LDL70以下", goal1="LDLコレステロール＜100/TG＜150/HDL≧40",
                      goal2="毎日の有酸素運動と食習慣の改善",
-                     diet="・脂肪の多い食品や甘い物を控える\n・食物繊維の摂取量を増やす\n・ゆっくり食べる\n・間食を減らす",
+                     diet="脂肪の多い食品や甘い物を控える/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
                      exercise_prescription="ウォーキング", exercise_time="30分以上",
                      exercise_frequency="１週間に２回以上",
                      exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上", nonsmoker=True,
@@ -228,16 +228,14 @@ def main(page: ft.Page):
     def on_main_diagnosis_change(e):
         selected_main_disease = main_diagnosis.value
         apply_template()
-        if selected_main_disease:
-            session = Session()
-            main_disease = session.query(MainDisease).filter(MainDisease.name == selected_main_disease).first()
-            session.close()
-            if main_disease:
-                sheet_name_options = load_sheet_names(main_disease.id)
+
+        with Session() as session:
+            if selected_main_disease:
+                main_disease = session.query(MainDisease).filter_by(
+                    name=selected_main_disease).first()
+                sheet_name_options = load_sheet_names(main_disease.id) if main_disease else []
             else:
-                sheet_name_options = []
-        else:
-            sheet_name_options = load_sheet_names(None)
+                sheet_name_options = load_sheet_names(None)
 
         sheet_name_dropdown.options = sheet_name_options
         sheet_name_dropdown.value = ""
