@@ -135,6 +135,12 @@ def main(page: ft.Page):
     page.window_width = 1200
     page.window_height = 900
 
+    # pat.csvの読み込み
+    df_patients = load_patient_data()
+    initial_patient_id = ""
+    if not df_patients.empty:
+        initial_patient_id = int(df_patients.iloc[0, 2])
+
     # 初期データの挿入
     session = Session()
     if session.query(MainDisease).count() == 0:
@@ -245,15 +251,8 @@ def main(page: ft.Page):
         apply_template()
         page.update()
 
-    df_patients = load_patient_data()
-    print(df_patients)
-    # CSVファイルから1行目の患者IDを取得
-    initial_patient_id = ""
-    if not df_patients.empty:
-        initial_patient_id = str(df_patients.iloc[0, 2])
-
-    def load_patient_info(patient_id):
-        patient_info = df_patients[df_patients.iloc[:, 2] == patient_id]
+    def load_patient_info(patient_id_arg):
+        patient_info = df_patients[df_patients.iloc[:, 2] == patient_id_arg]
         if not patient_info.empty:
             patient_info = patient_info.iloc[0]
             issue_date_value.value = format_date(patient_info.iloc[0])
