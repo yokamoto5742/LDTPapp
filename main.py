@@ -33,7 +33,7 @@ class PatientInfo(Base):
     kana = Column(String)
     gender = Column(String)
     birthdate = Column(Date)
-    issue_date = Column(Date)  # 発行日
+    issue_date = Column(Date, nullable=False)
     doctor_id = Column(Integer)
     doctor_name = Column(String)
     department = Column(String)
@@ -303,7 +303,7 @@ def main(page: ft.Page):
         patient_info = df_patients[df_patients.iloc[:, 2] == patient_id_arg]
         if not patient_info.empty:
             patient_info = patient_info.iloc[0]
-            issue_date_value.value = format_date(patient_info.iloc[0])
+            issue_date_value.value = datetime.now().date()
             name_value.value = patient_info.iloc[3]
             kana_value.value = patient_info.iloc[4]
             gender_value.value = "男性" if patient_info.iloc[5] == 1 else "女性"
@@ -396,67 +396,69 @@ def main(page: ft.Page):
         global selected_row
         session = Session()
         if selected_row is not None:
-            patient_info = session.query(PatientInfo).filter(PatientInfo.id == selected_row['id']).first()
-            if patient_info:
-                patient_info.patient_id = int(patient_id.value)
-                patient_info.patient_name = name_value.value
-                patient_info.kana = kana_value.value
-                patient_info.gender = gender_value.value
-                patient_info.birthdate = datetime.strptime(birthdate_value.value, "%Y/%m/%d").date()
-                patient_info.issue_date = datetime.strptime(issue_date_value.value, "%Y/%m/%d").date()
-                patient_info.doctor_id = int(doctor_id_value.value)
-                patient_info.doctor_name = doctor_name_value.value
-                patient_info.department = department_value.value
-                patient_info.main_diagnosis = main_diagnosis.value
-                patient_info.sheet_name = sheet_name_dropdown.value
-                patient_info.creation_count = creation_count.value
-                patient_info.target_weight = target_weight.value if target_weight.value else None
-                patient_info.goal1 = goal1.value
-                patient_info.goal2 = goal2.value
-                patient_info.diet = diet.value
-                patient_info.exercise_prescription = exercise_prescription.value
-                patient_info.exercise_time = exercise_time.value
-                patient_info.exercise_frequency = exercise_frequency.value
-                patient_info.exercise_intensity = exercise_intensity.value
-                patient_info.daily_activity = daily_activity.value
-                patient_info.nonsmoker = nonsmoker.value
-                patient_info.smoking_cessation = smoking_cessation.value
-                patient_info.other1 = other1.value
-                patient_info.other2 = other2.value
-                session.commit()
-                page.snack_bar = ft.SnackBar(
-                    ft.Text("データが更新されました"),
-                    duration=2000,
+            if 'id' in selected_row:
+                patient_info = session.query(PatientInfo).filter(PatientInfo.id == selected_row['id']).first()
+                if patient_info:
+                    patient_info.patient_id = int(patient_id.value)
+                    patient_info.patient_name = name_value.value
+                    patient_info.kana = kana_value.value
+                    patient_info.gender = gender_value.value
+                    patient_info.birthdate = datetime.strptime(birthdate_value.value, "%Y/%m/%d").date()
+                    patient_info.issue_date = datetime.now().date()
+                    patient_info.doctor_id = int(doctor_id_value.value)
+                    patient_info.doctor_name = doctor_name_value.value
+                    patient_info.department = department_value.value
+                    patient_info.main_diagnosis = main_diagnosis.value
+                    patient_info.sheet_name = sheet_name_dropdown.value
+                    patient_info.creation_count = creation_count.value
+                    patient_info.target_weight = target_weight.value if target_weight.value else None
+                    patient_info.goal1 = goal1.value
+                    patient_info.goal2 = goal2.value
+                    patient_info.diet = diet.value
+                    patient_info.exercise_prescription = exercise_prescription.value
+                    patient_info.exercise_time = exercise_time.value
+                    patient_info.exercise_frequency = exercise_frequency.value
+                    patient_info.exercise_intensity = exercise_intensity.value
+                    patient_info.daily_activity = daily_activity.value
+                    patient_info.nonsmoker = nonsmoker.value
+                    patient_info.smoking_cessation = smoking_cessation.value
+                    patient_info.other1 = other1.value
+                    patient_info.other2 = other2.value
+                    session.commit()
+                    page.snack_bar = ft.SnackBar(
+                        ft.Text("データが更新されました"),
+                        duration=2000,
+                    )
+                    page.snack_bar.open = True
+            else:
+                patient_info = PatientInfo(
+                    patient_id=int(patient_id.value),
+                    patient_name=name_value.value,
+                    kana=kana_value.value,
+                    gender=gender_value.value,
+                    birthdate=datetime.strptime(birthdate_value.value, "%Y/%m/%d").date(),
+                    issue_date=datetime.now().date(),
+                    doctor_id=int(doctor_id_value.value),
+                    doctor_name=doctor_name_value.value,
+                    department=department_value.value,
+                    main_diagnosis=main_diagnosis.value,
+                    sheet_name=sheet_name_dropdown.value if sheet_name_dropdown.value else None,
+                    creation_count=int(creation_count.value),
+                    target_weight=float(target_weight.value) if target_weight.value else None,
+                    goal1=goal1.value,
+                    goal2=goal2.value,
+                    diet=diet.value,
+                    exercise_prescription=exercise_prescription.value,
+                    exercise_time=exercise_time.value,
+                    exercise_frequency=exercise_frequency.value,
+                    exercise_intensity=exercise_intensity.value,
+                    daily_activity=daily_activity.value,
+                    nonsmoker=nonsmoker.value,
+                    smoking_cessation=smoking_cessation.value,
+                    other1=other1.value,
+                    other2=other2.value
                 )
-                page.snack_bar.open = True
-        else:
-            patient_info = PatientInfo(
-                patient_id=int(patient_id.value),
-                patient_name=name_value.value,
-                kana=kana_value.value,
-                gender=gender_value.value,
-                birthdate=datetime.strptime(birthdate_value.value, "%Y/%m/%d").date(),
-                issue_date=datetime.now().date(),  # 現在の日付を設定
-                doctor_id=int(doctor_id_value.value),  # doctor_id_value.valueを整数に変換して設定
-                doctor_name=doctor_name_value.value,
-                department=department_value.value,
-                main_diagnosis=main_diagnosis.value,
-                sheet_name=sheet_name_dropdown.value if sheet_name_dropdown.value else None,
-                creation_count=int(creation_count.value),
-                target_weight=float(target_weight.value) if target_weight.value else None,
-                goal1=goal1.value,
-                goal2=goal2.value,
-                diet=diet.value,
-                exercise_prescription=exercise_prescription.value,
-                exercise_time=exercise_time.value,
-                exercise_frequency=exercise_frequency.value,
-                exercise_intensity=exercise_intensity.value,
-                daily_activity=daily_activity.value,
-                nonsmoker=nonsmoker.value,
-                smoking_cessation=smoking_cessation.value,
-                other1=other1.value,
-                other2=other2.value
-            )
+
             session.add(patient_info)
             session.commit()
             page.snack_bar = ft.SnackBar(
@@ -841,7 +843,7 @@ def main(page: ft.Page):
             field.value = ""
 
         sheet_name_dropdown.value = ""
-        creation_count.value = ""
+        creation_count.value = 1  # 作成回数の初期値を再設定
         nonsmoker.value = False
         smoking_cessation.value = False
 
