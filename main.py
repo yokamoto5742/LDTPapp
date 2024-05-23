@@ -69,6 +69,54 @@ class SheetName(Base):
     name = Column(String)  # シート名
 
 
+class TreatmentPlanGenerator:
+    @staticmethod
+    def generate_plan(patient_info, file_name):
+        current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
+        workbook = load_workbook(r"C:\Shinseikai\LDTPapp\生活習慣病療養計画書.xlsm", keep_vba=True)
+        common_sheet = workbook["共通情報"]
+        TreatmentPlanGenerator.populate_common_sheet(common_sheet, patient_info)
+        new_file_name = f"{file_name}_{current_datetime}.xlsm"
+        file_path = r"C:\Shinseikai\LDTPapp" + "\\" + new_file_name
+        workbook.save(file_path)
+        wb = load_workbook(file_path, read_only=False, keep_vba=True)
+        ws_common = wb["共通情報"]
+        ws_common.sheet_view.tabSelected = False
+        ws_plan = wb["計画書"]
+        ws_plan.sheet_view.tabSelected = True
+        wb.active = ws_plan
+        wb.save(file_path)
+        os.startfile(file_path)
+
+    @staticmethod
+    def populate_common_sheet(common_sheet, patient_info):
+        common_sheet["B2"] = patient_info.patient_id
+        common_sheet["B3"] = patient_info.patient_name
+        common_sheet["B4"] = patient_info.kana
+        common_sheet["B5"] = patient_info.gender
+        common_sheet["B6"] = patient_info.birthdate
+        common_sheet["B7"] = patient_info.issue_date.strftime("%Y/%m/%d")
+        common_sheet["B8"] = patient_info.doctor_id
+        common_sheet["B9"] = patient_info.doctor_name
+        common_sheet["B10"] = patient_info.department
+        common_sheet["B11"] = patient_info.main_diagnosis
+        common_sheet["B12"] = patient_info.creation_count
+        common_sheet["B13"] = patient_info.target_weight
+        common_sheet["B14"] = patient_info.sheet_name
+        common_sheet["B15"] = patient_info.goal1
+        common_sheet["B16"] = patient_info.goal2
+        common_sheet["B17"] = patient_info.diet
+        common_sheet["B18"] = patient_info.exercise_prescription
+        common_sheet["B19"] = patient_info.exercise_time
+        common_sheet["B20"] = patient_info.exercise_frequency
+        common_sheet["B21"] = patient_info.exercise_intensity
+        common_sheet["B22"] = patient_info.daily_activity
+        common_sheet["B23"] = patient_info.nonsmoker
+        common_sheet["B24"] = patient_info.smoking_cessation
+        common_sheet["B25"] = patient_info.other1
+        common_sheet["B26"] = patient_info.other2
+
+
 class Template(Base):
     __tablename__ = 'templates'
     id = Column(Integer, primary_key=True)
@@ -276,48 +324,13 @@ def main(page: ft.Page):
             department_value.value = ""
         page.update()
 
-    # Excelファイルの共通情報シートにデータを埋め込む
-    def populate_common_sheet(common_sheet, patient_info):
-        common_sheet["B2"] = patient_info.patient_id
-        common_sheet["B3"] = patient_info.patient_name
-        common_sheet["B4"] = patient_info.kana
-        common_sheet["B5"] = patient_info.gender
-        common_sheet["B6"] = patient_info.birthdate
-        common_sheet["B7"] = patient_info.issue_date.strftime("%Y/%m/%d")
-        common_sheet["B8"] = patient_info.doctor_id
-        common_sheet["B9"] = patient_info.doctor_name
-        common_sheet["B10"] = patient_info.department
-        common_sheet["B11"] = patient_info.main_diagnosis
-        common_sheet["B12"] = patient_info.creation_count
-        common_sheet["B13"] = patient_info.target_weight
-        common_sheet["B14"] = patient_info.sheet_name
-        common_sheet["B15"] = patient_info.goal1
-        common_sheet["B16"] = patient_info.goal2
-        common_sheet["B17"] = patient_info.diet
-        common_sheet["B18"] = patient_info.exercise_prescription
-        common_sheet["B19"] = patient_info.exercise_time
-        common_sheet["B20"] = patient_info.exercise_frequency
-        common_sheet["B21"] = patient_info.exercise_intensity
-        common_sheet["B22"] = patient_info.daily_activity
-        common_sheet["B23"] = patient_info.nonsmoker
-        common_sheet["B24"] = patient_info.smoking_cessation
-        common_sheet["B25"] = patient_info.other1
-        common_sheet["B26"] = patient_info.other2
-
     def create_treatment_plan(p_id, doctor_id, doctor_name, department, patients_df):
         session = Session()
-
         try:
-            current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
-            workbook = load_workbook(r"C:\Shinseikai\LDTPapp\生活習慣病療養計画書.xlsm", keep_vba=True)
-            common_sheet = workbook["共通情報"]
             patient_info_csv = patients_df.loc[patients_df.iloc[:, 2] == p_id]
-
             if patient_info_csv.empty:
                 raise ValueError(f"患者ID {p_id} が見つかりません。")
-
             patient_info = patient_info_csv.iloc[0]
-
             treatment_plan = PatientInfo(
                 patient_id=p_id,
                 patient_name=patient_info.iloc[3],
@@ -330,7 +343,7 @@ def main(page: ft.Page):
                 department=department,
                 main_diagnosis=main_diagnosis.value,
                 sheet_name=sheet_name_dropdown.value,
-                creation_count=int(creation_count.value),
+                creation_count=1,
                 target_weight=float(target_weight.value) if target_weight.value else None,
                 goal1=goal1.value,
                 goal2=goal2.value,
@@ -345,27 +358,10 @@ def main(page: ft.Page):
                 other1=other1.value,
                 other2=other2.value
             )
-
             session.add(treatment_plan)
             session.commit()
-
-            populate_common_sheet(common_sheet, treatment_plan)
-
-            new_file_name = f"生活習慣病療養計画書_{current_datetime}.xlsm"
-            file_path = r"C:\Shinseikai\LDTPapp" + "\\" + new_file_name
-            workbook.save(file_path)
-
-            wb = load_workbook(file_path, read_only=False, keep_vba=True)
-            ws_common = wb["共通情報"]
-            ws_common.sheet_view.tabSelected = False
-            ws_plan = wb["計画書"]
-            ws_plan.sheet_view.tabSelected = True
-            wb.active = ws_plan
-            wb.save(file_path)
-
-            os.startfile(file_path)
+            TreatmentPlanGenerator.generate_plan(treatment_plan, "生活習慣病療養計画書")
             open_route(None)
-
         finally:
             session.close()
 
@@ -375,24 +371,7 @@ def main(page: ft.Page):
         if selected_row is not None:
             patient_info = session.query(PatientInfo).filter(PatientInfo.id == selected_row['id']).first()
             if patient_info:
-                current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
-                workbook = load_workbook(r"C:\Shinseikai\LDTPapp\生活習慣病療養計画書.xlsm", keep_vba=True)
-                common_sheet = workbook["共通情報"]
-
-                populate_common_sheet(common_sheet, patient_info)
-
-                new_file_name = f"生活習慣病療養計画書_{current_datetime}.xlsm"
-                file_path = r"C:\Shinseikai\LDTPapp" + "\\" + new_file_name
-                workbook.save(file_path)
-                wb = load_workbook(file_path, read_only=False, keep_vba=True)
-                ws_common = wb["共通情報"]
-                ws_common.sheet_view.tabSelected = False
-                ws_plan = wb["計画書"]
-                ws_plan.sheet_view.tabSelected = True
-                wb.active = ws_plan
-                wb.save(file_path)
-                os.startfile(file_path)
-
+                TreatmentPlanGenerator.generate_plan(patient_info, "生活習慣病療養計画書")
         session.close()
 
     def create_new_plan(e):
