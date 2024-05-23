@@ -181,7 +181,7 @@ def format_date(date_str):
 def main(page: ft.Page):
     page.title = "生活習慣病療養計画書"
     page.window_width = 1200
-    page.window_height = 900
+    page.window_height = 800
 
     # pat.csvの読み込み
     df_patients = load_patient_data()
@@ -459,13 +459,13 @@ def main(page: ft.Page):
                     other2=other2.value
                 )
 
-            session.add(patient_info)
-            session.commit()
-            page.snack_bar = ft.SnackBar(
-                ft.Text("データが保存されました"),
-                duration=2000,
-            )
-            page.snack_bar.open = True
+                session.add(patient_info)
+                session.commit()
+                page.snack_bar = ft.SnackBar(
+                    ft.Text("データが保存されました"),
+                    duration=2000,
+                )
+                page.snack_bar.open = True
 
         session.close()
         page.update()
