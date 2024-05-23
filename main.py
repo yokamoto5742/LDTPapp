@@ -365,6 +365,18 @@ def main(page: ft.Page):
         finally:
             session.close()
 
+    def create_new_plan(e):
+        p_id = patient_id_value.value
+        doctor_id = doctor_id_value.value
+        doctor_name = doctor_name_value.value
+        if not p_id or not doctor_id:
+            page.snack_bar = ft.SnackBar(content=ft.Text("患者IDと医師IDは必須です"))
+            page.snack_bar.open = True
+            page.update()
+            return
+        department = department_value.value
+        create_treatment_plan(int(p_id), int(doctor_id), doctor_name, department, df_patients)
+
     def print_plan(e):
         global selected_row
         session = Session()
@@ -374,24 +386,11 @@ def main(page: ft.Page):
                 TreatmentPlanGenerator.generate_plan(patient_info, "生活習慣病療養計画書")
         session.close()
 
-    def create_new_plan(e):
-        patient_id = patient_id_value.value
-        doctor_id = doctor_id_value.value
-        doctor_name = doctor_name_value.value
-        if not patient_id or not doctor_id:
-            page.snack_bar = ft.SnackBar(content=ft.Text("患者IDと医師IDは必須です"))
-            page.snack_bar.open = True
-            page.update()
-            return
-        department = department_value.value
-
-        create_treatment_plan(int(patient_id), int(doctor_id), doctor_name, department, df_patients)
-
     def on_patient_id_change(e):
-        patient_id = patient_id_value.value.strip()
+        p_id = patient_id_value.value.strip()
         if patient_id:
-            load_patient_info(int(patient_id))
-        update_history(patient_id)
+            load_patient_info(int(p_id))
+        update_history(p_id)
 
     def save_data(e):
         global selected_row
