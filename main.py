@@ -11,7 +11,7 @@ from sqlalchemy.orm import sessionmaker
 import configparser
 
 config = configparser.ConfigParser()
-config.read('config.ini')
+config.read('config.ini', encoding='utf-8')
 
 db_url = config.get('database', 'db_url')
 
@@ -276,6 +276,7 @@ def main(page: ft.Page):
             department_value.value = ""
         page.update()
 
+    # Excelファイルの共通情報シートにデータを埋め込む
     def populate_common_sheet(common_sheet, patient_info):
         common_sheet["B2"] = patient_info.patient_id
         common_sheet["B3"] = patient_info.patient_name
@@ -303,67 +304,70 @@ def main(page: ft.Page):
         common_sheet["B25"] = patient_info.other1
         common_sheet["B26"] = patient_info.other2
 
-    def create_treatment_plan(patient_id, doctor_id, doctor_name, department, df_patients):
+    def create_treatment_plan(p_id, doctor_id, doctor_name, department, patients_df):
         session = Session()
-        current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
-        workbook = load_workbook(r"C:\Shinseikai\LDTPapp\生活習慣病療養計画書.xlsm", keep_vba=True)
-        common_sheet = workbook["共通情報"]
 
-        patient_info_csv = df_patients.loc[df_patients.iloc[:, 2] == patient_id]
+        try:
+            current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
+            workbook = load_workbook(r"C:\Shinseikai\LDTPapp\生活習慣病療養計画書.xlsm", keep_vba=True)
+            common_sheet = workbook["共通情報"]
+            patient_info_csv = patients_df.loc[patients_df.iloc[:, 2] == p_id]
 
-        if patient_info_csv.empty:
+            if patient_info_csv.empty:
+                raise ValueError(f"患者ID {p_id} が見つかりません。")
+
+            patient_info = patient_info_csv.iloc[0]
+
+            treatment_plan = PatientInfo(
+                patient_id=p_id,
+                patient_name=patient_info.iloc[3],
+                kana=patient_info.iloc[4],
+                gender="男性" if patient_info.iloc[5] == 1 else "女性",
+                birthdate=patient_info.iloc[6],
+                issue_date=datetime.now().date(),
+                doctor_id=doctor_id,
+                doctor_name=doctor_name,
+                department=department,
+                main_diagnosis=main_diagnosis.value,
+                sheet_name=sheet_name_dropdown.value,
+                creation_count=int(creation_count.value),
+                target_weight=float(target_weight.value) if target_weight.value else None,
+                goal1=goal1.value,
+                goal2=goal2.value,
+                diet=diet.value,
+                exercise_prescription=exercise_prescription.value,
+                exercise_time=exercise_time.value,
+                exercise_frequency=exercise_frequency.value,
+                exercise_intensity=exercise_intensity.value,
+                daily_activity=daily_activity.value,
+                nonsmoker=nonsmoker.value,
+                smoking_cessation=smoking_cessation.value,
+                other1=other1.value,
+                other2=other2.value
+            )
+
+            session.add(treatment_plan)
+            session.commit()
+
+            populate_common_sheet(common_sheet, treatment_plan)
+
+            new_file_name = f"生活習慣病療養計画書_{current_datetime}.xlsm"
+            file_path = r"C:\Shinseikai\LDTPapp" + "\\" + new_file_name
+            workbook.save(file_path)
+
+            wb = load_workbook(file_path, read_only=False, keep_vba=True)
+            ws_common = wb["共通情報"]
+            ws_common.sheet_view.tabSelected = False
+            ws_plan = wb["計画書"]
+            ws_plan.sheet_view.tabSelected = True
+            wb.active = ws_plan
+            wb.save(file_path)
+
+            os.startfile(file_path)
+            open_route(None)
+
+        finally:
             session.close()
-            raise ValueError(f"患者ID {patient_id} が見つかりません。")
-
-        patient_info = patient_info_csv.iloc[0]
-
-        # データベースに保存
-        treatment_plan = PatientInfo(
-            patient_id=patient_id,
-            patient_name=patient_info.iloc[3],
-            kana=patient_info.iloc[4],
-            gender="男性" if patient_info.iloc[5] == 1 else "女性",
-            birthdate=patient_info.iloc[6],
-            issue_date=datetime.now().date(),
-            doctor_id=doctor_id,
-            doctor_name=doctor_name,
-            department=department,
-            main_diagnosis=main_diagnosis.value,
-            sheet_name=sheet_name_dropdown.value,
-            creation_count=int(creation_count.value),
-            target_weight=float(target_weight.value) if target_weight.value else None,
-            goal1=goal1.value,
-            goal2=goal2.value,
-            diet=diet.value,
-            exercise_prescription=exercise_prescription.value,
-            exercise_time=exercise_time.value,
-            exercise_frequency=exercise_frequency.value,
-            exercise_intensity=exercise_intensity.value,
-            daily_activity=daily_activity.value,
-            nonsmoker=nonsmoker.value,
-            smoking_cessation=smoking_cessation.value,
-            other1=other1.value,
-            other2=other2.value
-        )
-        session.add(treatment_plan)
-        session.commit()
-
-        populate_common_sheet(common_sheet, treatment_plan)
-
-        new_file_name = f"生活習慣病療養計画書_{current_datetime}.xlsm"
-        file_path = r"C:\Shinseikai\LDTPapp" + "\\" + new_file_name
-        workbook.save(file_path)
-        wb = load_workbook(file_path, read_only=False, keep_vba=True)
-        ws_common = wb["共通情報"]
-        ws_common.sheet_view.tabSelected = False
-        ws_plan = wb["計画書"]
-        ws_plan.sheet_view.tabSelected = True
-        wb.active = ws_plan
-        wb.save(file_path)
-        os.startfile(file_path)
-
-        session.close()
-        open_route(None)
 
     def print_plan(e):
         global selected_row
@@ -392,8 +396,8 @@ def main(page: ft.Page):
         session.close()
 
     def create_new_plan(e):
-        patient_id = patient_id_value.value.strip()
-        doctor_id = doctor_id_value.value.strip()
+        patient_id = patient_id_value.value
+        doctor_id = doctor_id_value.value
         doctor_name = doctor_name_value.value
         if not patient_id or not doctor_id:
             page.snack_bar = ft.SnackBar(content=ft.Text("患者IDと医師IDは必須です"))
