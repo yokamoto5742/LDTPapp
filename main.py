@@ -179,9 +179,13 @@ def format_date(date_str):
 
 
 def main(page: ft.Page):
+    # config.iniファイルを読み込む
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+
     page.title = "生活習慣病療養計画書"
-    page.window_width = 1200
-    page.window_height = 800
+    page.window_width = int(config.get('settings', 'window_width', fallback=1200))
+    page.window_height = int(config.get('settings', 'window_height', fallback=800))
 
     # pat.csvの読み込み
     df_patients = load_patient_data()
