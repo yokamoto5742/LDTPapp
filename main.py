@@ -72,13 +72,19 @@ class SheetName(Base):
 class TreatmentPlanGenerator:
     @staticmethod
     def generate_plan(patient_info, file_name):
+
+        template_path = config.get("Paths", "template_path")
+        output_path = config.get("Paths", "output_path")
+
         current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
-        workbook = load_workbook(r"C:\Shinseikai\LDTPapp\生活習慣病療養計画書.xlsm", keep_vba=True)
+        workbook = load_workbook(template_path, keep_vba=True)
         common_sheet = workbook["共通情報"]
         TreatmentPlanGenerator.populate_common_sheet(common_sheet, patient_info)
+
         new_file_name = f"{file_name}_{current_datetime}.xlsm"
-        file_path = r"C:\Shinseikai\LDTPapp" + "\\" + new_file_name
+        file_path = os.path.join(output_path, new_file_name)
         workbook.save(file_path)
+
         wb = load_workbook(file_path, read_only=False, keep_vba=True)
         ws_common = wb["共通情報"]
         ws_common.sheet_view.tabSelected = False
@@ -179,9 +185,13 @@ def format_date(date_str):
 
 
 def main(page: ft.Page):
+    # config.iniファイルを読み込む
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+
     page.title = "生活習慣病療養計画書"
-    page.window_width = 1200
-    page.window_height = 800
+    page.window_width = int(config.get('settings', 'window_width', fallback=1200))
+    page.window_height = int(config.get('settings', 'window_height', fallback=800))
 
     # pat.csvの読み込み
     df_patients = load_patient_data()
@@ -303,7 +313,7 @@ def main(page: ft.Page):
         patient_info = df_patients[df_patients.iloc[:, 2] == patient_id_arg]
         if not patient_info.empty:
             patient_info = patient_info.iloc[0]
-            issue_date_value.value = datetime.now().date()
+            issue_date_value.value = datetime.now().date().strftime("%Y/%m/%d")
             name_value.value = patient_info.iloc[3]
             kana_value.value = patient_info.iloc[4]
             gender_value.value = "男性" if patient_info.iloc[5] == 1 else "女性"
