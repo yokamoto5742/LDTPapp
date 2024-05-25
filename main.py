@@ -539,7 +539,7 @@ def main(page: ft.Page):
                 other1.value = patient_info.other1
                 other2.value = patient_info.other2
             session.close()
-            page.update()  # 画面を更新
+            page.update()
 
         if e.data == "true":
             row_index = history.rows.index(e.control)
@@ -550,8 +550,8 @@ def main(page: ft.Page):
         if not filter_patient_id:
             return []
 
-        session = Session()
-        query = session.query(PatientInfo.id, PatientInfo.issue_date, PatientInfo.department,
+        session_fetch_data = Session()
+        query = session_fetch_data.query(PatientInfo.id, PatientInfo.issue_date, PatientInfo.department,
                               PatientInfo.doctor_name, PatientInfo.main_diagnosis,
                               PatientInfo.sheet_name, PatientInfo.creation_count). \
             order_by(PatientInfo.patient_id.asc(), PatientInfo.id.desc())
@@ -595,8 +595,8 @@ def main(page: ft.Page):
         return rows
 
     def apply_template(e=None):
-        session = Session()
-        template = session.query(Template).filter(Template.main_disease == main_diagnosis.value,
+        session_apply_template = Session()
+        template = session_apply_template.query(Template).filter(Template.main_disease == main_diagnosis.value,
                                                   Template.sheet_name == sheet_name_dropdown.value).first()
         if template:
             goal1.value = template.goal1
@@ -611,22 +611,6 @@ def main(page: ft.Page):
             other1.value = template.other1
             other2.value = template.other2
         session.close()
-
-    template_manager = TemplateManager()
-
-    template_manager.add_template("糖尿病", "HbAc７％", {
-        "goal1": "HbA1ｃ７％を目標/体重を当初の－３Kgとする",
-        "goal2": "１日８０００歩以上の歩行/間食の制限/糖質の制限",
-        "diet": "食事量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
-        "exercise_prescription": "ウォーキング",
-        "exercise_time": "30分以上",
-        "exercise_frequency": "ほぼ毎日",
-        "exercise_intensity": "少し汗をかく程度",
-        "daily_activity": "1日8000歩以上",
-        "nonsmoker": True,
-        "other1": "睡眠の確保１日７時間",
-        "other2": "家庭での毎日の歩数の測定",
-    })
 
     def save_template(e):
         session = Session()
