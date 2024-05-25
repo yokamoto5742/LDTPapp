@@ -778,9 +778,7 @@ def main(page: ft.Page):
             )
         page.update()
 
-    # 現在のページを削除して、前のページに戻る
     def view_pop(e):
-        print("View pop:", e.view)
         page.views.pop()
         top_view = page.views[-1]
         page.go(top_view.route)
@@ -795,11 +793,12 @@ def main(page: ft.Page):
         page.go("/templete")
 
     def open_route(e):
-        for field in [main_diagnosis, target_weight, goal1, goal2, diet,
+        for field in [target_weight, goal1, goal2, diet,
                       exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
                       daily_activity, other1, other2]:
             field.value = ""
 
+        main_diagnosis.value = ""
         sheet_name_dropdown.value = ""
         creation_count.value = 1  # 作成回数の初期値を再設定
         nonsmoker.value = False
@@ -827,7 +826,7 @@ def main(page: ft.Page):
                                  on_change=on_main_diagnosis_change, autofocus=True)
     sheet_name_options = load_sheet_names(main_diagnosis.value)
     sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=300, value="",
-                                      on_change=on_sheet_name_change, autofocus=True)
+                                      on_change=on_sheet_name_change)
     creation_count = ft.TextField(
         label="作成回数",
         width=100,
@@ -842,27 +841,27 @@ def main(page: ft.Page):
 
     diet = ft.TextField(
         label="食事",
-        multiline=True,
+        multiline=False,
         disabled=False,
         value="",
-        width=400,
+        width=1000,
         on_submit=lambda _: exercise_prescription.focus()
     )
 
-    exercise_prescription = ft.TextField(label="運動処方", width=200, value="ウォーキング",
+    exercise_prescription = ft.TextField(label="運動処方", width=200, value="",
                                          on_submit=lambda _: exercise_time.focus())
-    exercise_time = ft.TextField(label="時間", value="30分以上", width=200,
+    exercise_time = ft.TextField(label="時間", value="", width=200,
                                  on_submit=lambda _: exercise_frequency.focus())
-    exercise_frequency = ft.TextField(label="頻度", value="ほぼ毎日", width=300,
+    exercise_frequency = ft.TextField(label="頻度", value="", width=300,
                                       on_submit=lambda _: exercise_intensity.focus())
-    exercise_intensity = ft.TextField(label="強度", value="少し汗をかく程度", width=300,
+    exercise_intensity = ft.TextField(label="強度", value="", width=300,
                                       on_submit=lambda _: daily_activity.focus())
-    daily_activity = ft.TextField(label="日常生活の活動量増加", value="1日8000歩以上", width=400,
+    daily_activity = ft.TextField(label="日常生活の活動量増加", value="", width=400,
                                   on_submit=lambda _: other1.focus())
     nonsmoker = ft.Checkbox(label="非喫煙者である", value=True)
     smoking_cessation = ft.Checkbox(label="禁煙の実施方法等を指示")
-    other1 = ft.TextField(label="その他1", value="睡眠の確保１日７時間", width=400, on_submit=lambda _: other2.focus())
-    other2 = ft.TextField(label="その他2", value="家庭での毎日の歩数の測定", width=400)
+    other1 = ft.TextField(label="その他1", value="", width=400, on_submit=lambda _: other2.focus())
+    other2 = ft.TextField(label="その他2", value="", width=400)
 
     guidance_items = ft.Column([
         diet,
