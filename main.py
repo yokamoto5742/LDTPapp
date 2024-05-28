@@ -22,6 +22,7 @@ Base = declarative_base()
 
 # 治療計画書の履歴の選択を空欄にする(初期値)
 selected_row = None
+
 global csv_file_path
 
 
@@ -314,7 +315,7 @@ def main(page: ft.Page):
         if error_message_start:
             page.snack_bar = ft.SnackBar(
                 content=ft.Text(error_message_start),
-                action="Dismiss",
+                duration=2000
             )
             page.snack_bar.open = True
             page.update()
@@ -865,7 +866,7 @@ def main(page: ft.Page):
         label="作成回数",
         width=100,
         value="1",
-        on_submit=lambda _: goal1.focus()
+        on_submit=lambda _: goal1.focus(),
     )
     target_weight = ft.TextField(label="目標体重", width=100, value="", on_submit=lambda _: goal2.focus())
     goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=700, value="達成目標を入力してください",
