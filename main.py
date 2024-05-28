@@ -822,10 +822,10 @@ def main(page: ft.Page):
     department_value = ft.TextField(label="診療科", read_only=True, width=150)
 
     main_disease_options = load_main_diseases()
-    main_diagnosis = ft.Dropdown(label="主病名", options=main_disease_options, width=200, value="",
+    main_diagnosis = ft.Dropdown(label="主病名", options=main_disease_options, width=200, text_size=14, value="",
                                  on_change=on_main_diagnosis_change, autofocus=True)
     sheet_name_options = load_sheet_names(main_diagnosis.value)
-    sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=300, value="",
+    sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=300, text_size=14,value="",
                                       on_change=on_sheet_name_change)
     creation_count = ft.TextField(
         label="作成回数",
