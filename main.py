@@ -22,6 +22,7 @@ Base = declarative_base()
 
 # 治療計画書の履歴の選択を空欄にする(初期値)
 selected_row = None
+global csv_file_path
 
 
 # PatientInfoモデルの定義
@@ -157,12 +158,23 @@ class TemplateManager:
 
 
 def load_patient_data():
-    config = configparser.ConfigParser()
-    config.read('config.ini')
-    csv_file_path = config.get('FilePaths', 'patient_data')
 
-    date_columns = [0, 6]
-    return pd.read_csv(csv_file_path, encoding="shift_jis", header=None, parse_dates=date_columns)
+    global csv_file_path
+    try:
+        config_csv = configparser.ConfigParser()
+        config_csv.read('config.ini')
+        csv_file_path = config_csv.get('FilePaths', 'patient_data')
+
+        date_columns = [0, 6]
+        df = pd.read_csv(csv_file_path, encoding="shift_jis", header=None, parse_dates=date_columns)
+        return "", df
+
+    except (configparser.NoSectionError, configparser.NoOptionError):
+        return "エラー: config.iniファイルに'FilePaths'セクションまたは'patient_data'キーが見つかりません。", None
+    except FileNotFoundError:
+        return f"エラー: {csv_file_path}にcsvファイルが見つかりません。", None
+    except Exception as e:
+        return f"エラー: {str(e)}", None
 
 
 def load_main_diseases():
@@ -190,18 +202,22 @@ def format_date(date_str):
 
 def main(page: ft.Page):
     # config.iniファイルを読み込む
-    config = configparser.ConfigParser()
-    config.read('config.ini')
+    config_main = configparser.ConfigParser()
+    config_main.read('config.ini')
 
     page.title = "生活習慣病療養計画書"
-    page.window_width = int(config.get('settings', 'window_width', fallback=1200))
-    page.window_height = int(config.get('settings', 'window_height', fallback=800))
+    page.window_width = int(config_main.get('settings', 'window_width', fallback=1200))
+    page.window_height = int(config_main.get('settings', 'window_height', fallback=800))
 
     # pat.csvの読み込み
-    df_patients = load_patient_data()
+    error_message, df_patients = load_patient_data()
     initial_patient_id = ""
-    if not df_patients.empty:
-        initial_patient_id = int(df_patients.iloc[0, 2])
+
+    if error_message:
+        print(error_message)
+    else:
+        if df_patients is not None and not df_patients.empty:
+            initial_patient_id = int(df_patients.iloc[0, 2])
 
     # 初期データの挿入
     session = Session()
@@ -292,6 +308,20 @@ def main(page: ft.Page):
         session.commit()
 
     session.close()
+
+    def on_startup(e):
+        error_message_start, df_patients_data = load_patient_data()
+        if error_message_start:
+            page.snack_bar = ft.SnackBar(
+                content=ft.Text(error_message_start),
+                action="Dismiss",
+            )
+            page.snack_bar.open = True
+            page.update()
+        else:
+            initial_patient_id = ""
+            if df_patients_data is not None and not df_patients_data.empty:
+                initial_patient_id = int(df_patients_data.iloc[0, 2])
 
     def on_main_diagnosis_change(e):
         selected_main_disease = main_diagnosis.value
@@ -931,6 +961,8 @@ def main(page: ft.Page):
         patient_id.value = initial_patient_id
         filter_data(patient_id.value)
         update_history(patient_id.value)
+
+    page.on_resize = on_startup
 
     page.on_route_change = route_change
     page.on_view_pop = view_pop
