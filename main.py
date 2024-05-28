@@ -573,8 +573,9 @@ def main(page: ft.Page):
                 smoking_cessation.value = patient_info.smoking_cessation
                 other1.value = patient_info.other1
                 other2.value = patient_info.other2
-            session.close()
-            page.update()
+                session.close()
+                page.update()
+                apply_template()
 
         if e.data == "true":
             row_index = history.rows.index(e.control)
@@ -631,21 +632,26 @@ def main(page: ft.Page):
 
     def apply_template(e=None):
         session_apply_template = Session()
-        template = session_apply_template.query(Template).filter(Template.main_disease == main_diagnosis.value,
-                                                  Template.sheet_name == sheet_name_dropdown.value).first()
-        if template:
-            goal1.value = template.goal1
-            goal2.value = template.goal2
-            diet.value = template.diet
-            exercise_prescription.value = template.exercise_prescription
-            exercise_time.value = template.exercise_time
-            exercise_frequency.value = template.exercise_frequency
-            exercise_intensity.value = template.exercise_intensity
-            daily_activity.value = template.daily_activity
-            nonsmoker.value = template.nonsmoker
-            other1.value = template.other1
-            other2.value = template.other2
-        session.close()
+        try:
+            template = session_apply_template.query(Template).filter(
+                Template.main_disease == main_diagnosis.value,
+                Template.sheet_name == sheet_name_dropdown.value
+            ).first()
+            if template:
+                goal1.value = template.goal1
+                goal2.value = template.goal2
+                diet.value = template.diet
+                exercise_prescription.value = template.exercise_prescription
+                exercise_time.value = template.exercise_time
+                exercise_frequency.value = template.exercise_frequency
+                exercise_intensity.value = template.exercise_intensity
+                daily_activity.value = template.daily_activity
+                nonsmoker.value = template.nonsmoker
+                other1.value = template.other1
+                other2.value = template.other2
+        finally:
+            session_apply_template.close()
+        page.update()
 
     def save_template(e):
         session = Session()
