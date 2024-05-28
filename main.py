@@ -157,8 +157,12 @@ class TemplateManager:
 
 
 def load_patient_data():
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    csv_file_path = config.get('FilePaths', 'patient_data')
+
     date_columns = [0, 6]
-    return pd.read_csv(r"C:\InnoKarte\pat.csv", encoding="shift_jis", header=None, parse_dates=date_columns)
+    return pd.read_csv(csv_file_path, encoding="shift_jis", header=None, parse_dates=date_columns)
 
 
 def load_main_diseases():
