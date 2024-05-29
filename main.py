@@ -201,7 +201,7 @@ def format_date(date_str):
     return pd.to_datetime(date_str).strftime("%Y/%m/%d")
 
 
-def main(page: ft.Page):
+def create_ui(page):
     # config.iniファイルを読み込む
     config_main = configparser.ConfigParser()
     config_main.read('config.ini')
@@ -974,6 +974,10 @@ def main(page: ft.Page):
     page.on_route_change = route_change
     page.on_view_pop = view_pop
     page.go(page.route)
+
+
+def main(page: ft.Page):
+    create_ui(page)
 
 
 ft.app(target=main)
