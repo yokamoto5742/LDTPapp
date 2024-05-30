@@ -74,7 +74,6 @@ class SheetName(Base):
 class TreatmentPlanGenerator:
     @staticmethod
     def generate_plan(patient_info, file_name):
-
         template_path = config.get("Paths", "template_path")
         output_path = config.get("Paths", "output_path")
 
@@ -159,7 +158,6 @@ class TemplateManager:
 
 
 def load_patient_data():
-
     global csv_file_path
     try:
         config_csv = configparser.ConfigParser()
@@ -588,8 +586,8 @@ def create_ui(page):
 
         session_fetch_data = Session()
         query = session_fetch_data.query(PatientInfo.id, PatientInfo.issue_date, PatientInfo.department,
-                              PatientInfo.doctor_name, PatientInfo.main_diagnosis,
-                              PatientInfo.sheet_name, PatientInfo.creation_count). \
+                                         PatientInfo.doctor_name, PatientInfo.main_diagnosis,
+                                         PatientInfo.sheet_name, PatientInfo.creation_count). \
             order_by(PatientInfo.patient_id.asc(), PatientInfo.id.desc())
 
         query = query.filter(PatientInfo.patient_id == filter_patient_id)
@@ -696,7 +694,6 @@ def create_ui(page):
         open_route(None)
 
     def route_change(e):
-        print("Route change:", e.route)
         page.views.clear()
         page.views.append(
             View(
@@ -869,7 +866,7 @@ def create_ui(page):
     main_diagnosis = ft.Dropdown(label="主病名", options=main_disease_options, width=200, text_size=14, value="",
                                  on_change=on_main_diagnosis_change, autofocus=True)
     sheet_name_options = load_sheet_names(main_diagnosis.value)
-    sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=300, text_size=14,value="",
+    sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=300, text_size=14, value="",
                                       on_change=on_sheet_name_change)
     creation_count = ft.TextField(
         label="作成回数",
