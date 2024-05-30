@@ -849,6 +849,9 @@ def create_ui(page):
         update_history(int(patient_id.value))
         page.update()
 
+    def on_close(e):
+        page.window_close()
+
     # Patient Information
     patient_id_value = ft.TextField(label="患者ID", on_change=on_patient_id_change, value=initial_patient_id, width=150)
     patient_id = ft.TextField(label="カルテID", width=150, on_change=on_patient_id_change,
@@ -934,6 +937,7 @@ def create_ui(page):
         ft.ElevatedButton("新規作成", on_click=open_create),
         ft.ElevatedButton("前回コピー", on_click=copy_data),
         ft.ElevatedButton("テンプレート編集", on_click=open_templete),
+        ft.ElevatedButton("閉じる", on_click=on_close),
     ])
 
     create_buttons = ft.Row([
