@@ -10,6 +10,7 @@ from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 import configparser
 
+
 config = configparser.ConfigParser()
 config.read('config.ini', encoding='utf-8')
 
