@@ -72,6 +72,28 @@ class SheetName(Base):
     name = Column(String)  # シート名
 
 
+class Template(Base):
+    __tablename__ = 'templates'
+    id = Column(Integer, primary_key=True)
+    main_disease = Column(String)
+    sheet_name = Column(String)
+    goal1 = Column(String)
+    goal2 = Column(String)
+    diet = Column(String)
+    exercise_prescription = Column(String)
+    exercise_time = Column(String)
+    exercise_frequency = Column(String)
+    exercise_intensity = Column(String)
+    daily_activity = Column(String)
+    nonsmoker = Column(Boolean)
+    other1 = Column(String)
+    other2 = Column(String)
+
+
+# テーブルの作成
+Base.metadata.create_all(engine)
+
+
 class TreatmentPlanGenerator:
     @staticmethod
     def generate_plan(patient_info, file_name):
@@ -123,28 +145,6 @@ class TreatmentPlanGenerator:
         common_sheet["B24"] = patient_info.smoking_cessation
         common_sheet["B25"] = patient_info.other1
         common_sheet["B26"] = patient_info.other2
-
-
-class Template(Base):
-    __tablename__ = 'templates'
-    id = Column(Integer, primary_key=True)
-    main_disease = Column(String)
-    sheet_name = Column(String)
-    goal1 = Column(String)
-    goal2 = Column(String)
-    diet = Column(String)
-    exercise_prescription = Column(String)
-    exercise_time = Column(String)
-    exercise_frequency = Column(String)
-    exercise_intensity = Column(String)
-    daily_activity = Column(String)
-    nonsmoker = Column(Boolean)
-    other1 = Column(String)
-    other2 = Column(String)
-
-
-# テーブルの作成
-Base.metadata.create_all(engine)
 
 
 class TemplateManager:
