@@ -9,7 +9,7 @@ from sqlalchemy import create_engine, Column, Integer, String, Float, Date, Bool
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 import configparser
-
+from contextlib import contextmanager
 
 config = configparser.ConfigParser()
 config.read('config.ini', encoding='utf-8')
@@ -177,21 +177,28 @@ def load_patient_data():
         return f"エラー: {str(e)}", None
 
 
+@contextmanager
+def get_session():
+    session = Session()
+    try:
+        yield session
+    finally:
+        session.close()
+
+
 def load_main_diseases():
-    session = Session()
-    main_diseases = session.query(MainDisease).all()
-    session.close()
-    return [ft.dropdown.Option(str(disease.name)) for disease in main_diseases]
+    with get_session() as session:
+        main_diseases = session.query(MainDisease).all()
+        return [ft.dropdown.Option(str(disease.name)) for disease in main_diseases]
 
 
-def load_sheet_names(main_disease):
-    session = Session()
-    if main_disease:
-        sheet_names = session.query(SheetName).filter(SheetName.main_disease_id == main_disease).all()
-    else:
-        sheet_names = session.query(SheetName).all()
-    session.close()
-    return [ft.dropdown.Option(str(sheet.name)) for sheet in sheet_names]
+def load_sheet_names(main_disease=None):
+    with get_session() as session:
+        if main_disease:
+            sheet_names = session.query(SheetName).filter(SheetName.main_disease_id == main_disease).all()
+        else:
+            sheet_names = session.query(SheetName).all()
+        return [ft.dropdown.Option(str(sheet.name)) for sheet in sheet_names]
 
 
 def format_date(date_str):
