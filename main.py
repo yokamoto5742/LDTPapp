@@ -258,20 +258,20 @@ def create_ui(page):
                      diet="食事量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
                      exercise_prescription="ストレッチ運動", exercise_time="10分以上",
                      exercise_frequency="１週間に２回以上",
-                     exercise_intensity="息切れしない程度", daily_activity="ストレッチ運動を主に行う", nonsmoker=True,
+                     exercise_intensity="息切れしない程度", daily_activity="ストレッチ運動を主に行う",
                      other1="睡眠の確保１日７時間", other2="家庭での毎日の歩数の測定"),
             Template(main_disease="糖尿病", sheet_name="HbAc７％", goal1="HbA1ｃ７％を目標/体重を当初の－３Kgとする",
                      goal2="１日８０００歩以上の歩行/間食の制限/糖質の制限",
                      diet="食事量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
                      exercise_prescription="ウォーキング", exercise_time="30分以上", exercise_frequency="ほぼ毎日",
-                     exercise_intensity="少し汗をかく程度", daily_activity="1日8000歩以上", nonsmoker=True,
+                     exercise_intensity="少し汗をかく程度", daily_activity="1日8000歩以上",
                      other1="睡眠の確保１日７時間", other2="家庭での毎日の歩数の測定"),
             Template(main_disease="糖尿病", sheet_name="HbAc６％", goal1="HbA1ｃを正常化",
                      goal2="１日５０００歩以上の歩行/間食の制限/糖質の制限",
                      diet="食事量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
                      exercise_prescription="ウォーキング", exercise_time="30分以上",
                      exercise_frequency="１週間に５回以上",
-                     exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上", nonsmoker=True,
+                     exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上",
                      other1="睡眠の確保１日７時間", other2="家庭での毎日の歩数の測定"),
             Template(main_disease="高血圧", sheet_name="血圧130-80以下",
                      goal1="家庭血圧が測定でき、朝と就寝前のいずれかで130/80mmHg以下",
@@ -279,7 +279,7 @@ def create_ui(page):
                      diet="塩分量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
                      exercise_prescription="ウォーキング", exercise_time="30分以上",
                      exercise_frequency="１週間に２回以上",
-                     exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上", nonsmoker=True,
+                     exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上",
                      other1="睡眠の確保１日７時間", other2="家庭での毎日の歩数の測定"),
             Template(main_disease="高血圧", sheet_name="血圧140-90以下",
                      goal1="家庭血圧が測定でき、朝と就寝前のいずれかで140/90mmHg以下",
@@ -287,28 +287,28 @@ def create_ui(page):
                      diet="塩分量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
                      exercise_prescription="ストレッチ運動", exercise_time="30分以上",
                      exercise_frequency="１週間に２回以上",
-                     exercise_intensity="少し汗をかく程度", daily_activity="ストレッチ運動を主に行う", nonsmoker=True,
+                     exercise_intensity="少し汗をかく程度", daily_activity="ストレッチ運動を主に行う",
                      other1="睡眠の確保１日７時間", other2="家庭での毎日の歩数の測定"),
             Template(main_disease="脂質異常症", sheet_name="LDL120以下", goal1="LDLコレステロール＜120/TG＜150/HDL≧40",
                      goal2="毎日の有酸素運動と食習慣の改善",
                      diet="食事摂取量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
                      exercise_prescription="ウォーキング", exercise_time="30分以上",
                      exercise_frequency="１週間に２回以上",
-                     exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上", nonsmoker=True,
+                     exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上",
                      other1="飲酒の制限、肥満度の改善", other2="家庭での毎日の歩数の測定"),
             Template(main_disease="脂質異常症", sheet_name="LDL100以下", goal1="LDLコレステロール＜100/TG＜150/HDL≧40",
                      goal2="毎日の有酸素運動と食習慣の改善",
                      diet="食事摂取量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
                      exercise_prescription="ウォーキング", exercise_time="30分以上",
                      exercise_frequency="１週間に２回以上",
-                     exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上", nonsmoker=True,
+                     exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上",
                      other1="飲酒の制限、肥満度の改善", other2="家庭での毎日の歩数の測定"),
             Template(main_disease="脂質異常症", sheet_name="LDL70以下", goal1="LDLコレステロール＜100/TG＜150/HDL≧40",
                      goal2="毎日の有酸素運動と食習慣の改善",
                      diet="脂肪の多い食品や甘い物を控える/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
                      exercise_prescription="ウォーキング", exercise_time="30分以上",
                      exercise_frequency="１週間に２回以上",
-                     exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上", nonsmoker=True,
+                     exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上",
                      other1="飲酒の制限、肥満度の改善", other2="家庭での毎日の歩数の測定"),
         ]
         session.add_all(templates)
@@ -476,6 +476,7 @@ def create_ui(page):
                 patient_info.other1 = other1.value
                 patient_info.other2 = other2.value
                 session.commit()
+
                 page.snack_bar = ft.SnackBar(ft.Text("データが保存されました"), duration=2000)
                 page.snack_bar.open = True
 
@@ -491,7 +492,7 @@ def create_ui(page):
             filter(PatientInfo.patient_id == patient_id.value). \
             order_by(PatientInfo.id.desc()).first()
         if patient_info:
-            new_patient_info = PatientInfo(
+            patient_info_copy = PatientInfo(
                 patient_id=patient_info.patient_id,
                 patient_name=patient_info.patient_name,
                 kana=patient_info.kana,
@@ -518,10 +519,10 @@ def create_ui(page):
                 other1=patient_info.other1,
                 other2=patient_info.other2
             )
-            session.add(new_patient_info)
+            session.add(patient_info_copy)
             session.commit()
-            selected_row = {"id": PatientInfo.id + 1}
             session.close()
+
             page.snack_bar = ft.SnackBar(
                 ft.Text("前回データをコピーしました"),
                 duration=2000,
@@ -694,6 +695,7 @@ def create_ui(page):
             session.add(template)
         session.commit()
         session.close()
+
         page.snack_bar = ft.SnackBar(
             content=ft.Text("テンプレートが保存されました"),
             duration=2000)
@@ -907,7 +909,7 @@ def create_ui(page):
                                       on_submit=lambda _: daily_activity.focus())
     daily_activity = ft.TextField(label="日常生活の活動量増加", value="", width=400,
                                   on_submit=lambda _: other1.focus())
-    nonsmoker = ft.Checkbox(label="非喫煙者である", value=True)
+    nonsmoker = ft.Checkbox(label="非喫煙者である")
     smoking_cessation = ft.Checkbox(label="禁煙の実施方法等を指示")
     other1 = ft.TextField(label="その他1", value="", width=400, on_submit=lambda _: other2.focus())
     other2 = ft.TextField(label="その他2", value="", width=400)
