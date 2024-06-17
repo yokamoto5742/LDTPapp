@@ -213,7 +213,7 @@ def create_ui(page):
     config_main.read('config.ini')
 
     page.title = "生活習慣病療養計画書"
-    page.window_width = int(config_main.get('settings', 'window_width', fallback=1200))
+    page.window_width = int(config_main.get('settings', 'window_width', fallback=1000))
     page.window_height = int(config_main.get('settings', 'window_height', fallback=800))
 
     # pat.csvの読み込み
@@ -937,7 +937,7 @@ def create_ui(page):
             ft.DataColumn(ft.Text("作成回数")),
         ],
         rows=rows,
-        width=1200,
+        width=1000,
     )
 
     buttons = ft.Row([
