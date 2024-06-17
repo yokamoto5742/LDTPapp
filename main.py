@@ -86,6 +86,7 @@ class Template(Base):
     exercise_intensity = Column(String)
     daily_activity = Column(String)
     nonsmoker = Column(Boolean)
+    smoking_cessation = Column(Boolean)
     other1 = Column(String)
     other2 = Column(String)
 
@@ -213,7 +214,7 @@ def create_ui(page):
     config_main.read('config.ini')
 
     page.title = "生活習慣病療養計画書"
-    page.window_width = int(config_main.get('settings', 'window_width', fallback=1200))
+    page.window_width = int(config_main.get('settings', 'window_width', fallback=1000))
     page.window_height = int(config_main.get('settings', 'window_height', fallback=800))
 
     # pat.csvの読み込み
@@ -654,6 +655,7 @@ def create_ui(page):
                 exercise_intensity.value = template.exercise_intensity
                 daily_activity.value = template.daily_activity
                 nonsmoker.value = template.nonsmoker
+                smoking_cessation.value = template.smoking_cessation
                 other1.value = template.other1
                 other2.value = template.other2
         finally:
@@ -674,6 +676,7 @@ def create_ui(page):
             template.exercise_intensity = exercise_intensity.value
             template.daily_activity = daily_activity.value
             template.nonsmoker = nonsmoker.value
+            template.smoking_cessation = smoking_cessation.value
             template.other1 = other1.value
             template.other2 = other2.value
         else:
@@ -689,6 +692,7 @@ def create_ui(page):
                 exercise_intensity=exercise_intensity.value,
                 daily_activity=daily_activity.value,
                 nonsmoker=nonsmoker.value,
+                smoking_cessation=smoking_cessation.value,
                 other1=other1.value,
                 other2=other2.value
             )
@@ -937,7 +941,7 @@ def create_ui(page):
             ft.DataColumn(ft.Text("作成回数")),
         ],
         rows=rows,
-        width=1200,
+        width=1000,
     )
 
     buttons = ft.Row([
