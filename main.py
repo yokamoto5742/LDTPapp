@@ -928,7 +928,7 @@ def create_ui(page):
 
     history = ft.DataTable(
         columns=[
-            ft.DataColumn(ft.Text("ID")),
+            ft.DataColumn(ft.Text("管理番号")),
             ft.DataColumn(ft.Text("発行日")),
             ft.DataColumn(ft.Text("診療科")),
             ft.DataColumn(ft.Text("医師名")),
