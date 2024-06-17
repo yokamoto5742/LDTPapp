@@ -85,8 +85,6 @@ class Template(Base):
     exercise_frequency = Column(String)
     exercise_intensity = Column(String)
     daily_activity = Column(String)
-    nonsmoker = Column(Boolean)
-    smoking_cessation = Column(Boolean)
     other1 = Column(String)
     other2 = Column(String)
 
@@ -654,8 +652,6 @@ def create_ui(page):
                 exercise_frequency.value = template.exercise_frequency
                 exercise_intensity.value = template.exercise_intensity
                 daily_activity.value = template.daily_activity
-                nonsmoker.value = template.nonsmoker
-                smoking_cessation.value = template.smoking_cessation
                 other1.value = template.other1
                 other2.value = template.other2
         finally:
@@ -823,7 +819,7 @@ def create_ui(page):
                             ]
                         ),
                         goal2,
-                        guidance_items,
+                        guidance_items_template,
                         templete_buttons,
                     ],
                 )
@@ -923,6 +919,13 @@ def create_ui(page):
         ft.Row([exercise_prescription, exercise_time, exercise_frequency, exercise_intensity]),
         daily_activity,
         ft.Row([ft.Text("たばこ", size=14), nonsmoker, smoking_cessation]),
+        ft.Row([other1, other2]),
+    ])
+
+    guidance_items_template = ft.Column([
+        diet,
+        ft.Row([exercise_prescription, exercise_time, exercise_frequency, exercise_intensity]),
+        daily_activity,
         ft.Row([other1, other2]),
     ])
 
