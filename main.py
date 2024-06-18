@@ -327,7 +327,7 @@ def create_ui(page):
         if error_message_start:
             page.snack_bar = ft.SnackBar(
                 content=ft.Text(error_message_start),
-                duration=2000
+                duration=1000
             )
             page.snack_bar.open = True
             page.update()
@@ -498,7 +498,7 @@ def create_ui(page):
                 patient_info.other2 = other2.value
                 session.commit()
 
-                page.snack_bar = ft.SnackBar(ft.Text("データが保存されました"), duration=2000)
+                page.snack_bar = ft.SnackBar(ft.Text("データが保存されました"), duration=1000)
                 page.snack_bar.open = True
 
             session.add(patient_info)
@@ -546,7 +546,7 @@ def create_ui(page):
 
             page.snack_bar = ft.SnackBar(
                 ft.Text("前回データをコピーしました"),
-                duration=2000,
+                duration=1000,
             )
             page.snack_bar.open = True
 
@@ -562,7 +562,7 @@ def create_ui(page):
             session.commit()
             page.snack_bar = ft.SnackBar(
                 ft.Text("データが削除されました"),
-                duration=2000,
+                duration=1000,
             )
             page.snack_bar.open = True
         session.close()
@@ -726,7 +726,7 @@ def create_ui(page):
 
         page.snack_bar = ft.SnackBar(
             content=ft.Text("テンプレートが保存されました"),
-            duration=2000)
+            duration=1000)
         page.snack_bar.open = True
         page.update()
         open_route(None)
