@@ -430,6 +430,16 @@ def create_ui(page):
             page.snack_bar.open = True
             page.update()
             return
+        if not main_diagnosis.value:
+            page.snack_bar = ft.SnackBar(content=ft.Text("主病名を選択してください"))
+            page.snack_bar.open = True
+            page.update()
+            return
+        if not sheet_name_dropdown.value:
+            page.snack_bar = ft.SnackBar(content=ft.Text("シート名を選択してください"))
+            page.snack_bar.open = True
+            page.update()
+            return
         department = department_value.value
         create_treatment_plan(int(p_id), int(doctor_id), doctor_name, department, df_patients)
 
@@ -455,6 +465,16 @@ def create_ui(page):
         if selected_row is not None and 'id' in selected_row:
             patient_info = session.query(PatientInfo).filter(PatientInfo.id == selected_row['id']).first()
             if patient_info:
+                if not main_diagnosis.value:
+                    page.snack_bar = ft.SnackBar(content=ft.Text("主病名を選択してください"))
+                    page.snack_bar.open = True
+                    page.update()
+                    return
+                if not sheet_name_dropdown.value:
+                    page.snack_bar = ft.SnackBar(content=ft.Text("シート名を選択してください"))
+                    page.snack_bar.open = True
+                    page.update()
+                    return
                 patient_info.patient_id = int(patient_id.value)
                 patient_info.patient_name = name_value.value
                 patient_info.kana = kana_value.value
@@ -664,6 +684,17 @@ def create_ui(page):
         page.update()
 
     def save_template(e):
+        if not main_diagnosis.value:
+            page.snack_bar = ft.SnackBar(content=ft.Text("主病名を選択してください"))
+            page.snack_bar.open = True
+            page.update()
+            return
+        if not sheet_name_dropdown.value:
+            page.snack_bar = ft.SnackBar(content=ft.Text("シート名を選択してください"))
+            page.snack_bar.open = True
+            page.update()
+            return
+
         session = Session()
         template = session.query(Template).filter(Template.main_disease == main_diagnosis.value,
                                                   Template.sheet_name == sheet_name_dropdown.value).first()
@@ -676,8 +707,6 @@ def create_ui(page):
             template.exercise_frequency = exercise_frequency.value
             template.exercise_intensity = exercise_intensity.value
             template.daily_activity = daily_activity.value
-            template.nonsmoker = nonsmoker.value
-            template.smoking_cessation = smoking_cessation.value
             template.other1 = other1.value
             template.other2 = other2.value
         else:
