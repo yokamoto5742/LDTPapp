@@ -421,25 +421,29 @@ def create_ui(page):
         finally:
             session.close()
 
+    def show_error_message(message):
+        page.snack_bar = ft.SnackBar(content=ft.Text(message), duration=1000)
+        page.snack_bar.open = True
+        page.update()
+
+    def check_required_fields():
+        if not main_diagnosis.value:
+            show_error_message("主病名を選択してください")
+            return False
+        if not sheet_name_dropdown.value:
+            show_error_message("シート名を選択してください")
+            return False
+        if not nonsmoker.value and not smoking_cessation.value:
+            show_error_message("たばこのチェックを選択してください")
+            return False
+        return True
+
     def create_new_plan(e):
+        if not check_required_fields():
+            return
         p_id = patient_id_value.value
         doctor_id = doctor_id_value.value
         doctor_name = doctor_name_value.value
-        if not p_id or not doctor_id:
-            page.snack_bar = ft.SnackBar(content=ft.Text("患者IDと医師IDは必須です"))
-            page.snack_bar.open = True
-            page.update()
-            return
-        if not main_diagnosis.value:
-            page.snack_bar = ft.SnackBar(content=ft.Text("主病名を選択してください"))
-            page.snack_bar.open = True
-            page.update()
-            return
-        if not sheet_name_dropdown.value:
-            page.snack_bar = ft.SnackBar(content=ft.Text("シート名を選択してください"))
-            page.snack_bar.open = True
-            page.update()
-            return
         department = department_value.value
         create_treatment_plan(int(p_id), int(doctor_id), doctor_name, department, df_patients)
 
@@ -465,15 +469,7 @@ def create_ui(page):
         if selected_row is not None and 'id' in selected_row:
             patient_info = session.query(PatientInfo).filter(PatientInfo.id == selected_row['id']).first()
             if patient_info:
-                if not main_diagnosis.value:
-                    page.snack_bar = ft.SnackBar(content=ft.Text("主病名を選択してください"))
-                    page.snack_bar.open = True
-                    page.update()
-                    return
-                if not sheet_name_dropdown.value:
-                    page.snack_bar = ft.SnackBar(content=ft.Text("シート名を選択してください"))
-                    page.snack_bar.open = True
-                    page.update()
+                if not check_required_fields():
                     return
                 patient_info.patient_id = int(patient_id.value)
                 patient_info.patient_name = name_value.value
