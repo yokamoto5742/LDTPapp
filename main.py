@@ -753,7 +753,12 @@ def create_ui(page):
                     [
                         ft.Row(
                             controls=[
-                                ft.Text("新規作成", size=14),
+                                ft.Container(
+                                    content=ft.Text("新規作成", size=16, weight=ft.FontWeight.BOLD),
+                                    border=ft.border.all(3, ft.colors.BLUE),
+                                    padding=5,
+                                    border_radius=5,
+                                ),
                                 main_diagnosis,
                                 sheet_name_dropdown,
                                 creation_count,
@@ -782,7 +787,12 @@ def create_ui(page):
                     [
                         ft.Row(
                             controls=[
-                                ft.Text("編集", size=14),
+                                ft.Container(
+                                    content=ft.Text("編集", size=16, weight=ft.FontWeight.BOLD),
+                                    border=ft.border.all(3, ft.colors.BLUE),
+                                    padding=5,
+                                    border_radius=5,
+                                ),
                                 main_diagnosis,
                                 sheet_name_dropdown,
                                 creation_count,
@@ -811,7 +821,12 @@ def create_ui(page):
                     [
                         ft.Row(
                             controls=[
-                                ft.Text("テンプレート", size=14),
+                                ft.Container(
+                                    content=ft.Text("テンプレート", size=16, weight=ft.FontWeight.BOLD),
+                                    border=ft.border.all(3, ft.colors.BLUE),
+                                    padding=5,
+                                    border_radius=5,
+                                ),
                                 main_diagnosis,
                                 sheet_name_dropdown,
                             ]
