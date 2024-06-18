@@ -5,11 +5,12 @@ import flet as ft
 import pandas as pd
 from flet import View
 from openpyxl import load_workbook
-from sqlalchemy import create_engine, Column, Integer, String, Float, Date, Boolean
+from sqlalchemy import create_engine, Column, Integer, String, Float, Date, Boolean, Index
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 import configparser
 from contextlib import contextmanager
+import threading
 
 config = configparser.ConfigParser()
 config.read('config.ini', encoding='utf-8')
@@ -17,7 +18,7 @@ config.read('config.ini', encoding='utf-8')
 db_url = config.get('database', 'db_url')
 
 # SQLAlchemyの設定
-engine = create_engine(db_url)
+engine = create_engine(db_url, pool_pre_ping=True, pool_size=10)
 Session = sessionmaker(bind=engine)
 Base = declarative_base()
 
@@ -30,7 +31,7 @@ global csv_file_path
 # PatientInfoモデルの定義
 class PatientInfo(Base):
     __tablename__ = 'patient_info'
-    id = Column(Integer, primary_key=True)  # 管理用ID
+    id = Column(Integer, primary_key=True)  # 管理番号
     patient_id = Column(Integer)
     patient_name = Column(String)
     kana = Column(String)
@@ -206,6 +207,10 @@ def format_date(date_str):
     return pd.to_datetime(date_str).strftime("%Y/%m/%d")
 
 
+def initialize_database():
+    Base.metadata.create_all(engine)
+
+
 def create_ui(page):
     # config.iniファイルを読み込む
     config_main = configparser.ConfigParser()
@@ -214,6 +219,8 @@ def create_ui(page):
     page.title = "生活習慣病療養計画書"
     page.window_width = int(config_main.get('settings', 'window_width', fallback=1000))
     page.window_height = int(config_main.get('settings', 'window_height', fallback=800))
+
+    threading.Thread(target=initialize_database).start()
 
     # pat.csvの読み込み
     error_message, df_patients = load_patient_data()
