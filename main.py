@@ -217,8 +217,9 @@ def create_ui(page):
     config_main.read('config.ini')
 
     page.title = "生活習慣病療養計画書"
-    page.window_width = int(config_main.get('settings', 'window_width', fallback=1000))
-    page.window_height = int(config_main.get('settings', 'window_height', fallback=800))
+    # 新しい方法
+    page.window.width = int(config_main.get('settings', 'window_width', fallback=1000))
+    page.window.height = int(config_main.get('settings', 'window_height', fallback=800))
 
     threading.Thread(target=initialize_database).start()
 
@@ -1030,8 +1031,7 @@ def create_ui(page):
         filter_data(patient_id.value)
         update_history(patient_id.value)
 
-    page.on_resize = on_startup
-
+    page.window.on_resized = on_startup
     page.on_route_change = route_change
     page.on_view_pop = view_pop
     page.go(page.route)
