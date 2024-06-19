@@ -326,11 +326,12 @@ def create_ui(page):
     def on_startup(e):
         error_message_start, df_patients_data = load_patient_data()
         if error_message_start:
-            page.snack_bar = ft.SnackBar(
+            snack_bar = ft.SnackBar(
                 content=ft.Text(error_message_start),
-                duration=2000
+                duration=1000
             )
-            page.snack_bar.open = True
+            snack_bar.open = True
+            page.overlay.append(snack_bar)
             page.update()
         else:
             initial_patient_id = ""
@@ -423,8 +424,9 @@ def create_ui(page):
             session.close()
 
     def show_error_message(message):
-        page.snack_bar = ft.SnackBar(content=ft.Text(message), duration=1000)
-        page.snack_bar.open = True
+        snack_bar = ft.SnackBar(content=ft.Text(message), duration=1000)
+        snack_bar.open = True
+        page.overlay.append(snack_bar)
         page.update()
 
     def check_required_fields():
@@ -499,8 +501,9 @@ def create_ui(page):
                 patient_info.other2 = other2.value
                 session.commit()
 
-                page.snack_bar = ft.SnackBar(ft.Text("データが保存されました"), duration=2000)
-                page.snack_bar.open = True
+                snack_bar = ft.SnackBar(ft.Text("データが保存されました"), duration=1000)
+                snack_bar.open = True
+                page.overlay.append(snack_bar)
 
             session.add(patient_info)
             session.commit()
@@ -545,11 +548,12 @@ def create_ui(page):
             session.commit()
             session.close()
 
-            page.snack_bar = ft.SnackBar(
+            snack_bar = ft.SnackBar(
                 ft.Text("前回データをコピーしました"),
-                duration=2000,
+                duration=1000,
             )
-            page.snack_bar.open = True
+            snack_bar.open = True
+            page.overlay.append(snack_bar)
 
         session.close()
         update_history(int(patient_id.value))
@@ -561,11 +565,13 @@ def create_ui(page):
         if patient_info:
             session.delete(patient_info)
             session.commit()
-            page.snack_bar = ft.SnackBar(
+            snack_bar = ft.SnackBar(
                 ft.Text("データが削除されました"),
-                duration=2000,
+                duration=1000,
             )
-            page.snack_bar.open = True
+            snack_bar.open = True
+            page.overlay.append(snack_bar)
+
         session.close()
         open_route(e)
 
@@ -682,13 +688,15 @@ def create_ui(page):
 
     def save_template(e):
         if not main_diagnosis.value:
-            page.snack_bar = ft.SnackBar(content=ft.Text("主病名を選択してください"))
-            page.snack_bar.open = True
+            snack_bar = ft.SnackBar(content=ft.Text("主病名を選択してください"))
+            snack_bar.open = True
+            page.overlay.append(snack_bar)
             page.update()
             return
         if not sheet_name_dropdown.value:
-            page.snack_bar = ft.SnackBar(content=ft.Text("シート名を選択してください"))
-            page.snack_bar.open = True
+            snack_bar = ft.SnackBar(content=ft.Text("シート名を選択してください"))
+            snack_bar.open = True
+            page.overlay.append(snack_bar)
             page.update()
             return
 
@@ -725,10 +733,11 @@ def create_ui(page):
         session.commit()
         session.close()
 
-        page.snack_bar = ft.SnackBar(
+        snack_bar = ft.SnackBar(
             content=ft.Text("テンプレートが保存されました"),
-            duration=2000)
-        page.snack_bar.open = True
+            duration=1000)
+        snack_bar.open = True
+        page.overlay.append(snack_bar)
         page.update()
         open_route(None)
 
@@ -901,7 +910,7 @@ def create_ui(page):
         page.update()
 
     def on_close(e):
-        page.window_close()
+        page.window.close()
 
     # Patient Information
     patient_id_value = ft.TextField(label="患者ID", on_change=on_patient_id_change, value=initial_patient_id, width=150)
