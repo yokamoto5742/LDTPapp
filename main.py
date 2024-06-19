@@ -436,9 +436,6 @@ def create_ui(page):
         if not sheet_name_dropdown.value:
             show_error_message("シート名を選択してください")
             return False
-        if not nonsmoker.value and not smoking_cessation.value:
-            show_error_message("たばこのチェックを選択してください")
-            return False
         return True
 
     def create_new_plan(e):
@@ -962,8 +959,17 @@ def create_ui(page):
                                       on_submit=lambda _: daily_activity.focus())
     daily_activity = ft.TextField(label="日常生活の活動量増加", value="", width=400,
                                   on_submit=lambda _: other1.focus())
-    nonsmoker = ft.Checkbox(label="非喫煙者である")
-    smoking_cessation = ft.Checkbox(label="禁煙の実施方法等を指示")
+
+    def on_tobacco_checkbox_change(e):
+        if e.control == nonsmoker and nonsmoker.value:
+            smoking_cessation.value = False
+            smoking_cessation.update()
+        elif e.control == smoking_cessation and smoking_cessation.value:
+            nonsmoker.value = False
+            nonsmoker.update()
+    nonsmoker = ft.Checkbox(label="非喫煙者である", on_change=on_tobacco_checkbox_change)
+    smoking_cessation = ft.Checkbox(label="禁煙の実施方法等を指示", on_change=on_tobacco_checkbox_change)
+
     other1 = ft.TextField(label="その他1", value="", width=400, on_submit=lambda _: other2.focus())
     other2 = ft.TextField(label="その他2", value="", width=400)
 
