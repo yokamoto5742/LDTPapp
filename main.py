@@ -1,5 +1,4 @@
 import os
-import csv
 from datetime import datetime
 
 import flet as ft
@@ -167,10 +166,7 @@ def load_patient_data():
         csv_file_path = config_csv.get('FilePaths', 'patient_data')
 
         date_columns = [0, 6]
-        with open(csv_file_path, 'r', encoding='shift_jis') as file:
-            reader = csv.reader(file)
-            data = ([pd.to_datetime(row[col]) if col in date_columns else row[col] for col in range(len(row))] for row in reader)
-            df = pd.DataFrame(data)
+        df = pd.read_csv(csv_file_path, encoding="shift_jis", header=None, parse_dates=date_columns)
         return "", df
 
     except (configparser.NoSectionError, configparser.NoOptionError):
