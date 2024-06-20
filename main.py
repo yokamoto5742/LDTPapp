@@ -165,8 +165,10 @@ def load_patient_data():
         config_csv.read('config.ini')
         csv_file_path = config_csv.get('FilePaths', 'patient_data')
 
-        date_columns = [0, 6]
-        df = pd.read_csv(csv_file_path, encoding="shift_jis", header=None, parse_dates=date_columns)
+        date_columns = [0, 6]  # 0列目と6列目を日付として読み込む
+        nrows = 3  # csvファイルで先頭3行のみ読み込む
+
+        df = pd.read_csv(csv_file_path, encoding="shift_jis", header=None, parse_dates=date_columns, nrows=nrows)
         return "", df
 
     except (configparser.NoSectionError, configparser.NoOptionError):
