@@ -358,19 +358,21 @@ def create_ui(page):
         apply_template()
         page.update()
 
-    def load_patient_info(patient_id):
-        session = Session()
-        patient_info = session.query(PatientInfo).filter(PatientInfo.patient_id == patient_id).first()
-        if patient_info:
-            issue_date_value.value = patient_info.issue_date.strftime("%Y/%m/%d") if patient_info.issue_date else ""
-            name_value.value = patient_info.patient_name
-            kana_value.value = patient_info.kana
-            gender_value.value = patient_info.gender
-            birthdate_value.value = patient_info.birthdate.strftime("%Y/%m/%d") if patient_info.birthdate else ""
-            doctor_id_value.value = str(patient_info.doctor_id)
-            doctor_name_value.value = patient_info.doctor_name
-            department_value.value = patient_info.department
+    def load_patient_info(patient_id_arg):
+        patient_info = df_patients[df_patients.iloc[:, 2] == patient_id_arg]
+        if not patient_info.empty:
+            patient_info = patient_info.iloc[0]
+            issue_date_value.value = datetime.now().date().strftime("%Y/%m/%d")
+            name_value.value = patient_info.iloc[3]
+            kana_value.value = patient_info.iloc[4]
+            gender_value.value = "男性" if patient_info.iloc[5] == 1 else "女性"
+            birthdate = patient_info.iloc[6]
+            birthdate_value.value = format_date(birthdate)
+            doctor_id_value.value = str(patient_info.iloc[9])
+            doctor_name_value.value = patient_info.iloc[10]
+            department_value.value = patient_info.iloc[14]
         else:
+            # patient_infoが空の場合は空文字列を設定
             issue_date_value.value = ""
             name_value.value = ""
             kana_value.value = ""
@@ -379,7 +381,6 @@ def create_ui(page):
             doctor_id_value.value = ""
             doctor_name_value.value = ""
             department_value.value = ""
-        session.close()
         page.update()
 
     def create_treatment_plan(p_id, doctor_id, doctor_name, department, patients_df):
