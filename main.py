@@ -628,22 +628,15 @@ def create_ui(page):
 
         query = query.filter(PatientInfo.patient_id == filter_patient_id)
 
-        patient_info_list = query.all()
-        session.close()
-
-        data = []
-        for info in patient_info_list:
-            data.append({
-                "id": str(info.id),
-                "issue_date": info.issue_date.strftime("%Y/%m/%d") if info.issue_date else "",
-                "department": info.department,
-                "doctor_name": info.doctor_name,
-                "main_diagnosis": info.main_diagnosis,
-                "sheet_name": info.sheet_name,
-                "count": info.creation_count
-            })
-
-        return data
+        return ({
+            "id": str(info.id),
+            "issue_date": info.issue_date.strftime("%Y/%m/%d") if info.issue_date else "",
+            "department": info.department,
+            "doctor_name": info.doctor_name,
+            "main_diagnosis": info.main_diagnosis,
+            "sheet_name": info.sheet_name,
+            "count": info.creation_count
+        } for info in query)
 
     def create_data_rows(data):
         rows = []
