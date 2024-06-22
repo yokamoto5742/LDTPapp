@@ -249,7 +249,7 @@ def create_ui(page):
         sheet_names = [
             SheetName(main_disease_id=1, name="1_血圧130-80以下"),
             SheetName(main_disease_id=1, name="2_血圧140-90以下"),
-            SheetName(main_disease_id=1, name="3_血圧140-90以下"),
+            SheetName(main_disease_id=1, name="3_血圧140-90以下_歩行"),
             SheetName(main_disease_id=2, name="1_LDL120以下"),
             SheetName(main_disease_id=2, name="2_LDL100以下"),
             SheetName(main_disease_id=2, name="3_LDL70以下"),
@@ -278,7 +278,7 @@ def create_ui(page):
                      exercise_frequency="１週間に２回以上",
                      exercise_intensity="少し汗をかく程度", daily_activity="ストレッチ運動を主に行う",
                      other1="睡眠の確保１日７時間", other2="毎日の歩数の測定"),
-            Template(main_disease="高血圧", sheet_name="3_血圧140-90以下",
+            Template(main_disease="高血圧", sheet_name="3_血圧140-90以下_歩行",
                      goal1="家庭血圧が測定でき、朝と就寝前のいずれかで140/90mmHg以下",
                      goal2="塩分を控えた食事と運動習慣を目標にする",
                      diet="塩分量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
