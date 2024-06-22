@@ -57,7 +57,6 @@ class PatientInfo(Base):
     smoking_cessation = Column(Boolean)
     other1 = Column(String)
     other2 = Column(String)
-    template = Column(String)
 
 
 class MainDisease(Base):
@@ -220,7 +219,7 @@ def create_ui(page):
 
     page.title = "生活習慣病療養計画書"
     # 新しい方法
-    page.window.width = int(config_main.get('settings', 'window_width', fallback=1000))
+    page.window.width = int(config_main.get('settings', 'window_width', fallback=1100))
     page.window.height = int(config_main.get('settings', 'window_height', fallback=800))
 
     threading.Thread(target=initialize_database).start()
@@ -248,77 +247,87 @@ def create_ui(page):
 
     if session.query(SheetName).count() == 0:
         sheet_names = [
-            SheetName(main_disease_id=1, name="血圧140-90以下"),
-            SheetName(main_disease_id=1, name="血圧130-80以下"),
-            SheetName(main_disease_id=2, name="LDL120以下"),
-            SheetName(main_disease_id=2, name="LDL100以下"),
-            SheetName(main_disease_id=2, name="LDL70以下"),
-            SheetName(main_disease_id=3, name="HbAc８％"),
-            SheetName(main_disease_id=3, name="HbAc７％"),
-            SheetName(main_disease_id=3, name="HbAc６％"),
+            SheetName(main_disease_id=1, name="1_血圧130-80以下"),
+            SheetName(main_disease_id=1, name="2_血圧140-90以下"),
+            SheetName(main_disease_id=1, name="3_血圧140-90以下"),
+            SheetName(main_disease_id=2, name="1_LDL120以下"),
+            SheetName(main_disease_id=2, name="2_LDL100以下"),
+            SheetName(main_disease_id=2, name="3_LDL70以下"),
+            SheetName(main_disease_id=3, name="1_HbAc７％"),
+            SheetName(main_disease_id=3, name="2_HbAc６％"),
+            SheetName(main_disease_id=3, name="3_HbAc８％"),
         ]
         session.add_all(sheet_names)
         session.commit()
 
     if session.query(Template).count() == 0:
         templates = [
-            Template(main_disease="糖尿病", sheet_name="HbAc８％", goal1="HbA1ｃを低血糖に注意して下げる",
-                     goal2="ストレッチを中心とした運動/間食の制限/糖質の制限",
-                     diet="食事量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
-                     exercise_prescription="ストレッチ運動", exercise_time="10分以上",
-                     exercise_frequency="１週間に２回以上",
-                     exercise_intensity="息切れしない程度", daily_activity="ストレッチ運動を主に行う",
-                     other1="睡眠の確保１日７時間", other2="家庭での毎日の歩数の測定"),
-            Template(main_disease="糖尿病", sheet_name="HbAc７％", goal1="HbA1ｃ７％を目標/体重を当初の－３Kgとする",
-                     goal2="１日８０００歩以上の歩行/間食の制限/糖質の制限",
-                     diet="食事量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
-                     exercise_prescription="ウォーキング", exercise_time="30分以上", exercise_frequency="ほぼ毎日",
-                     exercise_intensity="少し汗をかく程度", daily_activity="1日8000歩以上",
-                     other1="睡眠の確保１日７時間", other2="家庭での毎日の歩数の測定"),
-            Template(main_disease="糖尿病", sheet_name="HbAc６％", goal1="HbA1ｃを正常化",
-                     goal2="１日５０００歩以上の歩行/間食の制限/糖質の制限",
-                     diet="食事量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
-                     exercise_prescription="ウォーキング", exercise_time="30分以上",
-                     exercise_frequency="１週間に５回以上",
-                     exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上",
-                     other1="睡眠の確保１日７時間", other2="家庭での毎日の歩数の測定"),
-            Template(main_disease="高血圧", sheet_name="血圧130-80以下",
+            Template(main_disease="高血圧", sheet_name="1_血圧130-80以下",
                      goal1="家庭血圧が測定でき、朝と就寝前のいずれかで130/80mmHg以下",
                      goal2="塩分を控えた食事と運動習慣を目標にする",
                      diet="塩分量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
                      exercise_prescription="ウォーキング", exercise_time="30分以上",
                      exercise_frequency="１週間に２回以上",
                      exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上",
-                     other1="睡眠の確保１日７時間", other2="家庭での毎日の歩数の測定"),
-            Template(main_disease="高血圧", sheet_name="血圧140-90以下",
+                     other1="睡眠の確保１日７時間", other2="毎日の歩数の測定"),
+            Template(main_disease="高血圧", sheet_name="2_血圧140-90以下",
                      goal1="家庭血圧が測定でき、朝と就寝前のいずれかで140/90mmHg以下",
                      goal2="塩分を控えた食事と運動習慣を目標にする",
                      diet="塩分量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
                      exercise_prescription="ストレッチ運動", exercise_time="30分以上",
                      exercise_frequency="１週間に２回以上",
                      exercise_intensity="少し汗をかく程度", daily_activity="ストレッチ運動を主に行う",
-                     other1="睡眠の確保１日７時間", other2="家庭での毎日の歩数の測定"),
-            Template(main_disease="脂質異常症", sheet_name="LDL120以下", goal1="LDLコレステロール＜120/TG＜150/HDL≧40",
+                     other1="睡眠の確保１日７時間", other2="毎日の歩数の測定"),
+            Template(main_disease="高血圧", sheet_name="3_血圧140-90以下",
+                     goal1="家庭血圧が測定でき、朝と就寝前のいずれかで140/90mmHg以下",
+                     goal2="塩分を控えた食事と運動習慣を目標にする",
+                     diet="塩分量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
+                     exercise_prescription="ウォーキング", exercise_time="30分以上",
+                     exercise_frequency="１週間に２回以上",
+                     exercise_intensity="少し汗をかく程度", daily_activity="1日6000歩以上",
+                     other1="睡眠の確保１日７時間", other2="毎日の歩数の測定"),
+            Template(main_disease="脂質異常症", sheet_name="1_LDL120以下", goal1="LDLコレステロール＜120/TG＜150/HDL≧40",
                      goal2="毎日の有酸素運動と食習慣の改善",
                      diet="食事摂取量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
                      exercise_prescription="ウォーキング", exercise_time="30分以上",
                      exercise_frequency="１週間に２回以上",
                      exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上",
-                     other1="飲酒の制限、肥満度の改善", other2="家庭での毎日の歩数の測定"),
-            Template(main_disease="脂質異常症", sheet_name="LDL100以下", goal1="LDLコレステロール＜100/TG＜150/HDL≧40",
+                     other1="飲酒の制限、肥満度の改善", other2="毎日の歩数の測定"),
+            Template(main_disease="脂質異常症", sheet_name="2_LDL100以下", goal1="LDLコレステロール＜100/TG＜150/HDL≧40",
                      goal2="毎日の有酸素運動と食習慣の改善",
                      diet="食事摂取量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
                      exercise_prescription="ウォーキング", exercise_time="30分以上",
                      exercise_frequency="１週間に２回以上",
                      exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上",
-                     other1="飲酒の制限、肥満度の改善", other2="家庭での毎日の歩数の測定"),
-            Template(main_disease="脂質異常症", sheet_name="LDL70以下", goal1="LDLコレステロール＜100/TG＜150/HDL≧40",
+                     other1="飲酒の制限、肥満度の改善", other2="毎日の歩数の測定"),
+            Template(main_disease="脂質異常症", sheet_name="3_LDL70以下", goal1="LDLコレステロール＜100/TG＜150/HDL>40",
                      goal2="毎日の有酸素運動と食習慣の改善",
                      diet="脂肪の多い食品や甘い物を控える/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
                      exercise_prescription="ウォーキング", exercise_time="30分以上",
                      exercise_frequency="１週間に２回以上",
                      exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上",
-                     other1="飲酒の制限、肥満度の改善", other2="家庭での毎日の歩数の測定"),
+                     other1="飲酒の制限、肥満度の改善", other2="毎日の歩数の測定"),
+            Template(main_disease="糖尿病", sheet_name="1_HbAc７％", goal1="HbA1ｃ７％/体重を当初の－３Kgとする",
+                     goal2="1日5000歩以上の歩行/間食の制限/糖質の制限",
+                     diet="食事量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
+                     exercise_prescription="ウォーキング", exercise_time="30分以上",
+                     exercise_frequency="1週間に5回以上",
+                     exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上",
+                     other1="睡眠の確保１日７時間", other2="毎日の歩数の測定"),
+            Template(main_disease="糖尿病", sheet_name="2_HbAc６％", goal1="HbA1ｃを正常化/HbA1ｃ6％",
+                     goal2="１日５０００歩以上の歩行/間食の制限/糖質の制限",
+                     diet="食事量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
+                     exercise_prescription="ウォーキング", exercise_time="30分以上",
+                     exercise_frequency="１週間に５回以上",
+                     exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上",
+                     other1="睡眠の確保１日７時間", other2="毎日の歩数の測定"),
+            Template(main_disease="糖尿病", sheet_name="3_HbAc８％", goal1="HbA1ｃを低血糖に注意して下げる",
+                     goal2="ストレッチを中心とした運動/間食の制限/糖質の制限",
+                     diet="食事量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
+                     exercise_prescription="ストレッチ運動", exercise_time="10分以上",
+                     exercise_frequency="１週間に２回以上",
+                     exercise_intensity="息切れしない程度", daily_activity="ストレッチ運動を主に行う",
+                     other1="睡眠の確保１日７時間", other2="家庭での血圧の測定"),
         ]
         session.add_all(templates)
         session.commit()
