@@ -430,7 +430,7 @@ def create_ui(page):
             )
             session.add(treatment_plan)
             session.commit()
-            TreatmentPlanGenerator.generate_plan(treatment_plan, "生活習慣病療養計画書")
+            TreatmentPlanGenerator.generate_plan(treatment_plan, "LDTPform")
             open_route(None)
         finally:
             session.close()
@@ -465,7 +465,7 @@ def create_ui(page):
         if selected_row is not None:
             patient_info = session.query(PatientInfo).filter(PatientInfo.id == selected_row['id']).first()
             if patient_info:
-                TreatmentPlanGenerator.generate_plan(patient_info, "生活習慣病療養計画書")
+                TreatmentPlanGenerator.generate_plan(patient_info, "LDTPform")
         session.close()
 
     def on_patient_id_change(e):
