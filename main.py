@@ -601,8 +601,19 @@ def create_ui(page):
             patient_info = session.query(PatientInfo).filter(PatientInfo.id == selected_row['id']).first()
             if patient_info:
                 patient_id.value = patient_info.patient_id
+
+                # 主病名の更新
+                main_diagnosis.options = load_main_diseases()
                 main_diagnosis.value = patient_info.main_diagnosis
+
+                # シート名の更新
+                main_disease = session.query(MainDisease).filter_by(name=patient_info.main_diagnosis).first()
+                if main_disease:
+                    sheet_name_dropdown.options = load_sheet_names(main_disease.id)
+                else:
+                    sheet_name_dropdown.options = load_sheet_names(None)
                 sheet_name_dropdown.value = patient_info.sheet_name
+
                 creation_count.value = patient_info.creation_count
                 target_weight.value = patient_info.target_weight
                 goal1.value = patient_info.goal1
@@ -619,6 +630,11 @@ def create_ui(page):
                 other2.value = patient_info.other2
             session.close()
             page.update()
+
+        if e.data == "true":
+            row_index = history.rows.index(e.control)
+            selected_row = history.rows[row_index].data
+            open_edit(e)
 
         if e.data == "true":
             row_index = history.rows.index(e.control)
