@@ -31,7 +31,7 @@ global csv_file_path
 # PatientInfoモデルの定義
 class PatientInfo(Base):
     __tablename__ = 'patient_info'
-    id = Column(Integer, primary_key=True)  # 管理番号
+    id = Column(Integer, primary_key=True)  # 通し番号
     patient_id = Column(Integer)
     patient_name = Column(String)
     kana = Column(String)
@@ -1021,7 +1021,7 @@ def create_ui(page):
 
     history = ft.DataTable(
         columns=[
-            ft.DataColumn(ft.Text("管理番号")),
+            ft.DataColumn(ft.Text("通し番号")),
             ft.DataColumn(ft.Text("発行日")),
             ft.DataColumn(ft.Text("診療科")),
             ft.DataColumn(ft.Text("医師名")),
@@ -1030,7 +1030,7 @@ def create_ui(page):
             ft.DataColumn(ft.Text("作成回数")),
         ],
         rows=rows,
-        width=1000,
+        width=1100,
     )
 
     buttons = ft.Row([
