@@ -99,13 +99,19 @@ class TreatmentPlanGenerator:
         template_path = config.get("Paths", "template_path")
         output_path = config.get("Paths", "output_path")
 
-        current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
+        # 新しいファイル名の生成
+        current_datetime = datetime.now().strftime("%Y%m%d%H%M%S")
+        patient_id = str(patient_info.patient_id).zfill(9)
+        document_number = "392210010"  # 書類番号は固定値として設定
+        doctor_id = str(patient_info.doctor_id).zfill(4)
+
+        new_file_name = f"{patient_id}{document_number}{doctor_id}{current_datetime}.xlsm"
+
+        file_path = os.path.join(output_path, new_file_name)
         workbook = load_workbook(template_path, keep_vba=True)
         common_sheet = workbook["共通情報"]
         TreatmentPlanGenerator.populate_common_sheet(common_sheet, patient_info)
 
-        new_file_name = f"{file_name}_{current_datetime}.xlsm"
-        file_path = os.path.join(output_path, new_file_name)
         workbook.save(file_path)
 
         wb = load_workbook(file_path, read_only=False, keep_vba=True)
