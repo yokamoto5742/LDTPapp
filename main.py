@@ -5,6 +5,7 @@ import flet as ft
 import pandas as pd
 from flet import View
 from openpyxl import load_workbook
+from openpyxl.drawing.image import Image
 from sqlalchemy import create_engine, Column, Integer, String, Float, Date, Boolean
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -12,10 +13,15 @@ import configparser
 from contextlib import contextmanager
 import threading
 
+from barcode import Code128
+from barcode.writer import ImageWriter
+from io import BytesIO
+
+
 config = configparser.ConfigParser()
 config.read('config.ini', encoding='utf-8')
-
 db_url = config.get('database', 'db_url')
+barcode_config = config['Barcode']
 
 # SQLAlchemyの設定
 engine = create_engine(db_url, pool_pre_ping=True, pool_size=10)
@@ -99,7 +105,6 @@ class TreatmentPlanGenerator:
         template_path = config.get("Paths", "template_path")
         output_path = config.get("Paths", "output_path")
 
-        # 新しいファイル名の生成
         current_datetime = datetime.now().strftime("%Y%m%d%H%M%S")
         patient_id = str(patient_info.patient_id).zfill(9)
         document_number = "392210010"  # 書類番号は固定値として設定
@@ -110,7 +115,27 @@ class TreatmentPlanGenerator:
         file_path = os.path.join(output_path, new_file_name)
         workbook = load_workbook(template_path, keep_vba=True)
         common_sheet = workbook["共通情報"]
+        plan_sheet = workbook["計画書"]
         TreatmentPlanGenerator.populate_common_sheet(common_sheet, patient_info)
+
+        options = {
+            'write_text': barcode_config.getboolean('write_text', False),
+            'module_height': barcode_config.getfloat('module_height', 15),
+            'module_width': barcode_config.getfloat('module_width', 0.25),
+            'quiet_zone': barcode_config.getint('quiet_zone', 1),
+        }
+
+        # バーコードの生成
+        barcode = Code128(new_file_name, writer=ImageWriter())
+        buffer = BytesIO()
+        barcode.write(buffer, options=options)
+
+        # バーコード画像の挿入
+        img = Image(buffer)
+        img.width = barcode_config.getint('image_width', 200)
+        img.height = barcode_config.getint('image_height', 30)
+        image_position = barcode_config.get('image_position', 'B2')
+        plan_sheet.add_image(img, image_position)
 
         workbook.save(file_path)
 
