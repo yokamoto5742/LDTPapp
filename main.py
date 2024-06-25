@@ -821,7 +821,6 @@ def create_ui(page):
                     ft.Row(
                         controls=[
                             patient_id_value,
-                            issue_date_value,
                             name_value,
                             kana_value,
                             gender_value,
@@ -869,6 +868,7 @@ def create_ui(page):
                                 sheet_name_dropdown,
                                 creation_count,
                                 ft.Text("回目", size=14),
+                                issue_date_value,
                             ]
                         ),
                         ft.Row(
@@ -903,6 +903,7 @@ def create_ui(page):
                                 sheet_name_dropdown,
                                 creation_count,
                                 ft.Text("回目", size=14),
+                                issue_date_value,
                             ]
                         ),
                         ft.Row(
@@ -987,7 +988,7 @@ def create_ui(page):
     patient_id_value = ft.TextField(label="患者ID", on_change=on_patient_id_change, value=initial_patient_id, width=150)
     patient_id = ft.TextField(label="カルテID", width=150, on_change=on_patient_id_change,
                               value=initial_patient_id)  # patient_id_valueと区別するために変数名を変更
-    issue_date_value = ft.TextField(label="発行日", read_only=True, width=150)
+    issue_date_value = ft.TextField(label="発行日",  width=150)
     name_value = ft.TextField(label="氏名", read_only=True, width=150)
     kana_value = ft.TextField(label="カナ", read_only=True, width=150)
     gender_value = ft.TextField(label="性別", read_only=True, width=150)
