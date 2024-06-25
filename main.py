@@ -125,10 +125,14 @@ class TreatmentPlanGenerator:
             'quiet_zone': barcode_config.getint('quiet_zone', 1),
         }
 
+        file_name_without_extension = os.path.splitext(new_file_name)[0]
+
         # バーコードの生成
-        barcode = Code128(new_file_name, writer=ImageWriter())
+        barcode = Code128(file_name_without_extension, writer=ImageWriter())
         buffer = BytesIO()
         barcode.write(buffer, options=options)
+
+        # print(f"Full barcode data: {barcode}")
 
         # バーコード画像の挿入
         img = Image(buffer)
