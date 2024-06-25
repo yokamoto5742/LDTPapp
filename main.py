@@ -385,7 +385,6 @@ def create_ui(page):
             issue_date_value.value = issue_date_picker.value.strftime("%Y/%m/%d")
             page.update()
 
-
     def on_main_diagnosis_change(e):
         selected_main_disease = main_diagnosis.value
         apply_template()
@@ -1003,7 +1002,7 @@ def create_ui(page):
     issue_date_value = ft.TextField(label="発行日", width=150, read_only=True)
 
     issue_date_button = ft.ElevatedButton(
-        "発行日を選択",
+        "日付選択",
         icon=ft.icons.CALENDAR_TODAY,
         on_click=lambda _: issue_date_picker.pick_date()
     )
