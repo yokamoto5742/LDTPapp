@@ -13,7 +13,7 @@ import configparser
 from contextlib import contextmanager
 import threading
 
-from barcode import Code128
+from barcode.codex import Code128
 from barcode.writer import ImageWriter
 from io import BytesIO
 
@@ -924,10 +924,10 @@ def create_ui(page):
             )
         page.update()
 
-        if page.route == "/template":
+        if page.route == "/templete":
             page.views.append(
                 View(
-                    "/template",
+                    "/templete",
                     [
                         ft.Row(
                             controls=[
@@ -948,7 +948,7 @@ def create_ui(page):
                         ),
                         goal2,
                         guidance_items_template,
-                        template_buttons,
+                        templete_buttons,
                     ],
                 )
             )
@@ -965,8 +965,8 @@ def create_ui(page):
     def open_edit(e):
         page.go("/edit")
 
-    def open_template(e):
-        page.go("/template")
+    def open_templete(e):
+        page.go("/templete")
 
     def open_route(e):
         for field in [target_weight, goal1, goal2, diet,
@@ -1087,7 +1087,7 @@ def create_ui(page):
     buttons = ft.Row([
         ft.ElevatedButton("新規作成", on_click=open_create),
         ft.ElevatedButton("前回コピー", on_click=copy_data),
-        ft.ElevatedButton("テンプレート編集", on_click=open_template),
+        ft.ElevatedButton("テンプレート編集", on_click=open_templete),
         ft.ElevatedButton("閉じる", on_click=on_close),
     ])
 
@@ -1104,7 +1104,7 @@ def create_ui(page):
         ft.ElevatedButton("戻る", on_click=open_route),
     ])
 
-    template_buttons = ft.Row([
+    templete_buttons = ft.Row([
         ft.ElevatedButton("保存", on_click=save_template),
         ft.ElevatedButton("戻る", on_click=open_route),
     ])
