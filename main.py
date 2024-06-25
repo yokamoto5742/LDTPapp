@@ -380,6 +380,12 @@ def create_ui(page):
             page.overlay.append(snack_bar)
             page.update()
 
+    def on_issue_date_change(e):
+        if issue_date_picker.value:
+            issue_date_value.value = issue_date_picker.value.strftime("%Y/%m/%d")
+            page.update()
+
+
     def on_main_diagnosis_change(e):
         selected_main_disease = main_diagnosis.value
         apply_template()
@@ -436,7 +442,7 @@ def create_ui(page):
             kana=patient_info.iloc[4],
             gender="男性" if patient_info.iloc[5] == 1 else "女性",
             birthdate=patient_info.iloc[6],
-            issue_date=datetime.now().date(),
+            issue_date=datetime.strptime(issue_date_value.value, "%Y/%m/%d").date(),
             doctor_id=doctor_id,
             doctor_name=doctor_name,
             department=department,
@@ -541,7 +547,7 @@ def create_ui(page):
                 patient_info.kana = kana_value.value
                 patient_info.gender = gender_value.value
                 patient_info.birthdate = datetime.strptime(birthdate_value.value, "%Y/%m/%d").date()
-                patient_info.issue_date = datetime.now().date()
+                patient_info.issue_date = datetime.strptime(issue_date_value.value, "%Y/%m/%d").date()
                 patient_info.doctor_id = int(doctor_id_value.value)
                 patient_info.doctor_name = doctor_name_value.value
                 patient_info.department = department_value.value
@@ -585,7 +591,7 @@ def create_ui(page):
                 kana=patient_info.kana,
                 gender=patient_info.gender,
                 birthdate=patient_info.birthdate,
-                issue_date=datetime.now().date(),
+                issue_date=patient_info.issue_date,
                 doctor_id=patient_info.doctor_id,
                 doctor_name=patient_info.doctor_name,
                 department=patient_info.department,
@@ -868,7 +874,7 @@ def create_ui(page):
                                 sheet_name_dropdown,
                                 creation_count,
                                 ft.Text("回目", size=14),
-                                issue_date_value,
+                                issue_date_row,
                             ]
                         ),
                         ft.Row(
@@ -903,7 +909,7 @@ def create_ui(page):
                                 sheet_name_dropdown,
                                 creation_count,
                                 ft.Text("回目", size=14),
-                                issue_date_value,
+                                issue_date_row,
                             ]
                         ),
                         ft.Row(
@@ -988,7 +994,23 @@ def create_ui(page):
     patient_id_value = ft.TextField(label="患者ID", on_change=on_patient_id_change, value=initial_patient_id, width=150)
     patient_id = ft.TextField(label="カルテID", width=150, on_change=on_patient_id_change,
                               value=initial_patient_id)  # patient_id_valueと区別するために変数名を変更
-    issue_date_value = ft.TextField(label="発行日",  width=150)
+
+    issue_date_picker = ft.DatePicker(
+        on_change=on_issue_date_change,
+    )
+    page.overlay.append(issue_date_picker)
+
+    issue_date_value = ft.TextField(label="発行日", width=150, read_only=True)
+
+    issue_date_button = ft.ElevatedButton(
+        "発行日を選択",
+        icon=ft.icons.CALENDAR_TODAY,
+        on_click=lambda _: issue_date_picker.pick_date()
+    )
+
+    # 発行日の行を作成
+    issue_date_row = ft.Row([issue_date_value, issue_date_button])
+
     name_value = ft.TextField(label="氏名", read_only=True, width=150)
     kana_value = ft.TextField(label="カナ", read_only=True, width=150)
     gender_value = ft.TextField(label="性別", read_only=True, width=150)
