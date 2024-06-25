@@ -379,10 +379,6 @@ def create_ui(page):
             snack_bar.open = True
             page.overlay.append(snack_bar)
             page.update()
-        else:
-            initial_patient_id = ""
-            if df_patients_data is not None and not df_patients_data.empty:
-                initial_patient_id = int(df_patients_data.iloc[0, 2])
 
     def on_main_diagnosis_change(e):
         selected_main_disease = main_diagnosis.value
