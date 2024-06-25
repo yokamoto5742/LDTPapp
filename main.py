@@ -429,43 +429,56 @@ def create_ui(page):
             department_value.value = ""
         page.update()
 
+    def create_treatment_plan_object(p_id, doctor_id, doctor_name, department, patients_df):
+        patient_info_csv = patients_df.loc[patients_df.iloc[:, 2] == p_id]
+        if patient_info_csv.empty:
+            raise ValueError(f"患者ID {p_id} が見つかりません。")
+        patient_info = patient_info_csv.iloc[0]
+        return PatientInfo(
+            patient_id=p_id,
+            patient_name=patient_info.iloc[3],
+            kana=patient_info.iloc[4],
+            gender="男性" if patient_info.iloc[5] == 1 else "女性",
+            birthdate=patient_info.iloc[6],
+            issue_date=datetime.now().date(),
+            doctor_id=doctor_id,
+            doctor_name=doctor_name,
+            department=department,
+            main_diagnosis=main_diagnosis.value,
+            sheet_name=sheet_name_dropdown.value,
+            creation_count=1,
+            target_weight=float(target_weight.value) if target_weight.value else None,
+            goal1=goal1.value,
+            goal2=goal2.value,
+            diet=diet.value,
+            exercise_prescription=exercise_prescription.value,
+            exercise_time=exercise_time.value,
+            exercise_frequency=exercise_frequency.value,
+            exercise_intensity=exercise_intensity.value,
+            daily_activity=daily_activity.value,
+            nonsmoker=nonsmoker.value,
+            smoking_cessation=smoking_cessation.value,
+            other1=other1.value,
+            other2=other2.value
+        )
+
     def create_treatment_plan(p_id, doctor_id, doctor_name, department, patients_df):
         session = Session()
         try:
-            patient_info_csv = patients_df.loc[patients_df.iloc[:, 2] == p_id]
-            if patient_info_csv.empty:
-                raise ValueError(f"患者ID {p_id} が見つかりません。")
-            patient_info = patient_info_csv.iloc[0]
-            treatment_plan = PatientInfo(
-                patient_id=p_id,
-                patient_name=patient_info.iloc[3],
-                kana=patient_info.iloc[4],
-                gender="男性" if patient_info.iloc[5] == 1 else "女性",
-                birthdate=patient_info.iloc[6],
-                issue_date=datetime.now().date(),
-                doctor_id=doctor_id,
-                doctor_name=doctor_name,
-                department=department,
-                main_diagnosis=main_diagnosis.value,
-                sheet_name=sheet_name_dropdown.value,
-                creation_count=1,
-                target_weight=float(target_weight.value) if target_weight.value else None,
-                goal1=goal1.value,
-                goal2=goal2.value,
-                diet=diet.value,
-                exercise_prescription=exercise_prescription.value,
-                exercise_time=exercise_time.value,
-                exercise_frequency=exercise_frequency.value,
-                exercise_intensity=exercise_intensity.value,
-                daily_activity=daily_activity.value,
-                nonsmoker=nonsmoker.value,
-                smoking_cessation=smoking_cessation.value,
-                other1=other1.value,
-                other2=other2.value
-            )
+            treatment_plan = create_treatment_plan_object(p_id, doctor_id, doctor_name, department, patients_df)
             session.add(treatment_plan)
             session.commit()
             TreatmentPlanGenerator.generate_plan(treatment_plan, "LDTPform")
+            open_route(None)
+        finally:
+            session.close()
+
+    def save_treatment_plan(p_id, doctor_id, doctor_name, department, patients_df):
+        session = Session()
+        try:
+            treatment_plan = create_treatment_plan_object(p_id, doctor_id, doctor_name, department, patients_df)
+            session.add(treatment_plan)
+            session.commit()
             open_route(None)
         finally:
             session.close()
@@ -493,6 +506,15 @@ def create_ui(page):
         doctor_name = doctor_name_value.value
         department = department_value.value
         create_treatment_plan(int(p_id), int(doctor_id), doctor_name, department, df_patients)
+
+    def save_new_plan(e):
+        if not check_required_fields():
+            return
+        p_id = patient_id_value.value
+        doctor_id = doctor_id_value.value
+        doctor_name = doctor_name_value.value
+        department = department_value.value
+        save_treatment_plan(int(p_id), int(doctor_id), doctor_name, department, df_patients)
 
     def print_plan(e):
         global selected_row
@@ -1071,6 +1093,7 @@ def create_ui(page):
 
     create_buttons = ft.Row([
         ft.ElevatedButton("新規発行", on_click=create_new_plan),
+        ft.ElevatedButton("新規登録", on_click=save_new_plan),
         ft.ElevatedButton("戻る", on_click=open_route),
     ])
 
