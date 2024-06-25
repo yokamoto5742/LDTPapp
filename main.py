@@ -660,6 +660,9 @@ def create_ui(page):
             if patient_info:
                 patient_id.value = patient_info.patient_id
 
+                # 発行日の更新
+                issue_date_value.value = patient_info.issue_date.strftime("%Y/%m/%d") if patient_info.issue_date else ""
+
                 # 主病名の更新
                 main_diagnosis.options = load_main_diseases()
                 main_diagnosis.value = patient_info.main_diagnosis
