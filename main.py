@@ -17,11 +17,13 @@ from barcode.codex import Code128
 from barcode.writer import ImageWriter
 from io import BytesIO
 
-
+# config.iniファイルの読み込み
 config = configparser.ConfigParser()
 config.read('config.ini', encoding='utf-8')
-db_url = config.get('database', 'db_url')
+db_url = config.get('Database', 'db_url')
 barcode_config = config['Barcode']
+table_width = config.getint('DataTable', 'width')
+
 
 # SQLAlchemyの設定
 engine = create_engine(db_url, pool_pre_ping=True, pool_size=10)
@@ -248,14 +250,9 @@ def initialize_database():
 
 
 def create_ui(page):
-    # config.iniファイルを読み込む
-    config_main = configparser.ConfigParser()
-    config_main.read('config.ini')
-
     page.title = "生活習慣病療養計画書"
-    # 新しい方法
-    page.window.width = int(config_main.get('settings', 'window_width', fallback=1100))
-    page.window.height = int(config_main.get('settings', 'window_height', fallback=800))
+    page.window.width = config.getint('settings', 'window_width', fallback=1200)
+    page.window.height = config.getint('settings', 'window_height', fallback=800)
 
     threading.Thread(target=initialize_database).start()
 
@@ -1102,7 +1099,7 @@ def create_ui(page):
             ft.DataColumn(ft.Text("作成回数")),
         ],
         rows=rows,
-        width=1100,
+        width=1200,
     )
 
     buttons = ft.Row([
