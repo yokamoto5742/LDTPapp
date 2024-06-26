@@ -273,7 +273,7 @@ def create_ui(page):
     session = Session()
     if session.query(MainDisease).count() == 0:
         main_diseases = [
-            MainDisease(id=1, name="高血圧"),
+            MainDisease(id=1, name="高血圧症"),
             MainDisease(id=2, name="脂質異常症"),
             MainDisease(id=3, name="糖尿病")
         ]
@@ -297,7 +297,7 @@ def create_ui(page):
 
     if session.query(Template).count() == 0:
         templates = [
-            Template(main_disease="高血圧", sheet_name="1_血圧130-80以下",
+            Template(main_disease="高血圧症", sheet_name="1_血圧130-80以下",
                      goal1="家庭血圧が測定でき、朝と就寝前のいずれかで130/80mmHg以下",
                      goal2="塩分を控えた食事と運動習慣を目標にする",
                      diet="塩分量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
@@ -305,7 +305,7 @@ def create_ui(page):
                      exercise_frequency="１週間に２回以上",
                      exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上",
                      other1="睡眠の確保１日７時間", other2="毎日の歩数の測定"),
-            Template(main_disease="高血圧", sheet_name="2_血圧140-90以下",
+            Template(main_disease="高血圧症", sheet_name="2_血圧140-90以下",
                      goal1="家庭血圧が測定でき、朝と就寝前のいずれかで140/90mmHg以下",
                      goal2="塩分を控えた食事と運動習慣を目標にする",
                      diet="塩分量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
@@ -313,7 +313,7 @@ def create_ui(page):
                      exercise_frequency="１週間に２回以上",
                      exercise_intensity="少し汗をかく程度", daily_activity="ストレッチ運動を主に行う",
                      other1="睡眠の確保１日７時間", other2="毎日の歩数の測定"),
-            Template(main_disease="高血圧", sheet_name="3_血圧140-90以下_歩行",
+            Template(main_disease="高血圧症", sheet_name="3_血圧140-90以下_歩行",
                      goal1="家庭血圧が測定でき、朝と就寝前のいずれかで140/90mmHg以下",
                      goal2="塩分を控えた食事と運動習慣を目標にする",
                      diet="塩分量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
