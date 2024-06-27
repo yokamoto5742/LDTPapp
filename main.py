@@ -109,10 +109,11 @@ class TreatmentPlanGenerator:
 
         current_datetime = datetime.now().strftime("%Y%m%d%H%M%S")
         patient_id = str(patient_info.patient_id).zfill(9)
-        document_number = "392210010"  # 書類番号は固定値として設定
-        doctor_id = str(patient_info.doctor_id).zfill(4)
+        document_number = "39221"
+        department_id = str(patient_info.department_id).zfill(3)
+        doctor_id = str(patient_info.doctor_id).zfill(5)
 
-        new_file_name = f"{patient_id}{document_number}{doctor_id}{current_datetime}.xlsm"
+        new_file_name = f"{patient_id}{document_number}{department_id}{doctor_id}{current_datetime}.xlsm"
 
         file_path = os.path.join(output_path, new_file_name)
         workbook = load_workbook(template_path, keep_vba=True)
@@ -127,14 +128,11 @@ class TreatmentPlanGenerator:
             'quiet_zone': barcode_config.getint('quiet_zone', 1),
         }
 
-        file_name_without_extension = os.path.splitext(new_file_name)[0]
-
         # バーコードの生成
-        barcode = Code128(file_name_without_extension, writer=ImageWriter())
+        barcode_data = f"{patient_id}{document_number}{department_id}{doctor_id}{current_datetime}"
+        barcode = Code128(barcode_data, writer=ImageWriter())
         buffer = BytesIO()
         barcode.write(buffer, options=options)
-
-        # print(f"Full barcode data: {barcode}")
 
         # バーコード画像の挿入
         img = Image(buffer)
