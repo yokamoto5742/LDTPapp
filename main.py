@@ -45,7 +45,7 @@ class PatientInfo(Base):
     kana = Column(String)
     gender = Column(String)
     birthdate = Column(Date)
-    issue_date = Column(Date, nullable=False)
+    issue_date = Column(Date)
     doctor_id = Column(Integer)
     doctor_name = Column(String)
     department = Column(String)
@@ -161,7 +161,7 @@ class TreatmentPlanGenerator:
         common_sheet["B4"] = patient_info.kana
         common_sheet["B5"] = patient_info.gender
         common_sheet["B6"] = patient_info.birthdate
-        common_sheet["B7"] = patient_info.issue_date.strftime("%Y/%m/%d")
+        common_sheet["B7"] = patient_info.issue_date
         common_sheet["B8"] = patient_info.doctor_id
         common_sheet["B9"] = patient_info.doctor_name
         common_sheet["B10"] = patient_info.department
