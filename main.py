@@ -24,7 +24,6 @@ db_url = config.get('Database', 'db_url')
 barcode_config = config['Barcode']
 table_width = config.getint('DataTable', 'width')
 
-
 # SQLAlchemyの設定
 engine = create_engine(db_url, pool_pre_ping=True, pool_size=10)
 Session = sessionmaker(bind=engine)
@@ -49,6 +48,7 @@ class PatientInfo(Base):
     doctor_id = Column(Integer)
     doctor_name = Column(String)
     department = Column(String)
+    department_id = Column(Integer)
     main_diagnosis = Column(String)
     sheet_name = Column(String)
     creation_count = Column(Integer)
@@ -164,23 +164,24 @@ class TreatmentPlanGenerator:
         common_sheet["B7"] = patient_info.issue_date
         common_sheet["B8"] = patient_info.doctor_id
         common_sheet["B9"] = patient_info.doctor_name
-        common_sheet["B10"] = patient_info.department
-        common_sheet["B11"] = patient_info.main_diagnosis
-        common_sheet["B12"] = patient_info.creation_count
-        common_sheet["B13"] = patient_info.target_weight
-        common_sheet["B14"] = patient_info.sheet_name
-        common_sheet["B15"] = patient_info.goal1
-        common_sheet["B16"] = patient_info.goal2
-        common_sheet["B17"] = patient_info.diet
-        common_sheet["B18"] = patient_info.exercise_prescription
-        common_sheet["B19"] = patient_info.exercise_time
-        common_sheet["B20"] = patient_info.exercise_frequency
-        common_sheet["B21"] = patient_info.exercise_intensity
-        common_sheet["B22"] = patient_info.daily_activity
-        common_sheet["B23"] = patient_info.nonsmoker
-        common_sheet["B24"] = patient_info.smoking_cessation
-        common_sheet["B25"] = patient_info.other1
-        common_sheet["B26"] = patient_info.other2
+        common_sheet["B10"] = patient_info.department_id  # 診療科IDを追加
+        common_sheet["B11"] = patient_info.department
+        common_sheet["B12"] = patient_info.main_diagnosis
+        common_sheet["B13"] = patient_info.creation_count
+        common_sheet["B14"] = patient_info.target_weight
+        common_sheet["B15"] = patient_info.sheet_name
+        common_sheet["B16"] = patient_info.goal1
+        common_sheet["B17"] = patient_info.goal2
+        common_sheet["B18"] = patient_info.diet
+        common_sheet["B19"] = patient_info.exercise_prescription
+        common_sheet["B20"] = patient_info.exercise_time
+        common_sheet["B21"] = patient_info.exercise_frequency
+        common_sheet["B22"] = patient_info.exercise_intensity
+        common_sheet["B23"] = patient_info.daily_activity
+        common_sheet["B24"] = patient_info.nonsmoker
+        common_sheet["B25"] = patient_info.smoking_cessation
+        common_sheet["B26"] = patient_info.other1
+        common_sheet["B27"] = patient_info.other2
 
 
 class TemplateManager:
@@ -415,6 +416,7 @@ def create_ui(page):
             doctor_id_value.value = str(patient_info.iloc[9])
             doctor_name_value.value = patient_info.iloc[10]
             department_value.value = patient_info.iloc[14]
+            department_id_value.value = str(patient_info.iloc[13])
         else:
             # patient_infoが空の場合は空文字列を設定
             issue_date_value.value = ""
@@ -427,7 +429,7 @@ def create_ui(page):
             department_value.value = ""
         page.update()
 
-    def create_treatment_plan_object(p_id, doctor_id, doctor_name, department, patients_df):
+    def create_treatment_plan_object(p_id, doctor_id, doctor_name, department, department_id, patients_df):
         patient_info_csv = patients_df.loc[patients_df.iloc[:, 2] == p_id]
         if patient_info_csv.empty:
             raise ValueError(f"患者ID {p_id} が見つかりません。")
@@ -442,6 +444,7 @@ def create_ui(page):
             doctor_id=doctor_id,
             doctor_name=doctor_name,
             department=department,
+            department_id=department_id,
             main_diagnosis=main_diagnosis.value,
             sheet_name=sheet_name_dropdown.value,
             creation_count=1,
@@ -460,10 +463,11 @@ def create_ui(page):
             other2=other2.value
         )
 
-    def create_treatment_plan(p_id, doctor_id, doctor_name, department, patients_df):
+    def create_treatment_plan(p_id, doctor_id, doctor_name, department, department_id, patients_df):
         session = Session()
         try:
-            treatment_plan = create_treatment_plan_object(p_id, doctor_id, doctor_name, department, patients_df)
+            treatment_plan = create_treatment_plan_object(p_id, doctor_id, doctor_name, department, department_id,
+                                                          patients_df)
             session.add(treatment_plan)
             session.commit()
             TreatmentPlanGenerator.generate_plan(treatment_plan, "LDTPform")
@@ -471,10 +475,11 @@ def create_ui(page):
         finally:
             session.close()
 
-    def save_treatment_plan(p_id, doctor_id, doctor_name, department, patients_df):
+    def save_treatment_plan(p_id, doctor_id, doctor_name, department, department_id, patients_df):
         session = Session()
         try:
-            treatment_plan = create_treatment_plan_object(p_id, doctor_id, doctor_name, department, patients_df)
+            treatment_plan = create_treatment_plan_object(p_id, doctor_id, doctor_name, department, department_id,
+                                                          patients_df)
             session.add(treatment_plan)
             session.commit()
             open_route(None)
@@ -502,8 +507,9 @@ def create_ui(page):
         p_id = patient_id_value.value
         doctor_id = doctor_id_value.value
         doctor_name = doctor_name_value.value
+        department_id = department_id_value.value
         department = department_value.value
-        create_treatment_plan(int(p_id), int(doctor_id), doctor_name, department, df_patients)
+        create_treatment_plan(int(p_id), int(doctor_id), doctor_name, department, int(department_id), df_patients)
 
     def save_new_plan(e):
         if not check_required_fields():
@@ -511,8 +517,9 @@ def create_ui(page):
         p_id = patient_id_value.value
         doctor_id = doctor_id_value.value
         doctor_name = doctor_name_value.value
+        department_id = department_id_value.value
         department = department_value.value
-        save_treatment_plan(int(p_id), int(doctor_id), doctor_name, department, df_patients)
+        save_treatment_plan(int(p_id), int(doctor_id), doctor_name, department, int(department_id), df_patients)
 
     def print_plan(e):
         global selected_row
@@ -590,6 +597,7 @@ def create_ui(page):
                 issue_date=patient_info.issue_date,
                 doctor_id=patient_info.doctor_id,
                 doctor_name=patient_info.doctor_name,
+                department_id=patient_info.department_id,
                 department=patient_info.department,
                 main_diagnosis=patient_info.main_diagnosis,
                 sheet_name=patient_info.sheet_name,
@@ -836,6 +844,7 @@ def create_ui(page):
                         controls=[
                             doctor_id_value,
                             doctor_name_value,
+                            department_id_value,
                             department_value,
                         ]
                     ),
@@ -1016,8 +1025,8 @@ def create_ui(page):
     birthdate_value = ft.TextField(label="生年月日", read_only=True, width=150)
     doctor_id_value = ft.TextField(label="医師ID", read_only=True, width=150)
     doctor_name_value = ft.TextField(label="医師名", read_only=True, width=150)
+    department_id_value = ft.TextField(label="診療科ID", read_only=True, width=150)
     department_value = ft.TextField(label="診療科", read_only=True, width=150)
-
     main_disease_options = load_main_diseases()
     main_diagnosis = ft.Dropdown(label="主病名", options=main_disease_options, width=200, text_size=14, value="",
                                  on_change=on_main_diagnosis_change, autofocus=True)
@@ -1063,6 +1072,7 @@ def create_ui(page):
         elif e.control == smoking_cessation and smoking_cessation.value:
             nonsmoker.value = False
             nonsmoker.update()
+
     nonsmoker = ft.Checkbox(label="非喫煙者である", on_change=on_tobacco_checkbox_change)
     smoking_cessation = ft.Checkbox(label="禁煙の実施方法等を指示", on_change=on_tobacco_checkbox_change)
 
@@ -1073,7 +1083,8 @@ def create_ui(page):
         diet,
         ft.Row([exercise_prescription, exercise_time, exercise_frequency, exercise_intensity]),
         daily_activity,
-        ft.Row([ft.Text("たばこ", size=14), nonsmoker, smoking_cessation, ft.Text("    (チェックボックスを2回選ぶと解除できます)", size=12)]),
+        ft.Row([ft.Text("たばこ", size=14), nonsmoker, smoking_cessation,
+                ft.Text("    (チェックボックスを2回選ぶと解除できます)", size=12)]),
         ft.Row([other1, other2]),
     ])
 
