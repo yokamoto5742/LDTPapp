@@ -23,6 +23,8 @@ config.read('config.ini', encoding='utf-8')
 db_url = config.get('Database', 'db_url')
 barcode_config = config['Barcode']
 table_width = config.getint('DataTable', 'width')
+document_number = config.get('Document', 'document_number', fallback='39221')
+
 
 # SQLAlchemyの設定
 engine = create_engine(db_url, pool_pre_ping=True, pool_size=10)
