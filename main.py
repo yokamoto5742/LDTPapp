@@ -219,49 +219,22 @@ def load_patient_data():
 
 
 def restart_application(page: ft.Page):
-    def restart():
-        if getattr(sys, 'frozen', False):
-            # アプリケーションが実行可能ファイルとして実行されている場合
-            application_path = sys.executable
-        else:
-            # スクリプトとして実行されている場合
-            application_path = sys.executable
-            script_path = os.path.abspath(sys.argv[0])
+    if getattr(sys, 'frozen', False):
+        # アプリケーションが実行可能ファイルとして実行されている場合
+        application_path = sys.executable
+    else:
+        # スクリプトとして実行されている場合
+        application_path = sys.executable
+        script_path = os.path.abspath(sys.argv[0])
 
-        # 新しいプロセスを開始
-        if getattr(sys, 'frozen', False):
-            subprocess.Popen([application_path])
-        else:
-            subprocess.Popen([application_path, script_path])
+    # 新しいプロセスを開始
+    if getattr(sys, 'frozen', False):
+        subprocess.Popen([application_path])
+    else:
+        subprocess.Popen([application_path, script_path])
 
-        # 現在のアプリケーションを終了
-        page.window.destroy()
-
-    def open_restart_dialog():
-        def close_dialog(e):
-            dialog.open = False
-            page.update()
-
-        def confirm_restart(e):
-            close_dialog(e)
-            restart()
-
-        dialog = ft.AlertDialog(
-            modal=True,
-            title=ft.Text("再起動の確認"),
-            content=ft.Text("アプリケーションを再起動しますか？\n未保存のデータは失われます。"),
-            actions=[
-                ft.TextButton("キャンセル", on_click=close_dialog),
-                ft.TextButton("再起動", on_click=confirm_restart),
-            ],
-            actions_alignment=ft.MainAxisAlignment.END,
-        )
-
-        page.overlay.append(dialog)
-        dialog.open = True
-        page.update()
-
-    open_restart_dialog()
+    # 現在のアプリケーションを終了
+    page.window.destroy()
 
 
 @contextmanager
