@@ -16,6 +16,8 @@ import threading
 from barcode.codex import Code128
 from barcode.writer import ImageWriter
 from io import BytesIO
+import subprocess
+import sys
 
 # config.iniファイルの読み込み
 config = configparser.ConfigParser()
@@ -214,6 +216,52 @@ def load_patient_data():
         return f"エラー: {csv_file_path}にcsvファイルが見つかりません。", None
     except Exception as e:
         return f"エラー: {str(e)}", None
+
+
+def restart_application(page: ft.Page):
+    def restart():
+        if getattr(sys, 'frozen', False):
+            # アプリケーションが実行可能ファイルとして実行されている場合
+            application_path = sys.executable
+        else:
+            # スクリプトとして実行されている場合
+            application_path = sys.executable
+            script_path = os.path.abspath(sys.argv[0])
+
+        # 新しいプロセスを開始
+        if getattr(sys, 'frozen', False):
+            subprocess.Popen([application_path])
+        else:
+            subprocess.Popen([application_path, script_path])
+
+        # 現在のアプリケーションを終了
+        page.window.destroy()
+
+    def open_restart_dialog():
+        def close_dialog(e):
+            dialog.open = False
+            page.update()
+
+        def confirm_restart(e):
+            close_dialog(e)
+            restart()
+
+        dialog = ft.AlertDialog(
+            modal=True,
+            title=ft.Text("再起動の確認"),
+            content=ft.Text("アプリケーションを再起動しますか？\n未保存のデータは失われます。"),
+            actions=[
+                ft.TextButton("キャンセル", on_click=close_dialog),
+                ft.TextButton("再起動", on_click=confirm_restart),
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
+
+        page.overlay.append(dialog)
+        dialog.open = True
+        page.update()
+
+    open_restart_dialog()
 
 
 @contextmanager
@@ -1117,6 +1165,7 @@ def create_ui(page):
         ft.ElevatedButton("新規作成", on_click=open_create),
         ft.ElevatedButton("前回コピー", on_click=copy_data),
         ft.ElevatedButton("テンプレート編集", on_click=open_template),
+        ft.ElevatedButton("再読込", on_click=lambda _: restart_application(page)),
         ft.ElevatedButton("閉じる", on_click=on_close),
     ])
 
