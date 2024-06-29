@@ -851,6 +851,7 @@ def create_ui(page):
                     ft.Row(
                         controls=[
                             buttons,
+                            ft.Text("(別患者で作成するにはアプリを一旦閉じてください)", size=12)
                         ]
                     ),
                     ft.Row(
