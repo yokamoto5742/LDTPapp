@@ -212,7 +212,7 @@ def load_patient_data():
     except (configparser.NoSectionError, configparser.NoOptionError):
         return "エラー: config.iniファイルに'FilePaths'セクションまたは'patient_data'キーが見つかりません。", None
     except FileNotFoundError:
-        return f"エラー: {csv_file_path}にcsvファイルが見つかりません。", None
+        return f"エラー: Pat.csvが見つからないのでアプリを終了してください。", None
     except Exception as e:
         return f"エラー: {str(e)}", None
 
@@ -883,7 +883,7 @@ def create_ui(page):
                             name_value,
                             kana_value,
                             gender_value,
-                            birthdate_value
+                            birthdate_value,
                         ]
                     ),
                     ft.Row(
@@ -892,6 +892,7 @@ def create_ui(page):
                             doctor_name_value,
                             department_id_value,
                             department_value,
+                            ft.ElevatedButton("CSV出力", on_click=export_to_csv),
                         ]
                     ),
                     ft.Row(
@@ -1164,7 +1165,6 @@ def create_ui(page):
         ft.ElevatedButton("新規作成", on_click=open_create),
         ft.ElevatedButton("前回コピー", on_click=copy_data),
         ft.ElevatedButton("テンプレート編集", on_click=open_template),
-        ft.ElevatedButton("CSV出力", on_click=export_to_csv),
         ft.ElevatedButton("閉じる", on_click=on_close),
     ])
 
