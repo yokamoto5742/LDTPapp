@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+import csv
 
 import flet as ft
 import pandas as pd
@@ -378,52 +379,50 @@ def create_ui(page):
             page.overlay.append(snack_bar)
             page.update()
 
-    def reload_app(e):
-        global df_patients
-        error_message, df_patients = load_patient_data()
-        if error_message:
-            show_error_message(error_message)
-        else:
-            patient_id_value.value = ""
-            name_value.value = ""
-            kana_value.value = ""
-            gender_value.value = ""
-            birthdate_value.value = ""
-            doctor_id_value.value = ""
-            doctor_name_value.value = ""
-            department_id_value.value = ""
-            department_value.value = ""
-            main_diagnosis.value = ""
-            sheet_name_dropdown.value = ""
-            creation_count.value = "1"
-            target_weight.value = ""
-            goal1.value = ""
-            goal2.value = ""
-            diet.value = ""
-            exercise_prescription.value = ""
-            exercise_time.value = ""
-            exercise_frequency.value = ""
-            exercise_intensity.value = ""
-            daily_activity.value = ""
-            nonsmoker.value = False
-            smoking_cessation.value = False
-            other1.value = ""
-            other2.value = ""
+    def export_to_csv(e):
+        try:
+            # CSVファイル名を現在の日時で生成
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            csv_filename = f"patient_info_export_{timestamp}.csv"
 
-            if df_patients is not None and not df_patients.empty:
-                initial_patient_id = int(df_patients.iloc[0, 2])
-                patient_id_value.value = str(initial_patient_id)
-                load_patient_info(initial_patient_id)
-                update_history(initial_patient_id)
+            # セッションを開始
+            session = Session()
 
+            # PatientInfoテーブルからすべてのデータを取得
+            patient_data = session.query(PatientInfo).all()
+
+            # CSVファイルを書き込みモードで開く
+            with open(csv_filename, 'w', newline='', encoding='shift_jis', errors='ignore') as csvfile:
+                writer = csv.writer(csvfile)
+
+                # ヘッダー行を書き込む
+                writer.writerow([column.name for column in PatientInfo.__table__.columns])
+
+                # データ行を書き込む
+                for patient in patient_data:
+                    writer.writerow([getattr(patient, column.name) for column in PatientInfo.__table__.columns])
+
+            # セッションを閉じる
+            session.close()
+
+            # 成功メッセージを表示
             snack_bar = ft.SnackBar(
-                content=ft.Text("アプリケーションが再読み込みされました"),
-                duration=1000,
+                content=ft.Text(f"データがCSVファイル '{csv_filename}' にエクスポートされました"),
+                duration=1000
             )
             snack_bar.open = True
             page.overlay.append(snack_bar)
+            page.update()
 
-        page.update()
+        except Exception as e:
+            # エラーメッセージを表示
+            error_snack_bar = ft.SnackBar(
+                content=ft.Text(f"エクスポート中にエラーが発生しました: {str(e)}"),
+                duration=1000
+            )
+            error_snack_bar.open = True
+            page.overlay.append(error_snack_bar)
+            page.update()
 
     def on_issue_date_change(e):
         if issue_date_picker.value:
@@ -1165,7 +1164,7 @@ def create_ui(page):
         ft.ElevatedButton("新規作成", on_click=open_create),
         ft.ElevatedButton("前回コピー", on_click=copy_data),
         ft.ElevatedButton("テンプレート編集", on_click=open_template),
-        ft.ElevatedButton("再読込", on_click=reload_app),
+        ft.ElevatedButton("CSV出力", on_click=export_to_csv),
         ft.ElevatedButton("閉じる", on_click=on_close),
     ])
 
