@@ -3,3 +3,4 @@ dist/
 
 ldtpapp.spec
 ldtp_app.db
+patient_info_export*.csv
