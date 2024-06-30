@@ -387,44 +387,50 @@ def create_ui(page):
     file_picker = ft.FilePicker(on_result=on_file_selected)
     page.overlay.append(file_picker)
 
-    # CSVデータのインポート処理
     def import_csv(file_path):
+        def row_generator():
+            try:
+                with open(file_path, 'r', encoding='shift_jis') as csvfile:
+                    csv_reader = csv.DictReader(csvfile)
+                    for row in csv_reader:
+                        yield PatientInfo(
+                            patient_id=int(row['patient_id']),
+                            patient_name=row['patient_name'],
+                            kana=row['kana'],
+                            gender=row['gender'],
+                            birthdate=datetime.strptime(row['birthdate'], '%Y-%m-%d').date(),
+                            issue_date=datetime.strptime(row['issue_date'], '%Y-%m-%d').date(),
+                            doctor_id=int(row['doctor_id']),
+                            doctor_name=row['doctor_name'],
+                            department=row['department'],
+                            department_id=int(row['department_id']),
+                            main_diagnosis=row['main_diagnosis'],
+                            sheet_name=row['sheet_name'],
+                            creation_count=int(row['creation_count']),
+                            goal1=row['goal1'],
+                            goal2=row['goal2'],
+                            target_weight=float(row['target_weight']) if row['target_weight'] else None,
+                            diet=row['diet'],
+                            exercise_prescription=row['exercise_prescription'],
+                            exercise_time=row['exercise_time'],
+                            exercise_frequency=row['exercise_frequency'],
+                            exercise_intensity=row['exercise_intensity'],
+                            daily_activity=row['daily_activity'],
+                            nonsmoker=row['nonsmoker'] == 'True',
+                            smoking_cessation=row['smoking_cessation'] == 'True',
+                            other1=row['other1'],
+                            other2=row['other2']
+                        )
+            except Exception as e:
+                print(f"CSVの読み込み中にエラーが発生しました: {str(e)}")
+                raise
+
         try:
-            with open(file_path, 'r', encoding='shift_jis') as csvfile:
-                csv_reader = csv.DictReader(csvfile)
-                session = Session()
-                for row in csv_reader:
-                    patient_info = PatientInfo(
-                        patient_id=int(row['patient_id']),
-                        patient_name=row['patient_name'],
-                        kana=row['kana'],
-                        gender=row['gender'],
-                        birthdate=datetime.strptime(row['birthdate'], '%Y-%m-%d').date(),
-                        issue_date=datetime.strptime(row['issue_date'], '%Y-%m-%d').date(),
-                        doctor_id=int(row['doctor_id']),
-                        doctor_name=row['doctor_name'],
-                        department=row['department'],
-                        department_id=int(row['department_id']),
-                        main_diagnosis=row['main_diagnosis'],
-                        sheet_name=row['sheet_name'],
-                        creation_count=int(row['creation_count']),
-                        goal1=row['goal1'],
-                        goal2=row['goal2'],
-                        target_weight=float(row['target_weight']) if row['target_weight'] else None,
-                        diet=row['diet'],
-                        exercise_prescription=row['exercise_prescription'],
-                        exercise_time=row['exercise_time'],
-                        exercise_frequency=row['exercise_frequency'],
-                        exercise_intensity=row['exercise_intensity'],
-                        daily_activity=row['daily_activity'],
-                        nonsmoker=row['nonsmoker'] == 'True',
-                        smoking_cessation=row['smoking_cessation'] == 'True',
-                        other1=row['other1'],
-                        other2=row['other2']
-                    )
-                    session.add(patient_info)
-                session.commit()
-                session.close()
+            session = Session()
+            for patient_info in row_generator():
+                session.add(patient_info)
+            session.commit()
+            session.close()
 
             snack_bar = ft.SnackBar(
                 content=ft.Text("CSVファイルからデータがインポートされました"),
@@ -432,6 +438,7 @@ def create_ui(page):
             )
             snack_bar.open = True
             page.overlay.append(snack_bar)
+            update_history(int(patient_id.value))
             page.update()
 
         except Exception as e:
