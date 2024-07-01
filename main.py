@@ -428,8 +428,8 @@ def create_ui(page):
         file_name = os.path.basename(file_path)
         if not re.match(r'^patient_info_.*\.csv$', file_name):
             error_snack_bar = ft.SnackBar(
-                content=ft.Text("エラー: このファイルはインポートできません"),
-                duration=3000
+                content=ft.Text("インポートエラー:このファイルはインポートできません"),
+                duration=2000
             )
             error_snack_bar.open = True
             page.overlay.append(error_snack_bar)
