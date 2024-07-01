@@ -1,4 +1,5 @@
 import os
+import re
 from datetime import datetime
 import csv
 
@@ -397,7 +398,7 @@ def create_ui(page):
                 ft.ElevatedButton("CSV出力", on_click=csv_export),
                 ft.ElevatedButton("CSV取込", on_click=lambda _: file_picker.pick_files(allow_multiple=False)),
             ]),
-            height=page.window.height  * 0.3,  # ページの高さの40%に設定
+            height=page.window.height * 0.3,
         )
 
         dialog = ft.AlertDialog(
@@ -424,6 +425,17 @@ def create_ui(page):
     page.overlay.append(file_picker)
 
     def import_csv(file_path):
+        file_name = os.path.basename(file_path)
+        if not re.match(r'^patient_info_.*\.csv$', file_name):
+            error_snack_bar = ft.SnackBar(
+                content=ft.Text("エラー: このファイルはインポートできません"),
+                duration=3000
+            )
+            error_snack_bar.open = True
+            page.overlay.append(error_snack_bar)
+            page.update()
+            return
+
         def row_generator():
             try:
                 with open(file_path, 'r', encoding='shift_jis') as csvfile:
