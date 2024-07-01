@@ -392,12 +392,17 @@ def create_ui(page):
             file_picker.pick_files(allow_multiple=False)
             close_dialog(e)
 
+        content = ft.Container(
+            content=ft.Column([
+                ft.ElevatedButton("CSV出力", on_click=csv_export),
+                ft.ElevatedButton("CSV取込", on_click=lambda _: file_picker.pick_files(allow_multiple=False)),
+            ]),
+            height=page.window.height  * 0.3,  # ページの高さの40%に設定
+        )
+
         dialog = ft.AlertDialog(
             title=ft.Text("設定"),
-            content=ft.Column([
-                ft.ElevatedButton("CSV出力", on_click=export_to_csv),
-                ft.ElevatedButton("CSV取込", on_click=lambda _: file_picker.pick_files(allow_multiple=False))
-            ]),
+            content=content,
             actions=[
                 ft.TextButton("閉じる", on_click=close_dialog)
             ]
