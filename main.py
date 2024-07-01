@@ -381,7 +381,7 @@ def create_ui(page):
 
     def open_settings_dialog(e):
         def close_dialog(e):
-            page.dialog.open = False
+            dialog.open = False
             page.update()
 
         def csv_export(e):
@@ -392,7 +392,7 @@ def create_ui(page):
             file_picker.pick_files(allow_multiple=False)
             close_dialog(e)
 
-        page.dialog = ft.AlertDialog(
+        dialog = ft.AlertDialog(
             title=ft.Text("設定"),
             content=ft.Column([
                 ft.ElevatedButton("CSV出力", on_click=export_to_csv),
@@ -402,7 +402,9 @@ def create_ui(page):
                 ft.TextButton("閉じる", on_click=close_dialog)
             ]
         )
-        page.dialog.open = True
+
+        page.overlay.append(dialog)
+        dialog.open = True
         page.update()
 
     # 設定ボタンを作成
