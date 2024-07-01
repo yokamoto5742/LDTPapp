@@ -379,6 +379,35 @@ def create_ui(page):
             page.overlay.append(snack_bar)
             page.update()
 
+    def open_settings_dialog(e):
+        def close_dialog(e):
+            page.dialog.open = False
+            page.update()
+
+        def csv_export(e):
+            export_to_csv(e)
+            close_dialog(e)
+
+        def csv_import(e):
+            file_picker.pick_files(allow_multiple=False)
+            close_dialog(e)
+
+        page.dialog = ft.AlertDialog(
+            title=ft.Text("設定"),
+            content=ft.Column([
+                ft.ElevatedButton("CSV出力", on_click=export_to_csv),
+                ft.ElevatedButton("CSV取込", on_click=lambda _: file_picker.pick_files(allow_multiple=False))
+            ]),
+            actions=[
+                ft.TextButton("閉じる", on_click=close_dialog)
+            ]
+        )
+        page.dialog.open = True
+        page.update()
+
+    # 設定ボタンを作成
+    settings_button = ft.ElevatedButton("設定", on_click=open_settings_dialog)
+
     def on_file_selected(e: ft.FilePickerResultEvent):
         if e.files:
             file_path = e.files[0].path
@@ -964,8 +993,7 @@ def create_ui(page):
                             doctor_name_value,
                             department_id_value,
                             department_value,
-                            ft.ElevatedButton("CSV出力", on_click=export_to_csv),
-                            ft.ElevatedButton("CSV取込", on_click=lambda _: file_picker.pick_files(allow_multiple=False))
+                            settings_button,
         ]
                     ),
                     ft.Row(
