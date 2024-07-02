@@ -35,7 +35,7 @@ def update_main_py(new_version):
     content = re.sub(r'VERSION = "[0-9.]+"', f'VERSION = "{new_version}"', content)
 
     # 最終更新日を更新
-    today = datetime.now().strftime("%Y-%m-%d")
+    today = datetime.now().strftime("%Y/%m/%d")
     content = re.sub(r'LAST_UPDATED = "[0-9-]+"', f'LAST_UPDATED = "{today}"', content)
 
     with open("main.py", "w") as f:
