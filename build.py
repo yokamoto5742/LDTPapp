@@ -8,7 +8,13 @@ def build_executable():
     new_version = update_version()
     update_main_py(new_version)
 
-    subprocess.run(["pyinstaller", "--name=LDTPapp", "--windowed", "--icon=LDPTapp_icon.ico", "main.py"])
+    subprocess.run([
+        "pyinstaller",
+        "--name=LDTPform",
+        "--windowed",
+        "--icon=assets/LDPTapp_icon.ico",
+        "main.py"
+    ])
 
     # 必要なファイルをdistフォルダにコピー
     shutil.copy("config.ini", "dist/")
