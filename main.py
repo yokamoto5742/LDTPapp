@@ -19,6 +19,9 @@ from barcode.codex import Code128
 from barcode.writer import ImageWriter
 from io import BytesIO
 
+VERSION = "0.1.0"
+LAST_UPDATED = "2024/07/01"
+
 # config.iniファイルの読み込み
 config = configparser.ConfigParser()
 config.read('config.ini', encoding='utf-8')
@@ -259,6 +262,7 @@ def create_ui(page):
 
     threading.Thread(target=initialize_database).start()
 
+
     # pat.csvの読み込み
     error_message, df_patients = load_patient_data()
     initial_patient_id = ""
@@ -395,6 +399,7 @@ def create_ui(page):
 
         content = ft.Container(
             content=ft.Column([
+                ft.Text(f"LDTPapp\nバージョン: {VERSION}\n最終更新日: {LAST_UPDATED}"),
                 ft.ElevatedButton("CSV出力", on_click=csv_export),
                 ft.ElevatedButton("CSV取込", on_click=lambda _: file_picker.pick_files(allow_multiple=False)),
             ]),
