@@ -1,5 +1,7 @@
 import os
 import re
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 from datetime import datetime
 import csv
 
@@ -19,7 +21,7 @@ from barcode.codex import Code128
 from barcode.writer import ImageWriter
 from io import BytesIO
 
-VERSION = "0.0.2"
+VERSION = "0.0.0"
 LAST_UPDATED = "2024/07/01"
 
 # config.iniファイルの読み込み
@@ -29,6 +31,7 @@ db_url = config.get('Database', 'db_url')
 barcode_config = config['Barcode']
 table_width = config.getint('DataTable', 'width')
 document_number = config.get('Document', 'document_number', fallback='39221')
+csv_file_path = config.get('FilePaths', 'patient_data')
 
 
 # SQLAlchemyの設定
@@ -38,8 +41,6 @@ Base = declarative_base()
 
 # 治療計画書の履歴の選択を空欄にする(初期値)
 selected_row = None
-
-global csv_file_path
 
 
 # PatientInfoモデルの定義
@@ -200,6 +201,30 @@ class TemplateManager:
         return self.templates.get((main_disease, sheet_name))
 
 
+class MyHandler(FileSystemEventHandler):
+    def __init__(self, page):
+        self.page = page
+
+    def on_deleted(self, event):
+        if event.src_path == csv_file_path:
+            print("pat.csvファイルが削除されたのでアプリケーションを終了します。")
+            self.page.window.close()
+
+
+def start_file_monitoring(page):
+    event_handler = MyHandler(page)
+    observer = Observer()
+    observer.schedule(event_handler, path=os.path.dirname(csv_file_path), recursive=False)
+    observer.start()
+    return observer
+
+
+def check_file_exists(page):
+    if not os.path.exists(csv_file_path):
+        print("pat.csvファイルが見つかりません。アプリケーションを終了します。")
+        page.window.close()
+
+
 def load_patient_data():
     global csv_file_path
     try:
@@ -228,6 +253,9 @@ def get_session():
         yield session
     finally:
         session.close()
+
+
+
 
 
 def load_main_diseases():
@@ -1334,7 +1362,15 @@ def create_ui(page):
 
 
 def main(page: ft.Page):
-    create_ui(page)
+    observer = start_file_monitoring(page)
+    check_file_exists(page)
+
+    try:
+        create_ui(page)
+    finally:
+        observer.stop()
+        observer.join()
 
 
-ft.app(target=main)
+if __name__ == "__main__":
+    ft.app(target=main)
