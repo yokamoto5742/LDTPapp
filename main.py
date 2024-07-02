@@ -555,10 +555,8 @@ def create_ui(page):
                 for patient in patient_data:
                     writer.writerow([getattr(patient, column.name) for column in PatientInfo.__table__.columns])
 
-            # セッションを閉じる
             session.close()
 
-            # 成功メッセージを表示
             snack_bar = ft.SnackBar(
                 content=ft.Text(f"データがCSVファイル '{csv_filename}' にエクスポートされました"),
                 duration=1000
@@ -1362,14 +1360,9 @@ def create_ui(page):
 
 
 def main(page: ft.Page):
-    observer = start_file_monitoring(page)
+    start_file_monitoring(page)
     check_file_exists(page)
-
-    try:
-        create_ui(page)
-    finally:
-        observer.stop()
-        observer.join()
+    create_ui(page)
 
 
 if __name__ == "__main__":
