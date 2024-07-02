@@ -28,7 +28,7 @@ def update_version():
 
 
 def update_main_py(new_version):
-    with open("main.py", "r") as f:
+    with open('main.py', 'r', encoding='utf-8') as f:
         content = f.read()
 
     # バージョン情報を更新
@@ -38,5 +38,5 @@ def update_main_py(new_version):
     today = datetime.now().strftime("%Y/%m/%d")
     content = re.sub(r'LAST_UPDATED = "[0-9-]+"', f'LAST_UPDATED = "{today}"', content)
 
-    with open("main.py", "w") as f:
+    with open('main.py', 'w', encoding='utf-8') as f:
         f.write(content)

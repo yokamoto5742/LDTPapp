@@ -19,7 +19,7 @@ from barcode.codex import Code128
 from barcode.writer import ImageWriter
 from io import BytesIO
 
-VERSION = "0.1.0"
+VERSION = "0.0.2"
 LAST_UPDATED = "2024/07/01"
 
 # config.iniファイルの読み込み

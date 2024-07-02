@@ -10,7 +10,7 @@ def build_executable():
 
     subprocess.run([
         "pyinstaller",
-        "--name=LDTPform",
+        "--name=LDTPapp",
         "--windowed",
         "--icon=assets/LDPTapp_icon.ico",
         "main.py"
