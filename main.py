@@ -207,7 +207,6 @@ class MyHandler(FileSystemEventHandler):
 
     def on_deleted(self, event):
         if event.src_path == csv_file_path:
-            print("pat.csvファイルが削除されたのでアプリケーションを終了します。")
             self.page.window.close()
 
 
@@ -221,7 +220,6 @@ def start_file_monitoring(page):
 
 def check_file_exists(page):
     if not os.path.exists(csv_file_path):
-        print("pat.csvファイルが見つかりません。アプリケーションを終了します。")
         page.window.close()
 
 
@@ -240,8 +238,6 @@ def load_patient_data():
 
     except (configparser.NoSectionError, configparser.NoOptionError):
         return "エラー: config.iniファイルに'FilePaths'セクションまたは'patient_data'キーが見つかりません。", None
-    except FileNotFoundError:
-        return f"エラー: Pat.csvが見つからないのでアプリを終了してください。", None
     except Exception as e:
         return f"エラー: {str(e)}", None
 
@@ -289,7 +285,6 @@ def create_ui(page):
     page.window.height = config.getint('settings', 'window_height', fallback=800)
 
     threading.Thread(target=initialize_database).start()
-
 
     # pat.csvの読み込み
     error_message, df_patients = load_patient_data()
@@ -1049,7 +1044,7 @@ def create_ui(page):
                     ft.Row(
                         controls=[
                             buttons,
-                            ft.Text("(別患者で作成するにはアプリを一旦閉じてください)", size=12)
+                            ft.Text("(SOAP画面を閉じるとアプリか終了します)", size=12)
                         ]
                     ),
                     ft.Row(
