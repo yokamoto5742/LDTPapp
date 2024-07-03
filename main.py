@@ -512,7 +512,6 @@ def create_ui(page):
             page.update()
 
         except Exception as e:
-            print(f"インポート中にエラーが発生しました: {str(e)}")
             error_snack_bar = ft.SnackBar(
                 content=ft.Text(f"インポート中にエラーが発生しました: {str(e)}"),
                 duration=3000
@@ -567,20 +566,6 @@ def create_ui(page):
             error_snack_bar.open = True
             page.overlay.append(error_snack_bar)
             page.update()
-
-    def on_file_selected(e: ft.FilePickerResultEvent):
-        if e.files:
-            file_path = e.files[0].path
-            if os.path.dirname(file_path) != import_folder:
-                error_snack_bar = ft.SnackBar(
-                    content=ft.Text("インポートエラー: 指定されたインポートフォルダ以外からのファイルは選択できません"),
-                    duration=2000
-                )
-                error_snack_bar.open = True
-                page.overlay.append(error_snack_bar)
-                page.update()
-            else:
-                import_csv(file_path)
 
     def on_issue_date_change(e):
         if issue_date_picker.value:
