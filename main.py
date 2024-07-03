@@ -21,7 +21,7 @@ from barcode.codex import Code128
 from barcode.writer import ImageWriter
 from io import BytesIO
 
-VERSION = "0.0.0"
+VERSION = "0.1.1"
 LAST_UPDATED = "2024/07/01"
 
 # config.iniファイルの読み込み
@@ -1320,7 +1320,7 @@ def create_ui(page):
     ])
 
     create_buttons = ft.Row([
-        ft.ElevatedButton("新規発行", on_click=create_new_plan),
+        ft.ElevatedButton("新規登録して印刷", on_click=create_new_plan),
         ft.ElevatedButton("新規登録", on_click=save_new_plan),
         ft.ElevatedButton("戻る", on_click=open_route),
     ])
