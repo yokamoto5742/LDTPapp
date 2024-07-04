@@ -717,7 +717,6 @@ def create_ui(page):
         if selected_row is not None:
             patient_info = session.query(PatientInfo).filter(PatientInfo.id == selected_row['id']).first()
             if patient_info:
-                # UI要素から最新の値を取得してデータベースを更新
                 patient_info.main_diagnosis = main_diagnosis.value
                 patient_info.sheet_name = sheet_name_dropdown.value
                 patient_info.creation_count = creation_count.value
