@@ -717,6 +717,26 @@ def create_ui(page):
         if selected_row is not None:
             patient_info = session.query(PatientInfo).filter(PatientInfo.id == selected_row['id']).first()
             if patient_info:
+                # UI要素から最新の値を取得してデータベースを更新
+                patient_info.main_diagnosis = main_diagnosis.value
+                patient_info.sheet_name = sheet_name_dropdown.value
+                patient_info.creation_count = creation_count.value
+                patient_info.target_weight = target_weight.value if target_weight.value else None
+                patient_info.goal1 = goal1.value
+                patient_info.goal2 = goal2.value
+                patient_info.diet = diet.value
+                patient_info.exercise_prescription = exercise_prescription.value
+                patient_info.exercise_time = exercise_time.value
+                patient_info.exercise_frequency = exercise_frequency.value
+                patient_info.exercise_intensity = exercise_intensity.value
+                patient_info.daily_activity = daily_activity.value
+                patient_info.nonsmoker = nonsmoker.value
+                patient_info.smoking_cessation = smoking_cessation.value
+                patient_info.other1 = other1.value
+                patient_info.other2 = other2.value
+                session.commit()
+
+                # 更新後のデータを使用して印刷
                 TreatmentPlanGenerator.generate_plan(patient_info, "LDTPform")
         session.close()
 
