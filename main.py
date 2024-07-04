@@ -32,7 +32,6 @@ barcode_config = config['Barcode']
 table_width = config.getint('DataTable', 'width')
 document_number = config.get('Document', 'document_number', fallback='39221')
 csv_file_path = config.get('FilePaths', 'patient_data')
-import_folder = config.get('FilePaths', 'import_folder')
 export_folder = config.get('FilePaths', 'export_folder')
 
 # SQLAlchemyの設定

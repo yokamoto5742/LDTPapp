@@ -20,7 +20,7 @@ config = configparser.ConfigParser()
 config.read(get_config_path())
 
 # データベースURLとアプリケーションディレクトリの取得
-db_url = config['database']['db_url']
+db_url = config['Database']['db_url']
 app_dir = config['Paths']['app_dir']
 
 # URLからデータベースファイル名を抽出
