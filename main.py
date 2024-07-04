@@ -556,6 +556,8 @@ def create_ui(page):
             page.overlay.append(snack_bar)
             page.update()
 
+            os.startfile(export_folder)
+
         except Exception as e:
             # エラーメッセージを表示
             error_snack_bar = ft.SnackBar(
