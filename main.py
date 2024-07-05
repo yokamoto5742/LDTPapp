@@ -796,7 +796,13 @@ def create_ui(page):
         patient_info = session.query(PatientInfo). \
             filter(PatientInfo.patient_id == patient_id.value). \
             order_by(PatientInfo.id.desc()).first()
-        if patient_info:
+
+        # 最新の患者情報を取得
+        latest_patient_info = session.query(PatientInfo). \
+            filter(PatientInfo.patient_id == patient_id_value.value). \
+            order_by(PatientInfo.id.desc()).first()
+
+        if patient_info and latest_patient_info:
             patient_info_copy = PatientInfo(
                 patient_id=patient_info.patient_id,
                 patient_name=patient_info.patient_name,
@@ -806,7 +812,7 @@ def create_ui(page):
                 issue_date=patient_info.issue_date,
                 doctor_id=patient_info.doctor_id,
                 doctor_name=patient_info.doctor_name,
-                department_id=patient_info.department_id,
+                department_id=latest_patient_info.department_id,  # 最新の department_id を使用
                 department=patient_info.department,
                 main_diagnosis=patient_info.main_diagnosis,
                 sheet_name=patient_info.sheet_name,
@@ -827,7 +833,6 @@ def create_ui(page):
             )
             session.add(patient_info_copy)
             session.commit()
-            session.close()
 
             snack_bar = ft.SnackBar(
                 ft.Text("前回データをコピーしました"),
