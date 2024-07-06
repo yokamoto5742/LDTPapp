@@ -283,6 +283,13 @@ def create_ui(page):
     page.title = "生活習慣病療養計画書"
     page.window.width = config.getint('settings', 'window_width', fallback=1200)
     page.window.height = config.getint('settings', 'window_height', fallback=800)
+    page.locale_configuration = ft.LocaleConfiguration(
+        supported_locales=[
+            ft.Locale("ja", "JP"),
+            ft.Locale("en", "US")
+        ],
+        current_locale=ft.Locale("ja", "JP")
+    )
 
     threading.Thread(target=initialize_database).start()
 
@@ -1224,12 +1231,12 @@ def create_ui(page):
 
     # Patient Information
     patient_id = ft.TextField(label="患者ID", on_change=on_patient_id_change, value=initial_patient_id, width=150)
+    issue_date_value = ft.TextField(label="発行日", width=150, read_only=True)
+
     issue_date_picker = ft.DatePicker(
         on_change=on_issue_date_change,
     )
     page.overlay.append(issue_date_picker)
-
-    issue_date_value = ft.TextField(label="発行日", width=150, read_only=True)
 
     issue_date_button = ft.ElevatedButton(
         "日付選択",
