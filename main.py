@@ -1081,7 +1081,7 @@ def create_ui(page):
                     ft.Row(
                         controls=[
                             buttons,
-                            ft.Text("(SOAP画面を閉じるとアプリか終了します)", size=12)
+                            ft.Text("(SOAP画面を閉じるとアプリが終了します)", size=12)
                         ]
                     ),
                     ft.Row(
