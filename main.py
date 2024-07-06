@@ -957,7 +957,6 @@ def create_ui(page):
         for item in data:
             row = ft.DataRow(
                 cells=[
-                    ft.DataCell(ft.Text(item["id"])),
                     ft.DataCell(ft.Text(item["issue_date"])),
                     ft.DataCell(ft.Text(item["department"])),
                     ft.DataCell(ft.Text(item["doctor_name"])),
@@ -1323,7 +1322,6 @@ def create_ui(page):
 
     history = ft.DataTable(
         columns=[
-            ft.DataColumn(ft.Text("通し番号")),
             ft.DataColumn(ft.Text("発行日")),
             ft.DataColumn(ft.Text("診療科")),
             ft.DataColumn(ft.Text("医師名")),
