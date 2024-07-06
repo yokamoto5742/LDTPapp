@@ -597,6 +597,7 @@ def create_ui(page):
         patient_info = df_patients[df_patients.iloc[:, 2] == patient_id_arg]
         if not patient_info.empty:
             patient_info = patient_info.iloc[0]
+            patient_id.value = str(patient_id_arg)
             issue_date_value.value = datetime.now().date().strftime("%Y/%m/%d")
             name_value.value = patient_info.iloc[3]
             kana_value.value = patient_info.iloc[4]
@@ -694,7 +695,7 @@ def create_ui(page):
     def create_new_plan(e):
         if not check_required_fields():
             return
-        p_id = patient_id_value.value
+        p_id = patient_id.value
         doctor_id = doctor_id_value.value
         doctor_name = doctor_name_value.value
         department_id = department_id_value.value
@@ -704,7 +705,7 @@ def create_ui(page):
     def save_new_plan(e):
         if not check_required_fields():
             return
-        p_id = patient_id_value.value
+        p_id = patient_id.value
         doctor_id = doctor_id_value.value
         doctor_name = doctor_name_value.value
         department_id = department_id_value.value
@@ -740,7 +741,7 @@ def create_ui(page):
         session.close()
 
     def on_patient_id_change(e):
-        p_id = patient_id_value.value.strip()
+        p_id = patient_id.value.strip()
         if patient_id:
             load_patient_info(int(p_id))
         update_history(p_id)
@@ -794,7 +795,7 @@ def create_ui(page):
     def copy_data(e):
         session = Session()
         patient_info = session.query(PatientInfo). \
-            filter(PatientInfo.patient_id == patient_id_value.value). \
+            filter(PatientInfo.patient_id == patient_id.value). \
             order_by(PatientInfo.id.desc()).first()
 
         if patient_info:
@@ -804,7 +805,7 @@ def create_ui(page):
                 session.close()
                 return
 
-            patient_csv_info = df_patients[df_patients.iloc[:, 2] == int(patient_id_value.value)]
+            patient_csv_info = df_patients[df_patients.iloc[:, 2] == int(patient_id.value)]
             if patient_csv_info.empty:
                 session.close()
                 return
@@ -1055,7 +1056,7 @@ def create_ui(page):
                 [
                     ft.Row(
                         controls=[
-                            patient_id_value,
+                            patient_id,
                             name_value,
                             kana_value,
                             gender_value,
@@ -1223,10 +1224,7 @@ def create_ui(page):
         page.window.close()
 
     # Patient Information
-    patient_id_value = ft.TextField(label="患者ID", on_change=on_patient_id_change, value=initial_patient_id, width=150)
-    patient_id = ft.TextField(label="カルテID", width=150, on_change=on_patient_id_change,
-                              value=initial_patient_id)  # patient_id_valueと区別するために変数名を変更
-
+    patient_id = ft.TextField(label="患者ID", on_change=on_patient_id_change, value=initial_patient_id, width=150)
     issue_date_picker = ft.DatePicker(
         on_change=on_issue_date_change,
     )
