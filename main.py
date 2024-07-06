@@ -1091,7 +1091,7 @@ def create_ui(page):
                         ]
                     ),
                     ft.Divider(),
-                    history,
+                    history_scrollable,
                 ],
             )
         )
@@ -1338,6 +1338,16 @@ def create_ui(page):
         ],
         rows=rows,
         width=1200,
+    )
+
+    history_column = ft.Column([history], scroll=ft.ScrollMode.AUTO, width=1200, height=400)
+    history_scrollable = ft.Container(
+        content=history_column,
+        width=1200,
+        height=400,
+        border=ft.border.all(1, ft.colors.BLACK),
+        border_radius=5,
+        padding=10,
     )
 
     buttons = ft.Row([
