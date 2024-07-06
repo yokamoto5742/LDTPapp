@@ -1091,6 +1091,7 @@ def create_ui(page):
                         ]
                     ),
                     ft.Divider(),
+                    title_row,
                     history_scrollable,
                 ],
             )
@@ -1327,6 +1328,17 @@ def create_ui(page):
     data = fetch_data()
     rows = create_data_rows(data)
 
+    title_row = ft.Row(
+        controls=[
+            ft.Text("発行日", width=200, weight=ft.FontWeight.BOLD),
+            ft.Text("診療科", width=200, weight=ft.FontWeight.BOLD),
+            ft.Text("医師名", width=200, weight=ft.FontWeight.BOLD),
+            ft.Text("主病名", width=200, weight=ft.FontWeight.BOLD),
+            ft.Text("シート名", width=200, weight=ft.FontWeight.BOLD),
+            ft.Text("作成回数", width=200, weight=ft.FontWeight.BOLD),
+        ],
+    )
+
     history = ft.DataTable(
         columns=[
             ft.DataColumn(ft.Text("発行日")),
@@ -1338,6 +1350,7 @@ def create_ui(page):
         ],
         rows=rows,
         width=1200,
+        heading_row_height=0,
     )
 
     history_column = ft.Column([history], scroll=ft.ScrollMode.AUTO, width=1200, height=400)
