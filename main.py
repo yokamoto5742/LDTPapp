@@ -794,25 +794,20 @@ def create_ui(page):
     def copy_data(e):
         session = Session()
         patient_info = session.query(PatientInfo). \
-            filter(PatientInfo.patient_id == patient_id.value). \
-            order_by(PatientInfo.id.desc()).first()
-
-        # 最新の患者情報を取得
-        latest_patient_info = session.query(PatientInfo). \
             filter(PatientInfo.patient_id == patient_id_value.value). \
             order_by(PatientInfo.id.desc()).first()
 
-        if patient_info and latest_patient_info:
+        if patient_info and patient_info:
             patient_info_copy = PatientInfo(
                 patient_id=patient_info.patient_id,
                 patient_name=patient_info.patient_name,
                 kana=patient_info.kana,
                 gender=patient_info.gender,
                 birthdate=patient_info.birthdate,
-                issue_date=patient_info.issue_date,
+                issue_date= datetime.now().date(),
                 doctor_id=patient_info.doctor_id,
                 doctor_name=patient_info.doctor_name,
-                department_id=latest_patient_info.department_id,  # 最新の department_id を使用
+                department_id=patient_info.department_id,
                 department=patient_info.department,
                 main_diagnosis=patient_info.main_diagnosis,
                 sheet_name=patient_info.sheet_name,
