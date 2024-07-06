@@ -797,18 +797,31 @@ def create_ui(page):
             filter(PatientInfo.patient_id == patient_id_value.value). \
             order_by(PatientInfo.id.desc()).first()
 
-        if patient_info and patient_info:
+        if patient_info:
+            # pat.csvから最新の情報を取得
+            error_message, df_patients = load_patient_data()
+            if error_message:
+                session.close()
+                return
+
+            patient_csv_info = df_patients[df_patients.iloc[:, 2] == int(patient_id_value.value)]
+            if patient_csv_info.empty:
+                session.close()
+                return
+
+            patient_csv_info = patient_csv_info.iloc[0]
+
             patient_info_copy = PatientInfo(
                 patient_id=patient_info.patient_id,
                 patient_name=patient_info.patient_name,
                 kana=patient_info.kana,
                 gender=patient_info.gender,
                 birthdate=patient_info.birthdate,
-                issue_date= datetime.now().date(),
-                doctor_id=patient_info.doctor_id,
-                doctor_name=patient_info.doctor_name,
-                department_id=patient_info.department_id,
-                department=patient_info.department,
+                issue_date=datetime.now().date(),
+                doctor_id=int(patient_csv_info.iloc[9]),
+                doctor_name=patient_csv_info.iloc[10],
+                department_id=int(patient_csv_info.iloc[13]),
+                department=patient_csv_info.iloc[14],
                 main_diagnosis=patient_info.main_diagnosis,
                 sheet_name=patient_info.sheet_name,
                 creation_count=patient_info.creation_count + 1,
