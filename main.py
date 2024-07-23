@@ -22,7 +22,7 @@ from barcode.writer import ImageWriter
 from io import BytesIO
 
 VERSION = "0.1.3"
-LAST_UPDATED = "2024/07/01"
+LAST_UPDATED = "2024/07/22"
 
 # config.iniファイルの読み込み
 config = configparser.ConfigParser()
@@ -193,9 +193,6 @@ class TreatmentPlanGenerator:
 class TemplateManager:
     def __init__(self):
         self.templates = {}
-
-    def add_template(self, main_disease, sheet_name, template_data):
-        self.templates[(main_disease, sheet_name)] = template_data
 
     def get_template(self, main_disease, sheet_name):
         return self.templates.get((main_disease, sheet_name))
