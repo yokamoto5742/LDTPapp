@@ -213,7 +213,10 @@ class DropdownItems:
     def __init__(self):
         self.items = {
             'exercise_prescription': ['ウォーキング', 'ストレッチ', '筋トレ'],
-            # 他のドロップダウンアイテムをここに追加
+            'exercise_time': ['20分', '30分', '60分'],
+            'exercise_frequency': ['毎日', '週に5日', '週に3日'],
+            'exercise_intensity': ['息が弾む程度', 'ニコニコペース'],
+            'daily_activity': ['5000歩', '8000歩', '10000歩']
         }
 
     def get_options(self, key):
@@ -222,11 +225,32 @@ class DropdownItems:
     def add_item(self, key, options):
         self.items[key] = options
 
-    def create_dropdown(self, key, on_change=None):
+    def create_dropdown(self, key, label, width, on_change=None):
         return ft.Dropdown(
+            label=label,
+            width=width,
             options=self.get_options(key),
             on_change=on_change
         )
+
+
+def create_form_fields(dropdown_items):
+    exercise_prescription = dropdown_items.create_dropdown('exercise_prescription', "運動の種類", 200)
+    exercise_time = dropdown_items.create_dropdown('exercise_time', "時間", 200)
+    exercise_frequency = dropdown_items.create_dropdown('exercise_frequency', "頻度", 300)
+    exercise_intensity = dropdown_items.create_dropdown('exercise_intensity', "強度", 300)
+    daily_activity = dropdown_items.create_dropdown('daily_activity', "日常生活の活動量増加", 400)
+
+    def create_focus_handler(next_field):
+        return lambda _: next_field.focus()
+
+    exercise_prescription.on_change = create_focus_handler(exercise_time)
+    exercise_time.on_change = create_focus_handler(exercise_frequency)
+    exercise_frequency.on_change = create_focus_handler(exercise_intensity)
+    exercise_intensity.on_change = create_focus_handler(daily_activity)
+    # daily_activityのon_changeは設定しない
+
+    return exercise_prescription, exercise_time, exercise_frequency, exercise_intensity, daily_activity
 
 
 def start_file_monitoring(page):
@@ -1303,22 +1327,7 @@ def create_ui(page):
         on_submit=lambda _: exercise_prescription.focus()
     )
 
-    exercise_prescription = ft.Dropdown(
-        label="運動処方",
-        options=dropdown_items.get_options('exercise_prescription'),
-        width=200,
-        value=dropdown_items.get_options('exercise_prescription')[0].key if dropdown_items.get_options(
-            'exercise_prescription') else None,
-        on_change=lambda _: exercise_time.focus()
-    )
-    exercise_time = ft.TextField(label="時間", value="", width=200,
-                                 on_submit=lambda _: exercise_frequency.focus())
-    exercise_frequency = ft.TextField(label="頻度", value="", width=300,
-                                      on_submit=lambda _: exercise_intensity.focus())
-    exercise_intensity = ft.TextField(label="強度", value="", width=300,
-                                      on_submit=lambda _: daily_activity.focus())
-    daily_activity = ft.TextField(label="日常生活の活動量増加", value="", width=400,
-                                  on_submit=lambda _: other1.focus())
+    exercise_prescription, exercise_time, exercise_frequency, exercise_intensity, daily_activity = create_form_fields(dropdown_items)
 
     def on_tobacco_checkbox_change(e):
         if e.control == nonsmoker and nonsmoker.value:
