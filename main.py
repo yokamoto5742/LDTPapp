@@ -1,5 +1,7 @@
 import os
 import re
+
+from flet_core import dropdown, Dropdown
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from datetime import datetime
@@ -207,6 +209,26 @@ class MyHandler(FileSystemEventHandler):
             self.page.window.close()
 
 
+class DropdownItems:
+    def __init__(self):
+        self.items = {
+            'exercise_prescription': ['ウォーキング', 'ストレッチ', '筋トレ'],
+            # 他のドロップダウンアイテムをここに追加
+        }
+
+    def get_options(self, key):
+        return [ft.dropdown.Option(option) for option in self.items.get(key, [])]
+
+    def add_item(self, key, options):
+        self.items[key] = options
+
+    def create_dropdown(self, key, on_change=None):
+        return ft.Dropdown(
+            options=self.get_options(key),
+            on_change=on_change
+        )
+
+
 def start_file_monitoring(page):
     event_handler = MyHandler(page)
     observer = Observer()
@@ -287,6 +309,8 @@ def create_ui(page):
         ],
         current_locale=ft.Locale("ja", "JP")
     )
+
+    dropdown_items = DropdownItems()
 
     threading.Thread(target=initialize_database).start()
 
@@ -1279,8 +1303,14 @@ def create_ui(page):
         on_submit=lambda _: exercise_prescription.focus()
     )
 
-    exercise_prescription = ft.TextField(label="運動処方", width=200, value="",
-                                         on_submit=lambda _: exercise_time.focus())
+    exercise_prescription = ft.Dropdown(
+        label="運動処方",
+        options=dropdown_items.get_options('exercise_prescription'),
+        width=200,
+        value=dropdown_items.get_options('exercise_prescription')[0].key if dropdown_items.get_options(
+            'exercise_prescription') else None,
+        on_change=lambda _: exercise_time.focus()
+    )
     exercise_time = ft.TextField(label="時間", value="", width=200,
                                  on_submit=lambda _: exercise_frequency.focus())
     exercise_frequency = ft.TextField(label="頻度", value="", width=300,
