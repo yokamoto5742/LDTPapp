@@ -1,7 +1,5 @@
 import os
 import re
-
-from flet_core import dropdown, Dropdown
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from datetime import datetime
@@ -60,12 +58,18 @@ class PatientInfo(Base):
     department = Column(String)
     department_id = Column(Integer)
     main_diagnosis = Column(String)
-    sheet_name = Column(String)
     creation_count = Column(Integer)
-    goal1 = Column(String)  # ①達成目標
-    goal2 = Column(String)  # ②行動目標
     target_weight = Column(Float)
-    diet = Column(String)
+    sheet_name = Column(String)
+    target_bp = Column(String)
+    target_hba1c = Column(String)
+    goal1 = Column(String)
+    goal2 = Column(String)
+    target_achievement = Column(String)
+    diet1 = Column(String)
+    diet2 = Column(String)
+    diet3 = Column(String)
+    diet4 = Column(String)
     exercise_prescription = Column(String)
     exercise_time = Column(String)
     exercise_frequency = Column(String)
@@ -216,7 +220,9 @@ class DropdownItems:
             'exercise_time': ['20分', '30分', '60分'],
             'exercise_frequency': ['毎日', '週に5日', '週に3日'],
             'exercise_intensity': ['息が弾む程度', 'ニコニコペース'],
-            'daily_activity': ['5000歩', '8000歩', '10000歩']
+            'daily_activity': ['5000歩', '8000歩', '10000歩'],
+            'target_achievement': ['概ね達成', '未達成'],
+            'diet': ['食事量を適正にする', '食物繊維の摂取量を増やす', 'ゆっくり食べる', '間食を減らす']
         }
 
     def get_options(self, key):
@@ -235,11 +241,16 @@ class DropdownItems:
 
 
 def create_form_fields(dropdown_items):
-    exercise_prescription = dropdown_items.create_dropdown('exercise_prescription', "運動の種類", 200)
+    exercise_prescription = dropdown_items.create_dropdown('exercise_prescription', "運動処方", 300)
     exercise_time = dropdown_items.create_dropdown('exercise_time', "時間", 200)
     exercise_frequency = dropdown_items.create_dropdown('exercise_frequency', "頻度", 300)
     exercise_intensity = dropdown_items.create_dropdown('exercise_intensity', "強度", 300)
     daily_activity = dropdown_items.create_dropdown('daily_activity', "日常生活の活動量増加", 400)
+    target_achievement = dropdown_items.create_dropdown('target_achievement', "目標の達成状況", 200)
+    diet1 = dropdown_items.create_dropdown('diet', "食事1", 250)
+    diet2 = dropdown_items.create_dropdown('diet', "食事2", 250)
+    diet3 = dropdown_items.create_dropdown('diet', "食事3", 250)
+    diet4 = dropdown_items.create_dropdown('diet', "食事4", 250)
 
     def create_focus_handler(next_field):
         return lambda _: next_field.focus()
@@ -248,9 +259,14 @@ def create_form_fields(dropdown_items):
     exercise_time.on_change = create_focus_handler(exercise_frequency)
     exercise_frequency.on_change = create_focus_handler(exercise_intensity)
     exercise_intensity.on_change = create_focus_handler(daily_activity)
-    # daily_activityのon_changeは設定しない
+    daily_activity.on_change = create_focus_handler(target_achievement)
+    target_achievement.on_change = create_focus_handler(diet1)
+    diet1.on_change = create_focus_handler(diet2)
+    diet2.on_change = create_focus_handler(diet3)
+    diet3.on_change = create_focus_handler(diet4)
 
-    return exercise_prescription, exercise_time, exercise_frequency, exercise_intensity, daily_activity
+    return (exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
+            daily_activity, target_achievement, diet1, diet2, diet3, diet4)
 
 
 def start_file_monitoring(page):
@@ -292,9 +308,6 @@ def get_session():
         yield session
     finally:
         session.close()
-
-
-
 
 
 def load_main_diseases():
@@ -535,10 +548,16 @@ def create_ui(page):
                         main_diagnosis=row['main_diagnosis'],
                         sheet_name=row['sheet_name'],
                         creation_count=int(row['creation_count']),
+                        target_weight=float(row['target_weight']) if row['target_weight'] else None,
+                        target_bp=row['target_bp'],
+                        target_hba1c=row['target_hba1c'],
                         goal1=row['goal1'],
                         goal2=row['goal2'],
-                        target_weight=float(row['target_weight']) if row['target_weight'] else None,
-                        diet=row['diet'],
+                        target_achievement=row['target_achievement'],
+                        diet1=row['diet1'],
+                        diet2=row['diet2'],
+                        diet3=row['diet3'],
+                        diet4=row['diet4'],
                         exercise_prescription=row['exercise_prescription'],
                         exercise_time=row['exercise_time'],
                         exercise_frequency=row['exercise_frequency'],
@@ -690,11 +709,17 @@ def create_ui(page):
             department_id=department_id,
             main_diagnosis=main_diagnosis.value,
             sheet_name=sheet_name_dropdown.value,
-            creation_count=1,
+            creation_count=int(creation_count.value),
             target_weight=float(target_weight.value) if target_weight.value else None,
+            target_bp=target_bp.value,
+            target_hba1c=target_hba1c.value,
             goal1=goal1.value,
             goal2=goal2.value,
-            diet=diet.value,
+            target_achievement=target_achievement.value,
+            diet1=diet1.value,
+            diet2=diet2.value,
+            diet3=diet3.value,
+            diet4=diet4.value,
             exercise_prescription=exercise_prescription.value,
             exercise_time=exercise_time.value,
             exercise_frequency=exercise_frequency.value,
@@ -772,11 +797,17 @@ def create_ui(page):
             if patient_info:
                 patient_info.main_diagnosis = main_diagnosis.value
                 patient_info.sheet_name = sheet_name_dropdown.value
-                patient_info.creation_count = creation_count.value
-                patient_info.target_weight = target_weight.value if target_weight.value else None
+                patient_info.creation_count = int(creation_count.value)
+                patient_info.target_weight = float(target_weight.value) if target_weight.value else None
+                patient_info.target_bp = target_bp.value
+                patient_info.target_hba1c = target_hba1c.value
                 patient_info.goal1 = goal1.value
                 patient_info.goal2 = goal2.value
-                patient_info.diet = diet.value
+                patient_info.target_achievement = target_achievement.value
+                patient_info.diet1 = diet1.value
+                patient_info.diet2 = diet2.value
+                patient_info.diet3 = diet3.value
+                patient_info.diet4 = diet4.value
                 patient_info.exercise_prescription = exercise_prescription.value
                 patient_info.exercise_time = exercise_time.value
                 patient_info.exercise_frequency = exercise_frequency.value
@@ -816,13 +847,20 @@ def create_ui(page):
                 patient_info.doctor_id = int(doctor_id_value.value)
                 patient_info.doctor_name = doctor_name_value.value
                 patient_info.department = department_value.value
+                patient_info.department_id = int(department_id_value.value)
                 patient_info.main_diagnosis = main_diagnosis.value
                 patient_info.sheet_name = sheet_name_dropdown.value
-                patient_info.creation_count = creation_count.value
-                patient_info.target_weight = target_weight.value if target_weight.value else None
+                patient_info.creation_count = int(creation_count.value)
+                patient_info.target_weight = float(target_weight.value) if target_weight.value else None
+                patient_info.target_bp = target_bp.value
+                patient_info.target_hba1c = target_hba1c.value
                 patient_info.goal1 = goal1.value
                 patient_info.goal2 = goal2.value
-                patient_info.diet = diet.value
+                patient_info.target_achievement = target_achievement.value
+                patient_info.diet1 = diet1.value
+                patient_info.diet2 = diet2.value
+                patient_info.diet3 = diet3.value
+                patient_info.diet4 = diet4.value
                 patient_info.exercise_prescription = exercise_prescription.value
                 patient_info.exercise_time = exercise_time.value
                 patient_info.exercise_frequency = exercise_frequency.value
@@ -837,9 +875,6 @@ def create_ui(page):
                 snack_bar = ft.SnackBar(ft.Text("データが保存されました"), duration=1000)
                 snack_bar.open = True
                 page.overlay.append(snack_bar)
-
-            session.add(patient_info)
-            session.commit()
 
         session.close()
         page.update()
@@ -879,9 +914,15 @@ def create_ui(page):
                 sheet_name=patient_info.sheet_name,
                 creation_count=patient_info.creation_count + 1,
                 target_weight=patient_info.target_weight,
+                target_bp=patient_info.target_bp,
+                target_hba1c=patient_info.target_hba1c,
                 goal1=patient_info.goal1,
                 goal2=patient_info.goal2,
-                diet=patient_info.diet,
+                target_achievement=patient_info.target_achievement,
+                diet1=patient_info.diet1,
+                diet2=patient_info.diet2,
+                diet3=patient_info.diet3,
+                diet4=patient_info.diet4,
                 exercise_prescription=patient_info.exercise_prescription,
                 exercise_time=patient_info.exercise_time,
                 exercise_frequency=patient_info.exercise_frequency,
@@ -959,7 +1000,7 @@ def create_ui(page):
                 target_weight.value = patient_info.target_weight
                 goal1.value = patient_info.goal1
                 goal2.value = patient_info.goal2
-                diet.value = patient_info.diet
+                diet1.value = patient_info.diet1
                 exercise_prescription.value = patient_info.exercise_prescription
                 exercise_time.value = patient_info.exercise_time
                 exercise_frequency.value = patient_info.exercise_frequency
@@ -1032,7 +1073,7 @@ def create_ui(page):
             if template:
                 goal1.value = template.goal1
                 goal2.value = template.goal2
-                diet.value = template.diet
+                diet1.value = template.diet1
                 exercise_prescription.value = template.exercise_prescription
                 exercise_time.value = template.exercise_time
                 exercise_frequency.value = template.exercise_frequency
@@ -1064,7 +1105,7 @@ def create_ui(page):
         if template:
             template.goal1 = goal1.value
             template.goal2 = goal2.value
-            template.diet = diet.value
+            template.diet1 = diet1.value
             template.exercise_prescription = exercise_prescription.value
             template.exercise_time = exercise_time.value
             template.exercise_frequency = exercise_frequency.value
@@ -1078,7 +1119,7 @@ def create_ui(page):
                 sheet_name=sheet_name_dropdown.value,
                 goal1=goal1.value,
                 goal2=goal2.value,
-                diet=diet.value,
+                diet1=diet1.value,
                 exercise_prescription=exercise_prescription.value,
                 exercise_time=exercise_time.value,
                 exercise_frequency=exercise_frequency.value,
@@ -1121,7 +1162,7 @@ def create_ui(page):
                             department_id_value,
                             department_value,
                             settings_button,
-        ]
+                        ]
                     ),
                     ft.Row(
                         controls=[
@@ -1256,7 +1297,7 @@ def create_ui(page):
         page.go("/template")
 
     def open_route(e):
-        for field in [target_weight, goal1, goal2, diet,
+        for field in [target_weight, goal1, goal2, diet1,
                       exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
                       daily_activity, other1, other2]:
             field.value = ""
@@ -1313,21 +1354,15 @@ def create_ui(page):
         on_submit=lambda _: goal1.focus(),
     )
     target_weight = ft.TextField(label="目標体重", width=100, value="", on_submit=lambda _: goal2.focus())
+    target_bp = ft.TextField(label="目標血圧", width=150)
+    target_hba1c = ft.TextField(label="目標HbA1c", width=150)
     goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=700, value="達成目標を入力してください",
                          on_submit=lambda _: target_weight.focus())
     goal2 = ft.TextField(label="②行動目標：患者と相談した目標", width=700, value="行動目標を入力してください",
-                         on_submit=lambda _: diet.focus())
+                         on_submit=lambda _: diet1.focus())
 
-    diet = ft.TextField(
-        label="食事",
-        multiline=False,
-        disabled=False,
-        value="",
-        width=1000,
-        on_submit=lambda _: exercise_prescription.focus()
-    )
-
-    exercise_prescription, exercise_time, exercise_frequency, exercise_intensity, daily_activity = create_form_fields(dropdown_items)
+    (exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
+     daily_activity, target_achievement, diet1, diet2, diet3, diet4) = create_form_fields(dropdown_items)
 
     def on_tobacco_checkbox_change(e):
         if e.control == nonsmoker and nonsmoker.value:
@@ -1344,7 +1379,9 @@ def create_ui(page):
     other2 = ft.TextField(label="その他2", value="", width=400)
 
     guidance_items = ft.Column([
-        diet,
+        ft.Row([target_bp, target_hba1c, target_achievement]),
+        ft.Row([diet1, diet2]),
+        ft.Row([diet3, diet4]),
         ft.Row([exercise_prescription, exercise_time, exercise_frequency, exercise_intensity]),
         daily_activity,
         ft.Row([ft.Text("たばこ", size=14), nonsmoker, smoking_cessation,
@@ -1353,7 +1390,7 @@ def create_ui(page):
     ])
 
     guidance_items_template = ft.Column([
-        diet,
+        diet1,
         ft.Row([exercise_prescription, exercise_time, exercise_frequency, exercise_intensity]),
         daily_activity,
         ft.Row([other1, other2]),
