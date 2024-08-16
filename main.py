@@ -122,6 +122,61 @@ class Template(Base):
 Base.metadata.create_all(engine)
 
 
+class DropdownItems:
+    def __init__(self):
+        self.items = {
+            'exercise_prescription': ['ウォーキング', 'ストレッチ', '筋トレ'],
+            'exercise_time': ['20分', '30分', '60分'],
+            'exercise_frequency': ['毎日', '週に5日', '週に3日'],
+            'exercise_intensity': ['息が弾む程度', 'ニコニコペース'],
+            'daily_activity': ['5000歩', '8000歩', '10000歩'],
+            'target_achievement': ['概ね達成', '未達成'],
+            'diet': ['食事量を適正にする', '食物繊維の摂取量を増やす', 'ゆっくり食べる', '間食を減らす']
+        }
+
+    def get_options(self, key):
+        return [ft.dropdown.Option(option) for option in self.items.get(key, [])]
+
+    def add_item(self, key, options):
+        self.items[key] = options
+
+    def create_dropdown(self, key, label, width, on_change=None):
+        return ft.Dropdown(
+            label=label,
+            width=width,
+            options=self.get_options(key),
+            on_change=on_change
+        )
+
+
+def create_form_fields(dropdown_items):
+    exercise_prescription = dropdown_items.create_dropdown('exercise_prescription', "運動処方", 300)
+    exercise_time = dropdown_items.create_dropdown('exercise_time', "時間", 200)
+    exercise_frequency = dropdown_items.create_dropdown('exercise_frequency', "頻度", 300)
+    exercise_intensity = dropdown_items.create_dropdown('exercise_intensity', "強度", 300)
+    daily_activity = dropdown_items.create_dropdown('daily_activity', "日常生活の活動量増加", 400)
+    target_achievement = dropdown_items.create_dropdown('target_achievement', "目標の達成状況", 200)
+    diet1 = dropdown_items.create_dropdown('diet', "食事1", 250)
+    diet2 = dropdown_items.create_dropdown('diet', "食事2", 250)
+    diet3 = dropdown_items.create_dropdown('diet', "食事3", 250)
+    diet4 = dropdown_items.create_dropdown('diet', "食事4", 250)
+
+    def create_focus_handler(next_field):
+        return lambda _: next_field.focus()
+
+    exercise_prescription.on_change = create_focus_handler(exercise_time)
+    exercise_time.on_change = create_focus_handler(exercise_frequency)
+    exercise_frequency.on_change = create_focus_handler(exercise_intensity)
+    exercise_intensity.on_change = create_focus_handler(daily_activity)
+    target_achievement.on_change = create_focus_handler(diet1)
+    diet1.on_change = create_focus_handler(diet2)
+    diet2.on_change = create_focus_handler(diet3)
+    diet3.on_change = create_focus_handler(diet4)
+
+    return (exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
+            daily_activity, target_achievement, diet1, diet2, diet3, diet4)
+
+
 class TreatmentPlanGenerator:
     @staticmethod
     def generate_plan(patient_info, file_name):
@@ -218,62 +273,6 @@ class MyHandler(FileSystemEventHandler):
     def on_deleted(self, event):
         if event.src_path == csv_file_path:
             self.page.window.close()
-
-
-class DropdownItems:
-    def __init__(self):
-        self.items = {
-            'exercise_prescription': ['ウォーキング', 'ストレッチ', '筋トレ'],
-            'exercise_time': ['20分', '30分', '60分'],
-            'exercise_frequency': ['毎日', '週に5日', '週に3日'],
-            'exercise_intensity': ['息が弾む程度', 'ニコニコペース'],
-            'daily_activity': ['5000歩', '8000歩', '10000歩'],
-            'target_achievement': ['概ね達成', '未達成'],
-            'diet': ['食事量を適正にする', '食物繊維の摂取量を増やす', 'ゆっくり食べる', '間食を減らす']
-        }
-
-    def get_options(self, key):
-        return [ft.dropdown.Option(option) for option in self.items.get(key, [])]
-
-    def add_item(self, key, options):
-        self.items[key] = options
-
-    def create_dropdown(self, key, label, width, on_change=None):
-        return ft.Dropdown(
-            label=label,
-            width=width,
-            options=self.get_options(key),
-            on_change=on_change
-        )
-
-
-def create_form_fields(dropdown_items):
-    exercise_prescription = dropdown_items.create_dropdown('exercise_prescription', "運動処方", 300)
-    exercise_time = dropdown_items.create_dropdown('exercise_time', "時間", 200)
-    exercise_frequency = dropdown_items.create_dropdown('exercise_frequency', "頻度", 300)
-    exercise_intensity = dropdown_items.create_dropdown('exercise_intensity', "強度", 300)
-    daily_activity = dropdown_items.create_dropdown('daily_activity', "日常生活の活動量増加", 400)
-    target_achievement = dropdown_items.create_dropdown('target_achievement', "目標の達成状況", 200)
-    diet1 = dropdown_items.create_dropdown('diet', "食事1", 250)
-    diet2 = dropdown_items.create_dropdown('diet', "食事2", 250)
-    diet3 = dropdown_items.create_dropdown('diet', "食事3", 250)
-    diet4 = dropdown_items.create_dropdown('diet', "食事4", 250)
-
-    def create_focus_handler(next_field):
-        return lambda _: next_field.focus()
-
-    exercise_prescription.on_change = create_focus_handler(exercise_time)
-    exercise_time.on_change = create_focus_handler(exercise_frequency)
-    exercise_frequency.on_change = create_focus_handler(exercise_intensity)
-    exercise_intensity.on_change = create_focus_handler(daily_activity)
-    daily_activity.on_change = create_focus_handler(target_achievement)
-    target_achievement.on_change = create_focus_handler(diet1)
-    diet1.on_change = create_focus_handler(diet2)
-    diet2.on_change = create_focus_handler(diet3)
-    diet3.on_change = create_focus_handler(diet4)
-
-    return (exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
-            daily_activity, target_achievement, diet1, diet2, diet3, diet4)
 
 
 def start_file_monitoring(page):

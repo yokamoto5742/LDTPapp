@@ -12,12 +12,14 @@ def sqlite_to_csv(db_file, table_name, csv_file):
     cursor.execute(f"SELECT * FROM {table_name}")
     rows = cursor.fetchall()
 
+    rows = [[str(col).replace('ー', '-') for col in row] for row in rows]
+
     # カラム名を取得
     cursor.execute(f"PRAGMA table_info({table_name})")
     columns = [column[1] for column in cursor.fetchall()]
 
     # CSVファイルに書き込み
-    with open(csv_file, 'w', newline='', encoding='shift_jis') as csvfile:
+    with open(csv_file, 'w', newline='', encoding='utf-8') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerow(columns)  # ヘッダーを書き込み
         csvwriter.writerows(rows)    # データを書き込み
