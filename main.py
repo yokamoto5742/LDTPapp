@@ -99,14 +99,21 @@ class Template(Base):
     id = Column(Integer, primary_key=True)
     main_disease = Column(String)
     sheet_name = Column(String)
+    target_bp = Column(String)
+    target_hba1c = Column(String)
     goal1 = Column(String)
     goal2 = Column(String)
-    diet = Column(String)
+    diet1 = Column(String)
+    diet2 = Column(String)
+    diet3 = Column(String)
+    diet4 = Column(String)
     exercise_prescription = Column(String)
     exercise_time = Column(String)
     exercise_frequency = Column(String)
     exercise_intensity = Column(String)
     daily_activity = Column(String)
+    nonsmoker = Column(Boolean)
+    smoking_cessation = Column(Boolean)
     other1 = Column(String)
     other2 = Column(String)
 
@@ -392,7 +399,10 @@ def create_ui(page):
             Template(main_disease="高血圧症", sheet_name="1_血圧130-80以下",
                      goal1="家庭血圧が測定でき、朝と就寝前のいずれかで130/80mmHg以下",
                      goal2="塩分を控えた食事と運動習慣を目標にする",
-                     diet="塩分量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
+                     diet1="塩分量を適正にする",
+                     diet2="食物繊維の摂取量を増やす",
+                     diet3="ゆっくり食べる",
+                     diet4="間食を減らす",
                      exercise_prescription="ウォーキング", exercise_time="30分以上",
                      exercise_frequency="１週間に２回以上",
                      exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上",
@@ -400,7 +410,10 @@ def create_ui(page):
             Template(main_disease="高血圧症", sheet_name="2_血圧140-90以下",
                      goal1="家庭血圧が測定でき、朝と就寝前のいずれかで140/90mmHg以下",
                      goal2="塩分を控えた食事と運動習慣を目標にする",
-                     diet="塩分量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
+                     diet1="塩分量を適正にする",
+                     diet2="食物繊維の摂取量を増やす",
+                     diet3="ゆっくり食べる",
+                     diet4="間食を減らす",
                      exercise_prescription="ストレッチ運動", exercise_time="30分以上",
                      exercise_frequency="１週間に２回以上",
                      exercise_intensity="少し汗をかく程度", daily_activity="ストレッチ運動を主に行う",
@@ -408,49 +421,70 @@ def create_ui(page):
             Template(main_disease="高血圧症", sheet_name="3_血圧140-90以下_歩行",
                      goal1="家庭血圧が測定でき、朝と就寝前のいずれかで140/90mmHg以下",
                      goal2="塩分を控えた食事と運動習慣を目標にする",
-                     diet="塩分量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
+                     diet1="塩分量を適正にする",
+                     diet2="食物繊維の摂取量を増やす",
+                     diet3="ゆっくり食べる",
+                     diet4="間食を減らす",
                      exercise_prescription="ウォーキング", exercise_time="30分以上",
                      exercise_frequency="１週間に２回以上",
                      exercise_intensity="少し汗をかく程度", daily_activity="1日6000歩以上",
                      other1="睡眠の確保１日７時間", other2="毎日の歩数の測定"),
             Template(main_disease="脂質異常症", sheet_name="1_LDL120以下", goal1="LDLコレステロール＜120/TG＜150/HDL≧40",
                      goal2="毎日の有酸素運動と食習慣の改善",
-                     diet="食事摂取量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
+                     diet1="食事摂取量を適正にする",
+                     diet2="食物繊維の摂取量を増やす",
+                     diet3="ゆっくり食べる",
+                     diet4="間食を減らす",
                      exercise_prescription="ウォーキング", exercise_time="30分以上",
                      exercise_frequency="１週間に２回以上",
                      exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上",
                      other1="飲酒の制限、肥満度の改善", other2="毎日の歩数の測定"),
             Template(main_disease="脂質異常症", sheet_name="2_LDL100以下", goal1="LDLコレステロール＜100/TG＜150/HDL≧40",
                      goal2="毎日の有酸素運動と食習慣の改善",
-                     diet="食事摂取量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
+                     diet1="食事摂取量を適正にする",
+                     diet2="食物繊維の摂取量を増やす",
+                     diet3="ゆっくり食べる",
+                     diet4="間食を減らす",
                      exercise_prescription="ウォーキング", exercise_time="30分以上",
                      exercise_frequency="１週間に２回以上",
                      exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上",
                      other1="飲酒の制限、肥満度の改善", other2="毎日の歩数の測定"),
             Template(main_disease="脂質異常症", sheet_name="3_LDL70以下", goal1="LDLコレステロール＜100/TG＜150/HDL>40",
                      goal2="毎日の有酸素運動と食習慣の改善",
-                     diet="脂肪の多い食品や甘い物を控える/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
+                     diet1="脂肪の多い食品や甘い物を控える",
+                     diet2="食物繊維の摂取量を増やす",
+                     diet3="ゆっくり食べる",
+                     diet4="間食を減らす",
                      exercise_prescription="ウォーキング", exercise_time="30分以上",
                      exercise_frequency="１週間に２回以上",
                      exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上",
                      other1="飲酒の制限、肥満度の改善", other2="毎日の歩数の測定"),
             Template(main_disease="糖尿病", sheet_name="1_HbA1c７％", goal1="HbA1ｃ７％/体重を当初の－３Kgとする",
                      goal2="1日5000歩以上の歩行/間食の制限/糖質の制限",
-                     diet="食事量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
+                     diet1="食事量を適正にする",
+                     diet2="食物繊維の摂取量を増やす",
+                     diet3="ゆっくり食べる",
+                     diet4="間食を減らす",
                      exercise_prescription="ウォーキング", exercise_time="30分以上",
                      exercise_frequency="1週間に5回以上",
                      exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上",
                      other1="睡眠の確保１日７時間", other2="毎日の歩数の測定"),
             Template(main_disease="糖尿病", sheet_name="2_HbA1c６％", goal1="HbA1ｃを正常化/HbA1ｃ6％",
                      goal2="１日５０００歩以上の歩行/間食の制限/糖質の制限",
-                     diet="食事量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
+                     diet1="食事量を適正にする",
+                     diet2="食物繊維の摂取量を増やす",
+                     diet3="ゆっくり食べる",
+                     diet4="間食を減らす",
                      exercise_prescription="ウォーキング", exercise_time="30分以上",
                      exercise_frequency="１週間に５回以上",
                      exercise_intensity="少し汗をかく程度", daily_activity="1日5000歩以上",
                      other1="睡眠の確保１日７時間", other2="毎日の歩数の測定"),
             Template(main_disease="糖尿病", sheet_name="3_HbA1c８％", goal1="HbA1ｃを低血糖に注意して下げる",
                      goal2="ストレッチを中心とした運動/間食の制限/糖質の制限",
-                     diet="食事量を適正にする/食物繊維の摂取量を増やす/ゆっくり食べる/間食を減らす",
+                     diet1="食事量を適正にする",
+                     diet2="食物繊維の摂取量を増やす",
+                     diet3="ゆっくり食べる",
+                     diet4="間食を減らす",
                      exercise_prescription="ストレッチ運動", exercise_time="10分以上",
                      exercise_frequency="１週間に２回以上",
                      exercise_intensity="息切れしない程度", daily_activity="ストレッチ運動を主に行う",
@@ -998,9 +1032,15 @@ def create_ui(page):
 
                 creation_count.value = patient_info.creation_count
                 target_weight.value = patient_info.target_weight
+                target_bp.value = patient_info.target_bp
+                target_hba1c.value = patient_info.target_hba1c
                 goal1.value = patient_info.goal1
                 goal2.value = patient_info.goal2
+                target_achievement.value = patient_info.target_achievement
                 diet1.value = patient_info.diet1
+                diet2.value = patient_info.diet2
+                diet3.value = patient_info.diet3
+                diet4.value = patient_info.diet4
                 exercise_prescription.value = patient_info.exercise_prescription
                 exercise_time.value = patient_info.exercise_time
                 exercise_frequency.value = patient_info.exercise_frequency
@@ -1012,11 +1052,6 @@ def create_ui(page):
                 other2.value = patient_info.other2
             session.close()
             page.update()
-
-        if e.data == "true":
-            row_index = history.rows.index(e.control)
-            selected_row = history.rows[row_index].data
-            open_edit(e)
 
         if e.data == "true":
             row_index = history.rows.index(e.control)
@@ -1073,7 +1108,12 @@ def create_ui(page):
             if template:
                 goal1.value = template.goal1
                 goal2.value = template.goal2
+                target_bp.value = template.target_bp
+                target_hba1c.value = template.target_hba1c
                 diet1.value = template.diet1
+                diet2.value = template.diet2
+                diet3.value = template.diet3
+                diet4.value = template.diet4
                 exercise_prescription.value = template.exercise_prescription
                 exercise_time.value = template.exercise_time
                 exercise_frequency.value = template.exercise_frequency
@@ -1105,7 +1145,13 @@ def create_ui(page):
         if template:
             template.goal1 = goal1.value
             template.goal2 = goal2.value
+            template.target_bp = target_bp.value
+            template.target_hba1c = target_hba1c.value
+            template.target_achievement = target_achievement.value
             template.diet1 = diet1.value
+            template.diet2 = diet2.value
+            template.diet3 = diet3.value
+            template.diet4 = diet4.value
             template.exercise_prescription = exercise_prescription.value
             template.exercise_time = exercise_time.value
             template.exercise_frequency = exercise_frequency.value
@@ -1119,7 +1165,13 @@ def create_ui(page):
                 sheet_name=sheet_name_dropdown.value,
                 goal1=goal1.value,
                 goal2=goal2.value,
+                target_bp=target_bp.value,
+                target_hba1c=target_hba1c.value,
+                target_achievement=target_achievement.value,
                 diet1=diet1.value,
+                diet2=diet2.value,
+                diet3=diet3.value,
+                diet4=diet4.value,
                 exercise_prescription=exercise_prescription.value,
                 exercise_time=exercise_time.value,
                 exercise_frequency=exercise_frequency.value,
@@ -1297,14 +1349,21 @@ def create_ui(page):
         page.go("/template")
 
     def open_route(e):
-        for field in [target_weight, goal1, goal2, diet1,
-                      exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
-                      daily_activity, other1, other2]:
+        # テキストフィールドの初期化
+        for field in [target_weight, target_bp, target_hba1c, goal1, goal2, other1, other2]:
             field.value = ""
 
-        main_diagnosis.value = ""
-        sheet_name_dropdown.value = ""
+        # ドロップダウンの初期化
+        for ft.dropdown in [main_diagnosis, sheet_name_dropdown, target_achievement,
+                         diet1, diet2, diet3, diet4,
+                         exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
+                         daily_activity]:
+            ft.dropdown.value = ""
+
+        # 数値フィールドの初期化
         creation_count.value = 1  # 作成回数の初期値を再設定
+
+        # チェックボックスの初期化
         nonsmoker.value = False
         smoking_cessation.value = False
 
@@ -1390,7 +1449,8 @@ def create_ui(page):
     ])
 
     guidance_items_template = ft.Column([
-        diet1,
+        ft.Row([diet1, diet2]),
+        ft.Row([diet3, diet4]),
         ft.Row([exercise_prescription, exercise_time, exercise_frequency, exercise_intensity]),
         daily_activity,
         ft.Row([other1, other2]),
