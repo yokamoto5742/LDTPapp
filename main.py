@@ -150,28 +150,29 @@ class DropdownItems:
 
 
 def create_form_fields(dropdown_items):
-    exercise_prescription = dropdown_items.create_dropdown('exercise_prescription', "運動処方", 300)
-    exercise_time = dropdown_items.create_dropdown('exercise_time', "時間", 200)
-    exercise_frequency = dropdown_items.create_dropdown('exercise_frequency', "頻度", 300)
-    exercise_intensity = dropdown_items.create_dropdown('exercise_intensity', "強度", 300)
-    daily_activity = dropdown_items.create_dropdown('daily_activity', "日常生活の活動量増加", 400)
     target_achievement = dropdown_items.create_dropdown('target_achievement', "目標の達成状況", 200)
     diet1 = dropdown_items.create_dropdown('diet', "食事1", 400)
     diet2 = dropdown_items.create_dropdown('diet', "食事2", 400)
     diet3 = dropdown_items.create_dropdown('diet', "食事3", 400)
     diet4 = dropdown_items.create_dropdown('diet', "食事4", 400)
+    exercise_prescription = dropdown_items.create_dropdown('exercise_prescription', "運動処方", 300)
+    exercise_time = dropdown_items.create_dropdown('exercise_time', "時間", 200)
+    exercise_frequency = dropdown_items.create_dropdown('exercise_frequency', "頻度", 300)
+    exercise_intensity = dropdown_items.create_dropdown('exercise_intensity', "強度", 300)
+    daily_activity = dropdown_items.create_dropdown('daily_activity', "日常生活の活動量増加", 400)
 
     def create_focus_handler(next_field):
         return lambda _: next_field.focus()
 
-    exercise_prescription.on_change = create_focus_handler(exercise_time)
-    exercise_time.on_change = create_focus_handler(exercise_frequency)
-    exercise_frequency.on_change = create_focus_handler(exercise_intensity)
-    exercise_intensity.on_change = create_focus_handler(daily_activity)
     target_achievement.on_change = create_focus_handler(diet1)
     diet1.on_change = create_focus_handler(diet2)
     diet2.on_change = create_focus_handler(diet3)
     diet3.on_change = create_focus_handler(diet4)
+    diet4.on_change = create_focus_handler(exercise_prescription)
+    exercise_prescription.on_change = create_focus_handler(exercise_time)
+    exercise_time.on_change = create_focus_handler(exercise_frequency)
+    exercise_frequency.on_change = create_focus_handler(exercise_intensity)
+    exercise_intensity.on_change = create_focus_handler(daily_activity)
 
     return (exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
             daily_activity, target_achievement, diet1, diet2, diet3, diet4)
@@ -1386,7 +1387,6 @@ def create_ui(page):
                             controls=[
                                 goal1,
                                 target_achievement,
-                                ft.Text("kg", size=14),
                             ]
                         ),
                         goal2,
@@ -1485,8 +1485,13 @@ def create_ui(page):
     department_id_value = ft.TextField(label="診療科ID", read_only=True, width=150)
     department_value = ft.TextField(label="診療科", read_only=True, width=150)
     main_disease_options = load_main_diseases()
-    main_diagnosis = ft.Dropdown(label="主病名", options=main_disease_options, width=200, text_size=14, value="",
-                                 on_change=on_main_diagnosis_change, autofocus=True)
+    main_diagnosis = ft.Dropdown(
+        label="主病名",
+        options=main_disease_options,
+        width=200, text_size=14, value="",
+        on_change=on_main_diagnosis_change,
+        autofocus=True,
+    )
     sheet_name_options = load_sheet_names(main_diagnosis.value)
     sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=300, text_size=14, value="",
                                       on_change=on_sheet_name_change)
@@ -1496,13 +1501,13 @@ def create_ui(page):
         value="1",
         on_submit=lambda _: goal1.focus(),
     )
-    target_weight = ft.TextField(label="目標体重", width=150, value="")
-    target_bp = ft.TextField(label="目標血圧", width=150)
-    target_hba1c = ft.TextField(label="目標HbA1c", width=150)
+    target_weight = ft.TextField(label="目標体重", width=100, value="")
+    target_bp = ft.TextField(label="目標血圧", width=100)
+    target_hba1c = ft.TextField(label="目標HbA1c", width=100)
     goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=700, value="達成目標を入力してください",
                          on_submit=lambda _: target_weight.focus())
     goal2 = ft.TextField(label="②行動目標：患者と相談した目標", width=700, value="行動目標を入力してください",
-                         on_submit=lambda _: diet1.focus())
+                         on_submit=lambda _: exercise_frequency.focus())
 
     (exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
      daily_activity, target_achievement, diet1, diet2, diet3, diet4) = create_form_fields(dropdown_items)
@@ -1523,7 +1528,7 @@ def create_ui(page):
 
     guidance_items = ft.Column([
         ft.Row([target_weight,ft.Text("kg", size=14),
-                target_bp,
+                target_bp,ft.Text("mmHg", size=14),
                 target_hba1c,ft.Text("%", size=14),]),
         ft.Row([diet1, diet2]),
         ft.Row([diet3, diet4]),
@@ -1535,7 +1540,7 @@ def create_ui(page):
     ])
 
     guidance_items_template = ft.Column([
-        ft.Row([target_bp,
+        ft.Row([target_bp,ft.Text("mmHg", size=14),
                 target_hba1c, ft.Text("%", size=14), ]),
         ft.Row([diet1, diet2]),
         ft.Row([diet3, diet4]),
