@@ -1440,6 +1440,7 @@ def create_ui(page):
 
     def open_template(e):
         page.go("/template")
+        apply_template()
 
     def open_route(e):
         for field in [target_weight, target_bp, target_hba1c,  goal1, goal2,target_achievement,diet1, diet2, diet3, diet4,exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,daily_activity, other1, other2]:
