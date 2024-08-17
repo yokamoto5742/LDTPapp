@@ -182,27 +182,23 @@ class TreatmentPlanGenerator:
     def generate_plan(patient_info, file_name):
         template_path = config.get("Paths", "template_path")
         output_path = config.get("Paths", "output_path")
-
-        current_datetime = datetime.now().strftime("%Y%m%d%H%M%S")
+        current_time = datetime.now().strftime("%H%M%S")
         patient_id = str(patient_info.patient_id).zfill(9)
         document_number = "39221"
         department_id = str(patient_info.department_id).zfill(3)
         doctor_id = str(patient_info.doctor_id).zfill(5)
-
-        new_file_name = f"{patient_id}{document_number}{department_id}{doctor_id}{current_datetime}.xlsm"
-
+        new_file_name = f"{patient_id}{document_number}{department_id}{doctor_id}{current_time}.xlsm"
         file_path = os.path.join(output_path, new_file_name)
         workbook = load_workbook(template_path, keep_vba=True)
         common_sheet = workbook["共通情報"]
 
-        # patient_info.creation_countに基づいて適切なシートを選択
-        if patient_info.creation_count == 1:
-            plan_sheet = workbook["初回用"]
-        else:
-            plan_sheet = workbook["継続用"]
+        # バーコードを両方のシートに追加するために、両方のシートを取得
+        initial_sheet = workbook["初回用"]
+        continuous_sheet = workbook["継続用"]
 
         TreatmentPlanGenerator.populate_common_sheet(common_sheet, patient_info)
 
+        # バーコード生成の共通設定
         options = {
             'write_text': barcode_config.getboolean('write_text', False),
             'module_height': barcode_config.getfloat('module_height', 15),
@@ -210,18 +206,24 @@ class TreatmentPlanGenerator:
             'quiet_zone': barcode_config.getint('quiet_zone', 1),
         }
 
-        # バーコードの生成
-        barcode_data = f"{patient_id}{document_number}{department_id}{doctor_id}{current_datetime}"
-        barcode = Code128(barcode_data, writer=ImageWriter())
-        buffer = BytesIO()
-        barcode.write(buffer, options=options)
+        # バーコードデータの生成
+        issue_date = patient_info.issue_date.strftime("%Y%m%d")
+        barcode_data = f"{patient_id}{document_number}{department_id}{doctor_id}{issue_date}{current_time}"
 
-        # バーコード画像の挿入
-        img = Image(buffer)
-        img.width = barcode_config.getint('image_width', 200)
-        img.height = barcode_config.getint('image_height', 30)
-        image_position = barcode_config.get('image_position', 'B2')
-        plan_sheet.add_image(img, image_position)
+        # バーコードを両方のシートに追加する関数
+        def add_barcode_to_sheet(sheet):
+            barcode = Code128(barcode_data, writer=ImageWriter())
+            buffer = BytesIO()
+            barcode.write(buffer, options=options)
+            img = Image(buffer)
+            img.width = barcode_config.getint('image_width', 200)
+            img.height = barcode_config.getint('image_height', 30)
+            image_position = barcode_config.get('image_position', 'B2')
+            sheet.add_image(img, image_position)
+
+        # 両方のシートにバーコードを追加
+        add_barcode_to_sheet(initial_sheet)
+        add_barcode_to_sheet(continuous_sheet)
 
         workbook.save(file_path)
 
@@ -229,20 +231,19 @@ class TreatmentPlanGenerator:
         ws_common = wb["共通情報"]
         ws_common.sheet_view.tabSelected = False
 
-        # patient_info.creation_countに基づいて適切なシートをアクティブに設定
+        # 適切なシートをアクティブにする
         if patient_info.creation_count == 1:
             ws_plan = wb["初回用"]
         else:
             ws_plan = wb["継続用"]
-
         ws_plan.sheet_view.tabSelected = True
         wb.active = ws_plan
+
         wb.save(file_path)
         os.startfile(file_path)
 
     @staticmethod
     def populate_common_sheet(common_sheet, patient_info):
-        # この部分は変更なし
         common_sheet["B2"] = patient_info.patient_id
         common_sheet["B3"] = patient_info.patient_name
         common_sheet["B4"] = patient_info.kana
