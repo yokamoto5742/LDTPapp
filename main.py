@@ -194,7 +194,13 @@ class TreatmentPlanGenerator:
         file_path = os.path.join(output_path, new_file_name)
         workbook = load_workbook(template_path, keep_vba=True)
         common_sheet = workbook["共通情報"]
-        plan_sheet = workbook["初回用"]
+
+        # patient_info.creation_countに基づいて適切なシートを選択
+        if patient_info.creation_count == 1:
+            plan_sheet = workbook["初回用"]
+        else:
+            plan_sheet = workbook["継続用"]
+
         TreatmentPlanGenerator.populate_common_sheet(common_sheet, patient_info)
 
         options = {
@@ -222,7 +228,13 @@ class TreatmentPlanGenerator:
         wb = load_workbook(file_path, read_only=False, keep_vba=True)
         ws_common = wb["共通情報"]
         ws_common.sheet_view.tabSelected = False
-        ws_plan = wb["初回用"]
+
+        # patient_info.creation_countに基づいて適切なシートをアクティブに設定
+        if patient_info.creation_count == 1:
+            ws_plan = wb["初回用"]
+        else:
+            ws_plan = wb["継続用"]
+
         ws_plan.sheet_view.tabSelected = True
         wb.active = ws_plan
         wb.save(file_path)
@@ -230,6 +242,7 @@ class TreatmentPlanGenerator:
 
     @staticmethod
     def populate_common_sheet(common_sheet, patient_info):
+        # この部分は変更なし
         common_sheet["B2"] = patient_info.patient_id
         common_sheet["B3"] = patient_info.patient_name
         common_sheet["B4"] = patient_info.kana
