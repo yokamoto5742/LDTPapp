@@ -989,6 +989,9 @@ def create_ui(page):
             session.add(patient_info_copy)
             session.commit()
 
+            # 新しく作成されたデータのIDを取得
+            new_id = patient_info_copy.id
+
             snack_bar = ft.SnackBar(
                 ft.Text("前回データをコピーしました"),
                 duration=1000,
@@ -996,8 +999,63 @@ def create_ui(page):
             snack_bar.open = True
             page.overlay.append(snack_bar)
 
+            # 新しく作成されたデータを選択状態にする
+            select_copied_data(new_id)
+
         session.close()
         update_history(int(patient_id.value))
+        page.update()
+
+    def select_copied_data(new_id):
+        global selected_row
+        session = Session()
+        patient_info = session.query(PatientInfo).filter(PatientInfo.id == new_id).first()
+        if patient_info:
+            selected_row = {
+                'id': patient_info.id,
+                'issue_date': patient_info.issue_date.strftime("%Y/%m/%d") if patient_info.issue_date else "",
+                'department': patient_info.department,
+                'doctor_name': patient_info.doctor_name,
+                'main_diagnosis': patient_info.main_diagnosis,
+                'sheet_name': patient_info.sheet_name,
+                'count': patient_info.creation_count
+            }
+            update_form_with_selected_data(patient_info)
+        session.close()
+
+    def update_form_with_selected_data(patient_info):
+        patient_id.value = str(patient_info.patient_id)
+        issue_date_value.value = patient_info.issue_date.strftime("%Y/%m/%d") if patient_info.issue_date else ""
+        name_value.value = patient_info.patient_name
+        kana_value.value = patient_info.kana
+        gender_value.value = patient_info.gender
+        birthdate_value.value = patient_info.birthdate.strftime("%Y/%m/%d") if patient_info.birthdate else ""
+        doctor_id_value.value = str(patient_info.doctor_id)
+        doctor_name_value.value = patient_info.doctor_name
+        department_value.value = patient_info.department
+        department_id_value.value = str(patient_info.department_id)
+        main_diagnosis.value = patient_info.main_diagnosis
+        sheet_name_dropdown.value = patient_info.sheet_name
+        creation_count.value = str(patient_info.creation_count)
+        target_weight.value = str(patient_info.target_weight) if patient_info.target_weight else ""
+        target_bp.value = patient_info.target_bp
+        target_hba1c.value = patient_info.target_hba1c
+        goal1.value = patient_info.goal1
+        goal2.value = patient_info.goal2
+        target_achievement.value = patient_info.target_achievement
+        diet1.value = patient_info.diet1
+        diet2.value = patient_info.diet2
+        diet3.value = patient_info.diet3
+        diet4.value = patient_info.diet4
+        exercise_prescription.value = patient_info.exercise_prescription
+        exercise_time.value = patient_info.exercise_time
+        exercise_frequency.value = patient_info.exercise_frequency
+        exercise_intensity.value = patient_info.exercise_intensity
+        daily_activity.value = patient_info.daily_activity
+        nonsmoker.value = patient_info.nonsmoker
+        smoking_cessation.value = patient_info.smoking_cessation
+        other1.value = patient_info.other1
+        other2.value = patient_info.other2
         page.update()
 
     def delete_data(e):
@@ -1366,21 +1424,12 @@ def create_ui(page):
         page.go("/template")
 
     def open_route(e):
-        # テキストフィールドの初期化
-        for field in [target_weight, target_bp, target_hba1c, goal1, goal2, other1, other2]:
+        for field in [target_weight, target_bp, target_hba1c,  goal1, goal2,target_achievement,diet1, diet2, diet3, diet4,exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,daily_activity, other1, other2]:
             field.value = ""
 
-        # ドロップダウンの初期化
-        for ft.dropdown in [main_diagnosis, sheet_name_dropdown, target_achievement,
-                         diet1, diet2, diet3, diet4,
-                         exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
-                         daily_activity]:
-            ft.dropdown.value = ""
-
-        # 数値フィールドの初期化
-        creation_count.value = 1  # 作成回数の初期値を再設定
-
-        # チェックボックスの初期化
+        main_diagnosis.value = ""
+        sheet_name_dropdown.value = ""
+        creation_count.value = 1
         nonsmoker.value = False
         smoking_cessation.value = False
 
