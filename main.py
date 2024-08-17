@@ -1262,8 +1262,7 @@ def create_ui(page):
                         ft.Row(
                             controls=[
                                 goal1,
-                                target_weight,
-                                ft.Text("kg", size=14),
+                                target_achievement,
                             ]
                         ),
                         goal2,
@@ -1297,7 +1296,7 @@ def create_ui(page):
                         ft.Row(
                             controls=[
                                 goal1,
-                                target_weight,
+                                target_achievement,
                                 ft.Text("kg", size=14),
                             ]
                         ),
@@ -1417,7 +1416,7 @@ def create_ui(page):
         value="1",
         on_submit=lambda _: goal1.focus(),
     )
-    target_weight = ft.TextField(label="目標体重", width=100, value="", on_submit=lambda _: goal2.focus())
+    target_weight = ft.TextField(label="目標体重", width=150, value="")
     target_bp = ft.TextField(label="目標血圧", width=150)
     target_hba1c = ft.TextField(label="目標HbA1c", width=150)
     goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=700, value="達成目標を入力してください",
@@ -1443,7 +1442,9 @@ def create_ui(page):
     other2 = ft.TextField(label="その他2", value="", width=400)
 
     guidance_items = ft.Column([
-        ft.Row([target_bp, target_hba1c, target_achievement]),
+        ft.Row([target_weight,ft.Text("kg", size=14),
+                target_bp,
+                target_hba1c,ft.Text("%", size=14),]),
         ft.Row([diet1, diet2]),
         ft.Row([diet3, diet4]),
         ft.Row([exercise_prescription, exercise_time, exercise_frequency, exercise_intensity]),
