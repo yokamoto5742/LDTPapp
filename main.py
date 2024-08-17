@@ -1013,7 +1013,7 @@ def create_ui(page):
             new_id = patient_info_copy.id
 
             snack_bar = ft.SnackBar(
-                ft.Text("前回データをコピーしました"),
+                ft.Text("前回の計画内容をコピーしました"),
                 duration=1000,
             )
             snack_bar.open = True
@@ -1085,7 +1085,7 @@ def create_ui(page):
             session.delete(patient_info)
             session.commit()
             snack_bar = ft.SnackBar(
-                ft.Text("データが削除されました"),
+                ft.Text("データを削除しました"),
                 duration=1000,
             )
             snack_bar.open = True
@@ -1580,7 +1580,7 @@ def create_ui(page):
 
     buttons = ft.Row([
         ft.ElevatedButton("新規作成", on_click=open_create),
-        ft.ElevatedButton("前回コピー", on_click=copy_data),
+        ft.ElevatedButton("前回計画コピー", on_click=copy_data),
         ft.ElevatedButton("テンプレート編集", on_click=open_template),
         ft.ElevatedButton("閉じる", on_click=on_close),
     ])
