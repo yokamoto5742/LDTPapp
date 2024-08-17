@@ -156,10 +156,10 @@ def create_form_fields(dropdown_items):
     exercise_intensity = dropdown_items.create_dropdown('exercise_intensity', "強度", 300)
     daily_activity = dropdown_items.create_dropdown('daily_activity', "日常生活の活動量増加", 400)
     target_achievement = dropdown_items.create_dropdown('target_achievement', "目標の達成状況", 200)
-    diet1 = dropdown_items.create_dropdown('diet', "食事1", 250)
-    diet2 = dropdown_items.create_dropdown('diet', "食事2", 250)
-    diet3 = dropdown_items.create_dropdown('diet', "食事3", 250)
-    diet4 = dropdown_items.create_dropdown('diet', "食事4", 250)
+    diet1 = dropdown_items.create_dropdown('diet', "食事1", 400)
+    diet2 = dropdown_items.create_dropdown('diet', "食事2", 400)
+    diet3 = dropdown_items.create_dropdown('diet', "食事3", 400)
+    diet4 = dropdown_items.create_dropdown('diet', "食事4", 400)
 
     def create_focus_handler(next_field):
         return lambda _: next_field.focus()
@@ -194,7 +194,7 @@ class TreatmentPlanGenerator:
         file_path = os.path.join(output_path, new_file_name)
         workbook = load_workbook(template_path, keep_vba=True)
         common_sheet = workbook["共通情報"]
-        plan_sheet = workbook["計画書"]
+        plan_sheet = workbook["初回用"]
         TreatmentPlanGenerator.populate_common_sheet(common_sheet, patient_info)
 
         options = {
@@ -222,7 +222,7 @@ class TreatmentPlanGenerator:
         wb = load_workbook(file_path, read_only=False, keep_vba=True)
         ws_common = wb["共通情報"]
         ws_common.sheet_view.tabSelected = False
-        ws_plan = wb["計画書"]
+        ws_plan = wb["初回用"]
         ws_plan.sheet_view.tabSelected = True
         wb.active = ws_plan
         wb.save(file_path)
@@ -238,24 +238,30 @@ class TreatmentPlanGenerator:
         common_sheet["B7"] = patient_info.issue_date
         common_sheet["B8"] = patient_info.doctor_id
         common_sheet["B9"] = patient_info.doctor_name
-        common_sheet["B10"] = patient_info.department_id  # 診療科IDを追加
+        common_sheet["B10"] = patient_info.department_id
         common_sheet["B11"] = patient_info.department
         common_sheet["B12"] = patient_info.main_diagnosis
         common_sheet["B13"] = patient_info.creation_count
         common_sheet["B14"] = patient_info.target_weight
         common_sheet["B15"] = patient_info.sheet_name
-        common_sheet["B16"] = patient_info.goal1
-        common_sheet["B17"] = patient_info.goal2
-        common_sheet["B18"] = patient_info.diet
-        common_sheet["B19"] = patient_info.exercise_prescription
-        common_sheet["B20"] = patient_info.exercise_time
-        common_sheet["B21"] = patient_info.exercise_frequency
-        common_sheet["B22"] = patient_info.exercise_intensity
-        common_sheet["B23"] = patient_info.daily_activity
-        common_sheet["B24"] = patient_info.nonsmoker
-        common_sheet["B25"] = patient_info.smoking_cessation
-        common_sheet["B26"] = patient_info.other1
-        common_sheet["B27"] = patient_info.other2
+        common_sheet["B16"] = patient_info.target_bp
+        common_sheet["B17"] = patient_info.target_hba1c
+        common_sheet["B18"] = patient_info.goal1
+        common_sheet["B19"] = patient_info.goal2
+        common_sheet["B20"] = patient_info.target_achievement
+        common_sheet["B21"] = patient_info.diet1
+        common_sheet["B22"] = patient_info.diet2
+        common_sheet["B23"] = patient_info.diet3
+        common_sheet["B24"] = patient_info.diet4
+        common_sheet["B25"] = patient_info.exercise_prescription
+        common_sheet["B26"] = patient_info.exercise_time
+        common_sheet["B27"] = patient_info.exercise_frequency
+        common_sheet["B28"] = patient_info.exercise_intensity
+        common_sheet["B29"] = patient_info.daily_activity
+        common_sheet["B30"] = patient_info.nonsmoker
+        common_sheet["B31"] = patient_info.smoking_cessation
+        common_sheet["B32"] = patient_info.other1
+        common_sheet["B33"] = patient_info.other2
 
 
 class TemplateManager:
