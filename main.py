@@ -1186,7 +1186,6 @@ def create_ui(page):
                 goal2=goal2.value,
                 target_bp=target_bp.value,
                 target_hba1c=target_hba1c.value,
-                target_achievement=target_achievement.value,
                 diet1=diet1.value,
                 diet2=diet2.value,
                 diet3=diet3.value,
@@ -1469,6 +1468,8 @@ def create_ui(page):
     ])
 
     guidance_items_template = ft.Column([
+        ft.Row([target_bp,
+                target_hba1c, ft.Text("%", size=14), ]),
         ft.Row([diet1, diet2]),
         ft.Row([diet3, diet4]),
         ft.Row([exercise_prescription, exercise_time, exercise_frequency, exercise_intensity]),
