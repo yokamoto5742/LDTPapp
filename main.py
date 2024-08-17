@@ -125,13 +125,14 @@ Base.metadata.create_all(engine)
 class DropdownItems:
     def __init__(self):
         self.items = {
-            'exercise_prescription': ['ウォーキング', 'ストレッチ', '筋トレ'],
+            'target_achievement': ['概ね達成', '未達成'],
+            'diet': ['食事量を適正にする', "塩分量を適正にする", '食物繊維の摂取量を増やす', 'ゆっくり食べる',
+                     '間食を減らす', '揚げ物や炒め物などを減らす', '1日3食を規則正しくとる', '今回は指導の必要なし'],
+            'exercise_prescription': ['ウォーキング', 'ストレッチ', '筋トレ','今回は指導の必要なし'],
             'exercise_time': ['20分', '30分', '60分'],
             'exercise_frequency': ['毎日', '週に5日', '週に3日'],
             'exercise_intensity': ['息が弾む程度', 'ニコニコペース'],
             'daily_activity': ['5000歩', '8000歩', '10000歩'],
-            'target_achievement': ['概ね達成', '未達成'],
-            'diet': ['食事量を適正にする', '食物繊維の摂取量を増やす', 'ゆっくり食べる', '間食を減らす']
         }
 
     def get_options(self, key):
@@ -1314,7 +1315,7 @@ def create_ui(page):
                     ft.Row(
                         controls=[
                             buttons,
-                            ft.Text("(SOAP画面を閉じるとアプリが終了します)", size=12)
+                            ft.Text("(SOAP画面を閉じるとアプリは終了します)", size=12)
                         ]
                     ),
                     ft.Row(
