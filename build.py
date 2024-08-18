@@ -18,11 +18,10 @@ def build_executable():
     ])
 
     # 必要なファイルをdistフォルダにコピー
-    shutil.copy("config.ini", "dist/")
-    shutil.copy("version.txt", "dist/")
-
+    shutil.copy("config.ini", "dist/LDTPapp")
+    shutil.copy("version.txt", "dist/LDTPapp")
     excel_src = r"C:\Shinseikai\LDTPapp\LDTPform.xlsm"
-    excel_dst = os.path.join("dist", "LDTPform.xlsm")
+    excel_dst = os.path.join("dist/LDTPapp", "LDTPform.xlsm")
     shutil.copy(excel_src, excel_dst)
 
     print(f"Executable built successfully. Version: {new_version}")

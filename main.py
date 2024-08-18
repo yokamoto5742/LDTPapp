@@ -21,8 +21,8 @@ from barcode.codex import Code128
 from barcode.writer import ImageWriter
 from io import BytesIO
 
-VERSION = "1.0.0"
-LAST_UPDATED = "2024/08/14"
+VERSION = "1.0.1"
+LAST_UPDATED = "2024/08/18"
 
 # config.iniファイルの読み込み
 config = configparser.ConfigParser()
