@@ -189,7 +189,8 @@ class TreatmentPlanGenerator:
         document_number = "39221"
         department_id = str(patient_info.department_id).zfill(3)
         doctor_id = str(patient_info.doctor_id).zfill(5)
-        new_file_name = f"{patient_id}{document_number}{department_id}{doctor_id}{current_time}.xlsm"
+        issue_date = patient_info.issue_date.strftime("%Y%m%d")
+        new_file_name = f"{patient_id}{document_number}{department_id}{doctor_id}{issue_date}{current_time}.xlsm"
         file_path = os.path.join(output_path, new_file_name)
         workbook = load_workbook(template_path, keep_vba=True)
         common_sheet = workbook["共通情報"]
