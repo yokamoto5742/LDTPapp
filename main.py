@@ -1492,26 +1492,27 @@ def create_ui(page):
     main_diagnosis = ft.Dropdown(
         label="主病名",
         options=main_disease_options,
-        width=200, text_size=14, value="",
+        width=200, text_size=13, value="",
         on_change=on_main_diagnosis_change,
         autofocus=True,
     )
     sheet_name_options = load_sheet_names(main_diagnosis.value)
-    sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=300, text_size=14, value="",
+    sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=300, text_size=13, value="",
                                       on_change=on_sheet_name_change)
     creation_count = ft.TextField(
         label="作成回数",
         width=100,
         value="1",
         on_submit=lambda _: goal1.focus(),
+        text_size=13,
     )
-    target_weight = ft.TextField(label="目標体重", width=100, value="")
-    target_bp = ft.TextField(label="目標血圧", width=100)
-    target_hba1c = ft.TextField(label="目標HbA1c", width=100)
+    target_weight = ft.TextField(label="目標体重", width=100, value="", text_size=13)
+    target_bp = ft.TextField(label="目標血圧", width=100, text_size=13)
+    target_hba1c = ft.TextField(label="目標HbA1c", width=100, text_size=13)
     goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=700, value="達成目標を入力してください",
-                         on_submit=lambda _: target_weight.focus())
+                         on_submit=lambda _: target_weight.focus(), text_size=13)
     goal2 = ft.TextField(label="②行動目標：患者と相談した目標", width=700, value="行動目標を入力してください",
-                         on_submit=lambda _: exercise_frequency.focus())
+                         on_submit=lambda _: exercise_frequency.focus(), text_size=13)
 
     (exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
      daily_activity, target_achievement, diet1, diet2, diet3, diet4) = create_form_fields(dropdown_items)
@@ -1527,13 +1528,13 @@ def create_ui(page):
     nonsmoker = ft.Checkbox(label="非喫煙者である", on_change=on_tobacco_checkbox_change)
     smoking_cessation = ft.Checkbox(label="禁煙の実施方法等を指示", on_change=on_tobacco_checkbox_change)
 
-    other1 = ft.TextField(label="その他1", value="", width=400, on_submit=lambda _: other2.focus())
-    other2 = ft.TextField(label="その他2", value="", width=400)
+    other1 = ft.TextField(label="その他1", value="", width=400, on_submit=lambda _: other2.focus(), text_size=13)
+    other2 = ft.TextField(label="その他2", value="", width=400, text_size=13)
 
     guidance_items = ft.Column([
-        ft.Row([target_weight,ft.Text("kg", size=14),
-                target_bp,ft.Text("mmHg", size=14),
-                target_hba1c,ft.Text("%", size=14),]),
+        ft.Row([target_weight,ft.Text("kg", size=13),
+                target_bp,ft.Text("mmHg", size=13),
+                target_hba1c,ft.Text("%", size=13),]),
         ft.Row([diet1, diet2]),
         ft.Row([diet3, diet4]),
         ft.Row([exercise_prescription, exercise_time, exercise_frequency, exercise_intensity]),
