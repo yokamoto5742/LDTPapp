@@ -146,7 +146,8 @@ class DropdownItems:
             label=label,
             width=width,
             options=self.get_options(key),
-            on_change=on_change
+            on_change=on_change,
+            text_style=ft.TextStyle(size=13)
         )
 
 
