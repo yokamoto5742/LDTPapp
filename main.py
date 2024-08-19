@@ -21,8 +21,8 @@ from barcode.codex import Code128
 from barcode.writer import ImageWriter
 from io import BytesIO
 
-VERSION = "1.0.1"
-LAST_UPDATED = "2024/08/18"
+VERSION = "1.0.2"
+LAST_UPDATED = "2024/08/19"
 
 # config.iniファイルの読み込み
 config = configparser.ConfigParser()
@@ -147,7 +147,10 @@ class DropdownItems:
             width=width,
             options=self.get_options(key),
             on_change=on_change,
-            text_style=ft.TextStyle(size=13)
+            text_style=ft.TextStyle(size=13),
+            border_color=ft.colors.ON_SURFACE_VARIANT,
+            focused_border_color=ft.colors.PRIMARY,
+            color=ft.colors.ON_SURFACE,
         )
 
 
