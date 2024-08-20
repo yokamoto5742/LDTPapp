@@ -1359,6 +1359,7 @@ def create_ui(page):
                             controls=[
                                 goal1,
                                 target_achievement,
+                                ft.Text("(2回目以降に選択)", size=12),
                             ]
                         ),
                         goal2,
@@ -1393,6 +1394,7 @@ def create_ui(page):
                             controls=[
                                 goal1,
                                 target_achievement,
+                                ft.Text("(2回目以降に選択)", size=12),
                             ]
                         ),
                         goal2,
