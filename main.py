@@ -131,7 +131,7 @@ class DropdownItems:
             'exercise_prescription': ['ウォーキング', 'ストレッチ', '筋トレ','今回は指導の必要なし'],
             'exercise_time': ['10分', '20分', '30分', '60分','該当なし'],
             'exercise_frequency': ['毎日', '週に5日', '週に3日','週に2日','該当なし'],
-            'exercise_intensity': ['息が弾む程度', 'ニコニコペース','少し汗をかく程度', '少し汗をかく程度', '該当なし'],
+            'exercise_intensity': ['息が弾む程度', 'ニコニコペース','少し汗をかく程度', '息切れしない程度', '該当なし'],
             'daily_activity': ['5000歩', '6000歩', '8000歩', '10000歩','ストレッチ運動を主に行う','該当なし'],
         }
 
@@ -162,9 +162,9 @@ def create_form_fields(dropdown_items):
     diet4 = dropdown_items.create_dropdown('diet', "食事4", 400)
     exercise_prescription = dropdown_items.create_dropdown('exercise_prescription', "運動処方", 300)
     exercise_time = dropdown_items.create_dropdown('exercise_time', "時間", 200)
-    exercise_frequency = dropdown_items.create_dropdown('exercise_frequency', "頻度", 300)
-    exercise_intensity = dropdown_items.create_dropdown('exercise_intensity', "強度", 300)
-    daily_activity = dropdown_items.create_dropdown('daily_activity', "日常生活の活動量増加", 400)
+    exercise_frequency = dropdown_items.create_dropdown('exercise_frequency', "頻度", 200)
+    exercise_intensity = dropdown_items.create_dropdown('exercise_intensity', "強度", 200)
+    daily_activity = dropdown_items.create_dropdown('daily_activity', "日常生活の活動量増加", 300)
 
     def create_focus_handler(next_field):
         return lambda _: next_field.focus()
