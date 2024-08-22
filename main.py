@@ -155,7 +155,7 @@ class DropdownItems:
 
 
 def create_form_fields(dropdown_items):
-    target_achievement = dropdown_items.create_dropdown('target_achievement', "目標の達成状況", 200)
+    target_achievement = dropdown_items.create_dropdown('target_achievement', "目標達成状況(2回目以降)", 300)
     diet1 = dropdown_items.create_dropdown('diet', "食事1", 400)
     diet2 = dropdown_items.create_dropdown('diet', "食事2", 400)
     diet3 = dropdown_items.create_dropdown('diet', "食事3", 400)
@@ -1326,7 +1326,7 @@ def create_ui(page):
                     ft.Row(
                         controls=[
                             ft.Text("計画書一覧", size=16),
-                            ft.Text("計画書をクリックすると編集画面が表示されます", size=14),
+                            ft.Text("計画書をクリックすると編集画面が開きます", size=14),
                         ]
                     ),
                     ft.Divider(),
@@ -1355,13 +1355,7 @@ def create_ui(page):
                                 issue_date_row,
                             ]
                         ),
-                        ft.Row(
-                            controls=[
-                                goal1,
-                                target_achievement,
-                                ft.Text("(2回目以降に選択)", size=12),
-                            ]
-                        ),
+                        goal1,
                         goal2,
                         guidance_items,
                         create_buttons,
@@ -1393,8 +1387,6 @@ def create_ui(page):
                         ft.Row(
                             controls=[
                                 goal1,
-                                target_achievement,
-                                ft.Text("(2回目以降に選択)", size=12),
                             ]
                         ),
                         goal2,
@@ -1511,9 +1503,9 @@ def create_ui(page):
         on_submit=lambda _: goal1.focus(),
         text_size=13,
     )
-    target_weight = ft.TextField(label="目標体重", width=100, value="", text_size=13)
-    target_bp = ft.TextField(label="目標血圧", width=100, text_size=13)
-    target_hba1c = ft.TextField(label="目標HbA1c", width=100, text_size=13)
+    target_weight = ft.TextField(label="目標体重", width=150, value="", text_size=13)
+    target_bp = ft.TextField(label="目標血圧", width=150, text_size=13)
+    target_hba1c = ft.TextField(label="目標HbA1c", width=150, text_size=13)
     goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=700, value="達成目標を入力してください",
                          on_submit=lambda _: target_weight.focus(), text_size=13)
     goal2 = ft.TextField(label="②行動目標：患者と相談した目標", width=700, value="行動目標を入力してください",
@@ -1537,7 +1529,8 @@ def create_ui(page):
     other2 = ft.TextField(label="その他2", value="", width=400, text_size=13)
 
     guidance_items = ft.Column([
-        ft.Row([target_weight,ft.Text("kg", size=13),
+        ft.Row([target_achievement,
+                target_weight,ft.Text("kg", size=13),
                 target_bp,ft.Text("mmHg", size=13),
                 target_hba1c,ft.Text("%", size=13),]),
         ft.Row([diet1, diet2]),
