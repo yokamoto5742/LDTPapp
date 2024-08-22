@@ -1506,10 +1506,9 @@ def create_ui(page):
     target_weight = ft.TextField(label="目標体重", width=150, value="", text_size=13)
     target_bp = ft.TextField(label="目標血圧", width=150, text_size=13)
     target_hba1c = ft.TextField(label="目標HbA1c", width=150, text_size=13)
-    goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=700, value="達成目標を入力してください",
+    goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=700, value="主病名とシート名を選択してください",
                          on_submit=lambda _: target_weight.focus(), text_size=13)
-    goal2 = ft.TextField(label="②行動目標：患者と相談した目標", width=700, value="行動目標を入力してください",
-                         on_submit=lambda _: exercise_frequency.focus(), text_size=13)
+    goal2 = ft.TextField(label="②行動目標：患者と相談した目標", width=700, on_submit=lambda _: exercise_frequency.focus(), text_size=13)
 
     (exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
      daily_activity, target_achievement, diet1, diet2, diet3, diet4) = create_form_fields(dropdown_items)
