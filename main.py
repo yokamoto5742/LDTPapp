@@ -1534,6 +1534,9 @@ def create_ui(page):
     other1 = ft.TextField(label="その他1", value="", width=400, on_submit=lambda _: other2.focus(), text_size=13)
     other2 = ft.TextField(label="その他2", value="", width=400, text_size=13)
 
+    ophthalmology = ft.Checkbox(label="眼科")
+    dental = ft.Checkbox(label="歯科")
+
     guidance_items = ft.Column([
         ft.Row([target_achievement,
                 target_weight,ft.Text("kg", size=13),
@@ -1546,6 +1549,7 @@ def create_ui(page):
         ft.Row([ft.Text("たばこ", size=14), nonsmoker, smoking_cessation,
                 ft.Text("    (チェックボックスを2回選ぶと解除できます)", size=12)]),
         ft.Row([other1, other2]),
+        ft.Row([ft.Text("受診勧奨", size=14), ophthalmology,dental]),
     ])
 
     guidance_items_template = ft.Column([
