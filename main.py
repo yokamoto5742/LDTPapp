@@ -1,4 +1,5 @@
 import os
+import sys
 import re
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -24,9 +25,10 @@ from io import BytesIO
 VERSION = "1.0.4"
 LAST_UPDATED = "2024/08/22"
 
-# アプリケーションのディレクトリに移動
-app_directory = r"C:\Shinseikai\LDTPapp"
-os.chdir(app_directory)
+# 実行ファイルかどうかを確認し本番環境（実行形式ファイル）の場合はディレクトリを変更
+if getattr(sys, 'frozen', False):
+    app_directory = r"C:\Shinseikai\LDTPapp"
+    os.chdir(app_directory)
 
 # config.iniファイルの読み込み
 config = configparser.ConfigParser()
