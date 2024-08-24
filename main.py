@@ -1031,8 +1031,8 @@ def create_ui(page):
                 smoking_cessation=patient_info.smoking_cessation,
                 other1=patient_info.other1,
                 other2=patient_info.other2,
-                ophthalmology=ophthalmology.value,
-                dental=dental.value,
+                ophthalmology=patient_info.ophthalmology,
+                dental=patient_info.dental,
             )
             session.add(patient_info_copy)
             session.commit()
@@ -1104,8 +1104,8 @@ def create_ui(page):
         smoking_cessation.value = patient_info.smoking_cessation
         other1.value = patient_info.other1
         other2.value = patient_info.other2
-        patient_info.ophthalmology = ophthalmology.value
-        patient_info.dental = dental.value
+        ophthalmology.value = patient_info.ophthalmology
+        dental.value = patient_info.dental
         page.update()
 
     def delete_data(e):
