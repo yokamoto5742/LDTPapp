@@ -83,6 +83,9 @@ class PatientInfo(Base):
     smoking_cessation = Column(Boolean)
     other1 = Column(String)
     other2 = Column(String)
+    # ophthalmology = Column(Boolean)
+    # dental = Column(Boolean)
+
 
 
 class MainDisease(Base):
