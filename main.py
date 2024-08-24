@@ -242,7 +242,11 @@ class TreatmentPlanGenerator:
         ws_common = wb["共通情報"]
         ws_common.sheet_view.tabSelected = False
 
-        # 適切なシートをアクティブにする
+        # 全てのシートの選択状態をリセット
+        for sheet in wb.worksheets:
+            sheet.sheet_view.tabSelected = False
+
+        # 適切なシートをアクティブにし、選択状態にする
         if patient_info.creation_count == 1:
             ws_plan = wb["初回用"]
         else:
