@@ -83,8 +83,8 @@ class PatientInfo(Base):
     smoking_cessation = Column(Boolean)
     other1 = Column(String)
     other2 = Column(String)
-    # ophthalmology = Column(Boolean)
-    # dental = Column(Boolean)
+    ophthalmology = Column(Boolean)
+    dental = Column(Boolean)
 
 
 
@@ -119,8 +119,6 @@ class Template(Base):
     exercise_frequency = Column(String)
     exercise_intensity = Column(String)
     daily_activity = Column(String)
-    nonsmoker = Column(Boolean)
-    smoking_cessation = Column(Boolean)
     other1 = Column(String)
     other2 = Column(String)
 
@@ -294,6 +292,8 @@ class TreatmentPlanGenerator:
         common_sheet["B31"] = patient_info.smoking_cessation
         common_sheet["B32"] = patient_info.other1
         common_sheet["B33"] = patient_info.other2
+        common_sheet["B34"] = patient_info.ophthalmology
+        common_sheet["B35"] = patient_info.dental
 
 
 class TemplateManager:
@@ -655,7 +655,9 @@ def create_ui(page):
                         nonsmoker=row['nonsmoker'] == 'True',
                         smoking_cessation=row['smoking_cessation'] == 'True',
                         other1=row['other1'],
-                        other2=row['other2']
+                        other2=row['other2'],
+                        ophthalmology=row['ophthalmology'] == 'True',
+                        dental=row['dental'] == 'True',
                     )
                     session.add(patient_info)
                 session.commit()
@@ -817,7 +819,9 @@ def create_ui(page):
             nonsmoker=nonsmoker.value,
             smoking_cessation=smoking_cessation.value,
             other1=other1.value,
-            other2=other2.value
+            other2=other2.value,
+            ophthalmology=ophthalmology.value,
+            dental=dental.value,
         )
 
     def create_treatment_plan(p_id, doctor_id, doctor_name, department, department_id, patients_df):
@@ -906,6 +910,8 @@ def create_ui(page):
                 patient_info.smoking_cessation = smoking_cessation.value
                 patient_info.other1 = other1.value
                 patient_info.other2 = other2.value
+                patient_info.ophthalmology = ophthalmology.value
+                patient_info.dental = dental.value
                 session.commit()
 
                 # 更新後のデータを使用して印刷
@@ -959,6 +965,8 @@ def create_ui(page):
                 patient_info.smoking_cessation = smoking_cessation.value
                 patient_info.other1 = other1.value
                 patient_info.other2 = other2.value
+                patient_info.ophthalmology = ophthalmology.value
+                patient_info.dental = dental.value
                 session.commit()
 
                 snack_bar = ft.SnackBar(ft.Text("データが保存されました"), duration=1000)
@@ -1020,7 +1028,9 @@ def create_ui(page):
                 nonsmoker=patient_info.nonsmoker,
                 smoking_cessation=patient_info.smoking_cessation,
                 other1=patient_info.other1,
-                other2=patient_info.other2
+                other2=patient_info.other2,
+                ophthalmology=ophthalmology.value,
+                dental=dental.value,
             )
             session.add(patient_info_copy)
             session.commit()
@@ -1092,6 +1102,8 @@ def create_ui(page):
         smoking_cessation.value = patient_info.smoking_cessation
         other1.value = patient_info.other1
         other2.value = patient_info.other2
+        patient_info.ophthalmology = ophthalmology.value
+        patient_info.dental = dental.value
         page.update()
 
     def delete_data(e):
@@ -1163,6 +1175,8 @@ def create_ui(page):
                 smoking_cessation.value = patient_info.smoking_cessation
                 other1.value = patient_info.other1
                 other2.value = patient_info.other2
+                ophthalmology.value = patient_info.ophthalmology
+                dental.value = patient_info.dental
             session.close()
             page.update()
 
@@ -1462,6 +1476,8 @@ def create_ui(page):
         creation_count.value = 1
         nonsmoker.value = False
         smoking_cessation.value = False
+        ophthalmology.value = False
+        dental.value = False
 
         page.go("/")
         update_history(int(patient_id.value))
