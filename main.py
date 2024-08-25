@@ -22,8 +22,8 @@ from barcode.codex import Code128
 from barcode.writer import ImageWriter
 from io import BytesIO
 
-VERSION = "1.0.4"
-LAST_UPDATED = "2024/08/22"
+VERSION = "1.0.5"
+LAST_UPDATED = "2024/08/25"
 
 # 実行ファイルかどうかを確認し本番環境（実行形式ファイル）の場合はディレクトリを変更
 if getattr(sys, 'frozen', False):
@@ -1488,7 +1488,7 @@ def create_ui(page):
         page.update()
 
     def open_manual_pdf(e):
-        if manual_pdf_path:
+        if manual_pdf_path and os.path.exists(manual_pdf_path):
             try:
                 os.startfile(manual_pdf_path)
             except Exception as e:
@@ -1498,7 +1498,7 @@ def create_ui(page):
                 page.overlay.append(error_snack_bar)
                 page.update()
         else:
-            error_message = "操作マニュアルのパスを確認して下さい。"
+            error_message = "操作マニュアルのパスを確認してください"
             error_snack_bar = ft.SnackBar(content=ft.Text(error_message), duration=1000)
             error_snack_bar.open = True
             page.overlay.append(error_snack_bar)
