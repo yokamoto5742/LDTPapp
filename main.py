@@ -39,6 +39,7 @@ table_width = config.getint('DataTable', 'width')
 document_number = config.get('Document', 'document_number', fallback='39221')
 csv_file_path = config.get('FilePaths', 'patient_data')
 export_folder = config.get('FilePaths', 'export_folder')
+manual_pdf_path = config.get('FilePaths', 'manual_pdf')
 
 # SQLAlchemyの設定
 engine = create_engine(db_url, pool_pre_ping=True, pool_size=10)
@@ -613,7 +614,7 @@ def create_ui(page):
         if not re.match(r'^patient_info_.*\.csv$', file_name):
             error_snack_bar = ft.SnackBar(
                 content=ft.Text("インポートエラー:このファイルはインポートできません"),
-                duration=2000
+                duration=1000
             )
             error_snack_bar.open = True
             page.overlay.append(error_snack_bar)
@@ -1342,6 +1343,7 @@ def create_ui(page):
                             department_id_value,
                             department_value,
                             settings_button,
+                            manual_button,
                         ]
                     ),
                     ft.Row(
@@ -1484,6 +1486,25 @@ def create_ui(page):
         page.go("/")
         update_history(int(patient_id.value))
         page.update()
+
+    def open_manual_pdf(e):
+        if manual_pdf_path:
+            try:
+                os.startfile(manual_pdf_path)
+            except Exception as e:
+                error_message = f"PDFを開けませんでした: {str(e)}"
+                error_snack_bar = ft.SnackBar(content=ft.Text(error_message), duration=1000)
+                error_snack_bar.open = True
+                page.overlay.append(error_snack_bar)
+                page.update()
+        else:
+            error_message = "操作マニュアルのパスを確認して下さい。"
+            error_snack_bar = ft.SnackBar(content=ft.Text(error_message), duration=1000)
+            error_snack_bar.open = True
+            page.overlay.append(error_snack_bar)
+            page.update()
+
+    manual_button = ft.ElevatedButton("操作マニュアル", on_click=open_manual_pdf)
 
     def on_close(e):
         page.window.close()
