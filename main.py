@@ -1483,6 +1483,11 @@ def create_ui(page):
         ophthalmology.value = False
         dental.value = False
 
+        # 発行日を現在の日付で初期化
+        current_date = datetime.now().date()
+        issue_date_value.value = current_date.strftime("%Y/%m/%d")
+        issue_date_picker.value = current_date
+
         page.go("/")
         update_history(int(patient_id.value))
         page.update()
