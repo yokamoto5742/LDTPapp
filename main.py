@@ -382,6 +382,25 @@ def initialize_database():
     Base.metadata.create_all(engine)
 
 
+def create_theme_aware_button_style(page: ft.Page):
+    return {
+        "style": ft.ButtonStyle(
+            color={
+                ft.MaterialState.HOVERED: ft.colors.ON_PRIMARY,
+                ft.MaterialState.FOCUSED: ft.colors.ON_PRIMARY,
+                ft.MaterialState.DEFAULT: ft.colors.ON_PRIMARY,
+            },
+            bgcolor={
+                ft.MaterialState.HOVERED: ft.colors.PRIMARY_CONTAINER,
+                ft.MaterialState.FOCUSED: ft.colors.PRIMARY_CONTAINER,
+                ft.MaterialState.DEFAULT: ft.colors.PRIMARY,
+            },
+            padding=10,
+        ),
+        "elevation": 3,
+    }
+
+
 def create_ui(page):
     page.title = "生活習慣病療養計画書"
     page.window.width = config.getint('settings', 'window_width', fallback=1200)
@@ -394,8 +413,11 @@ def create_ui(page):
         current_locale=ft.Locale("ja", "JP")
     )
 
-    dropdown_items = DropdownItems()
+    # テーマの設定
+    page.theme = ft.Theme(color_scheme_seed=ft.colors.BLUE)
+    page.dark_theme = ft.Theme(color_scheme_seed=ft.colors.BLUE)
 
+    dropdown_items = DropdownItems()
     threading.Thread(target=initialize_database).start()
 
     # pat.csvの読み込み
@@ -597,9 +619,6 @@ def create_ui(page):
         page.overlay.append(dialog)
         dialog.open = True
         page.update()
-
-    # 設定ボタンを作成
-    settings_button = ft.ElevatedButton("設定", on_click=open_settings_dialog)
 
     def on_file_selected(e: ft.FilePickerResultEvent):
         if e.files:
@@ -1334,6 +1353,7 @@ def create_ui(page):
                             kana_value,
                             gender_value,
                             birthdate_value,
+                            dark_mode_switch,
                         ]
                     ),
                     ft.Row(
@@ -1509,8 +1529,6 @@ def create_ui(page):
             page.overlay.append(error_snack_bar)
             page.update()
 
-    manual_button = ft.ElevatedButton("操作マニュアル", on_click=open_manual_pdf)
-
     def on_close(e):
         page.window.close()
 
@@ -1522,15 +1540,6 @@ def create_ui(page):
         on_change=on_issue_date_change,
     )
     page.overlay.append(issue_date_picker)
-
-    issue_date_button = ft.ElevatedButton(
-        "日付選択",
-        icon=ft.icons.CALENDAR_TODAY,
-        on_click=lambda _: issue_date_picker.pick_date()
-    )
-
-    # 発行日の行を作成
-    issue_date_row = ft.Row([issue_date_value, issue_date_button])
 
     name_value = ft.TextField(label="氏名", read_only=True, width=150)
     kana_value = ft.TextField(label="カナ", read_only=True, width=150)
@@ -1636,30 +1645,56 @@ def create_ui(page):
         padding=10,
     )
 
+    # ボタンスタイルの作成
+    button_style = create_theme_aware_button_style(page)
+
+    # ボタンの定義
     buttons = ft.Row([
-        ft.ElevatedButton("新規作成", on_click=open_create),
-        ft.ElevatedButton("前回計画コピー", on_click=copy_data),
-        ft.ElevatedButton("テンプレート編集", on_click=open_template),
-        ft.ElevatedButton("閉じる", on_click=on_close),
+        ft.ElevatedButton("新規作成", on_click=open_create, **button_style),
+        ft.ElevatedButton("前回計画コピー", on_click=copy_data, **button_style),
+        ft.ElevatedButton("テンプレート編集", on_click=open_template, **button_style),
+        ft.ElevatedButton("閉じる", on_click=on_close, **button_style),
     ])
 
     create_buttons = ft.Row([
-        ft.ElevatedButton("新規登録して印刷", on_click=create_new_plan),
-        ft.ElevatedButton("新規登録", on_click=save_new_plan),
-        ft.ElevatedButton("戻る", on_click=open_route),
+        ft.ElevatedButton("新規登録して印刷", on_click=create_new_plan, **button_style),
+        ft.ElevatedButton("新規登録", on_click=save_new_plan, **button_style),
+        ft.ElevatedButton("戻る", on_click=open_route, **button_style),
     ])
 
     edit_buttons = ft.Row([
-        ft.ElevatedButton("保存", on_click=save_data),
-        ft.ElevatedButton("印刷", on_click=print_plan),
-        ft.ElevatedButton("削除", on_click=delete_data),
-        ft.ElevatedButton("戻る", on_click=open_route),
+        ft.ElevatedButton("保存", on_click=save_data, **button_style),
+        ft.ElevatedButton("印刷", on_click=print_plan, **button_style),
+        ft.ElevatedButton("削除", on_click=delete_data, **button_style),
+        ft.ElevatedButton("戻る", on_click=open_route, **button_style),
     ])
 
     template_buttons = ft.Row([
-        ft.ElevatedButton("保存", on_click=save_template),
-        ft.ElevatedButton("戻る", on_click=open_route),
+        ft.ElevatedButton("保存", on_click=save_template, **button_style),
+        ft.ElevatedButton("戻る", on_click=open_route, **button_style),
     ])
+
+    settings_button = ft.ElevatedButton("設定", on_click=open_settings_dialog, **button_style)
+    manual_button = ft.ElevatedButton("操作マニュアル", on_click=open_manual_pdf, **button_style)
+    issue_date_button = ft.ElevatedButton(
+        "日付選択",
+        icon=ft.icons.CALENDAR_TODAY,
+        on_click=lambda _: issue_date_picker.pick_date(),
+        **button_style
+    )
+
+    issue_date_row = ft.Row([issue_date_value, issue_date_button])
+
+    # ダークモード切り替えボタンの追加
+    def toggle_dark_mode(e):
+        page.theme_mode = (
+            ft.ThemeMode.DARK
+            if page.theme_mode == ft.ThemeMode.LIGHT
+            else ft.ThemeMode.LIGHT
+        )
+        page.update()
+
+    dark_mode_switch = ft.Switch(label="ダーク/ライト切り替え", on_change=toggle_dark_mode)
 
     # page画面の設定
     layout = ft.Column([
