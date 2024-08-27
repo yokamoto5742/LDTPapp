@@ -1129,19 +1129,40 @@ def create_ui(page):
         page.update()
 
     def delete_data(e):
-        session = Session()
-        patient_info = session.query(PatientInfo).order_by(PatientInfo.id.desc()).first()
-        if patient_info:
-            session.delete(patient_info)
-            session.commit()
+        global selected_row
+        if selected_row is None:
             snack_bar = ft.SnackBar(
-                ft.Text("データを削除しました"),
+                ft.Text("削除するレコードを選択してください"),
                 duration=1000,
             )
             snack_bar.open = True
             page.overlay.append(snack_bar)
+            return
 
-        session.close()
+        session = Session()
+        try:
+            patient_info = session.query(PatientInfo).filter(PatientInfo.id == selected_row['id']).first()
+            if patient_info:
+                session.delete(patient_info)
+                session.commit()
+                snack_bar = ft.SnackBar(
+                    ft.Text("データを削除しました"),
+                    duration=1000,
+                )
+                snack_bar.open = True
+                page.overlay.append(snack_bar)
+                selected_row = None
+            else:
+                snack_bar = ft.SnackBar(
+                    ft.Text("削除するデータが見つかりませんでした"),
+                    duration=1000,
+                )
+                snack_bar.open = True
+                page.overlay.append(snack_bar)
+        finally:
+            session.close()
+
+        update_history(patient_id.value)
         open_route(e)
 
     def filter_data(e):
@@ -1353,7 +1374,6 @@ def create_ui(page):
                             kana_value,
                             gender_value,
                             birthdate_value,
-                            dark_mode_switch,
                         ]
                     ),
                     ft.Row(
@@ -1685,18 +1705,6 @@ def create_ui(page):
 
     issue_date_row = ft.Row([issue_date_value, issue_date_button])
 
-    # ダークモード切り替えボタンの追加
-    def toggle_dark_mode(e):
-        page.theme_mode = (
-            ft.ThemeMode.DARK
-            if page.theme_mode == ft.ThemeMode.LIGHT
-            else ft.ThemeMode.LIGHT
-        )
-        page.update()
-
-    dark_mode_switch = ft.Switch(label="ダーク/ライト切り替え", on_change=toggle_dark_mode)
-
-    # page画面の設定
     layout = ft.Column([
         ft.Row(
             controls=[]
