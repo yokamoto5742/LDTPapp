@@ -7,8 +7,8 @@ from datetime import datetime
 import csv
 
 import flet as ft
+from flet import View, DatePicker
 import pandas as pd
-from flet import View
 from openpyxl import load_workbook
 from openpyxl.drawing.image import Image
 from sqlalchemy import create_engine, Column, Integer, String, Float, Date, Boolean
@@ -756,6 +756,23 @@ def create_ui(page):
         if issue_date_picker.value:
             issue_date_value.value = issue_date_picker.value.strftime("%Y/%m/%d")
             page.update()
+
+    def on_date_picker_dismiss(e):
+        if issue_date_picker.value:
+            issue_date_value.value = issue_date_picker.value.strftime("%Y/%m/%d")
+        page.overlay.remove(issue_date_picker)
+        page.update()
+
+    issue_date_picker = ft.DatePicker(
+        on_change=on_issue_date_change,
+        on_dismiss=on_date_picker_dismiss
+    )
+
+    def open_date_picker(e):
+        if issue_date_picker not in page.overlay:
+            page.overlay.append(issue_date_picker)
+        issue_date_picker.open = True
+        page.update()
 
     def on_main_diagnosis_change(e):
         selected_main_disease = main_diagnosis.value
@@ -1555,12 +1572,6 @@ def create_ui(page):
     # Patient Information
     patient_id = ft.TextField(label="患者ID", on_change=on_patient_id_change, value=initial_patient_id, width=150)
     issue_date_value = ft.TextField(label="発行日", width=150, read_only=True)
-
-    issue_date_picker = ft.DatePicker(
-        on_change=on_issue_date_change,
-    )
-    page.overlay.append(issue_date_picker)
-
     name_value = ft.TextField(label="氏名", read_only=True, width=150)
     kana_value = ft.TextField(label="カナ", read_only=True, width=150)
     gender_value = ft.TextField(label="性別", read_only=True, width=150)
@@ -1699,7 +1710,7 @@ def create_ui(page):
     issue_date_button = ft.ElevatedButton(
         "日付選択",
         icon=ft.icons.CALENDAR_TODAY,
-        on_click=lambda _: issue_date_picker.pick_date(),
+        on_click=open_date_picker,
         **button_style
     )
 
