@@ -60,6 +60,7 @@ class PatientInfo(Base):
     gender = Column(String)
     birthdate = Column(Date)
     issue_date = Column(Date)
+    issue_date_age = Column(Integer)
     doctor_id = Column(Integer)
     doctor_name = Column(String)
     department = Column(String)
@@ -821,18 +822,29 @@ def create_ui(page):
             department_value.value = ""
         page.update()
 
+    def calculate_issue_date_age(birth_date, issue_date):
+        issue_date_age = issue_date.year - birth_date.year
+        if issue_date.month < birth_date.month or (
+                issue_date.month == birth_date.month and issue_date.day < birth_date.day):
+            issue_date_age -= 1
+        return issue_date_age
+
     def create_treatment_plan_object(p_id, doctor_id, doctor_name, department, department_id, patients_df):
         patient_info_csv = patients_df.loc[patients_df.iloc[:, 2] == p_id]
         if patient_info_csv.empty:
             raise ValueError(f"患者ID {p_id} が見つかりません。")
         patient_info = patient_info_csv.iloc[0]
+        birthdate = patient_info.iloc[6]
+        issue_date = datetime.strptime(issue_date_value.value, "%Y/%m/%d").date()
+        issue_date_age = calculate_issue_date_age(birthdate, issue_date)
         return PatientInfo(
             patient_id=p_id,
             patient_name=patient_info.iloc[3],
             kana=patient_info.iloc[4],
             gender="男性" if patient_info.iloc[5] == 1 else "女性",
-            birthdate=patient_info.iloc[6],
-            issue_date=datetime.strptime(issue_date_value.value, "%Y/%m/%d").date(),
+            birthdate=birthdate,
+            issue_date=issue_date,
+            issue_date_age=issue_date_age,
             doctor_id=doctor_id,
             doctor_name=doctor_name,
             department=department,
@@ -978,6 +990,7 @@ def create_ui(page):
                 patient_info.gender = gender_value.value
                 patient_info.birthdate = datetime.strptime(birthdate_value.value, "%Y/%m/%d").date()
                 patient_info.issue_date = datetime.strptime(issue_date_value.value, "%Y/%m/%d").date()
+                patient_info.issue_date_age = calculate_issue_date_age(patient_info.birthdate, patient_info.issue_date)
                 patient_info.doctor_id = int(doctor_id_value.value)
                 patient_info.doctor_name = doctor_name_value.value
                 patient_info.department = department_value.value
