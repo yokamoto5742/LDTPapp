@@ -7,7 +7,7 @@ from datetime import datetime
 import csv
 
 import flet as ft
-from flet import View, DatePicker
+from flet import View
 import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.drawing.image import Image
@@ -23,7 +23,7 @@ from barcode.writer import ImageWriter
 from io import BytesIO
 
 VERSION = "1.0.7"
-LAST_UPDATED = "2024/09/03"
+LAST_UPDATED = "2024/09/04"
 
 # 実行ファイルかどうかを確認し本番環境（実行形式ファイル）の場合はディレクトリを変更
 if getattr(sys, 'frozen', False):
