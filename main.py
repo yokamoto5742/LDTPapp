@@ -163,8 +163,27 @@ class DropdownItems:
         )
 
 
+def create_blue_outlined_dropdown(dropdown_items, key, label, width):
+    return ft.Dropdown(
+        label=label,
+        width=width,
+        options=dropdown_items.get_options(key),
+        border_color=ft.colors.BLUE,
+        border_width=3,
+        focused_border_color=ft.colors.BLUE,
+        focused_border_width=3,
+        text_style=ft.TextStyle(size=13),
+        color=ft.colors.ON_SURFACE,
+    )
+
+
 def create_form_fields(dropdown_items):
-    target_achievement = dropdown_items.create_dropdown('target_achievement', "目標達成状況(2回目以降)", 300)
+    target_achievement = create_blue_outlined_dropdown(
+        dropdown_items,
+        'target_achievement',
+        "目標達成状況(2回目以降)",
+        300
+    )
     diet1 = dropdown_items.create_dropdown('diet', "食事1", 400)
     diet2 = dropdown_items.create_dropdown('diet', "食事2", 400)
     diet3 = dropdown_items.create_dropdown('diet', "食事3", 400)
