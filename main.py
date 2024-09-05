@@ -91,7 +91,6 @@ class PatientInfo(Base):
     dental = Column(Boolean)
 
 
-
 class MainDisease(Base):
     __tablename__ = "main_diseases"
     id = Column(Integer, primary_key=True)
@@ -136,12 +135,14 @@ class DropdownItems:
         self.items = {
             'target_achievement': ['概ね達成', '概ね70%達成', '概ね50%達成', '未達成', '(空欄)'],
             'diet': ['食事量を適正にする', "塩分量を適正にする", '食物繊維の摂取量を増やす', 'ゆっくり食べる',
-                     '間食を減らす', 'アルコールを控える', '脂肪の多い食品や甘い物を控える', '揚げ物や炒め物などを減らす', '1日3食を規則正しくとる', '今回は指導の必要なし', '(空欄)'],
-            'exercise_prescription': ['ウォーキング', 'ストレッチ体操', '筋力トレーニング', '自転車', '畑仕事', '今回は指導の必要なし', '(空欄)'],
+                     '間食を減らす', 'アルコールを控える', '脂肪の多い食品や甘い物を控える',
+                     '揚げ物や炒め物などを減らす', '1日3食を規則正しくとる', '今回は指導の必要なし', '(空欄)'],
+            'exercise_prescription': ['ウォーキング', 'ストレッチ体操', '筋力トレーニング', '自転車', '畑仕事',
+                                      '今回は指導の必要なし', '(空欄)'],
             'exercise_time': ['10分', '20分', '30分', '60分', '(空欄)'],
-            'exercise_frequency': ['毎日', '週に5日', '週に3日','週に2日', '(空欄)'],
-            'exercise_intensity': ['息が弾む程度', 'ニコニコペース','少し汗をかく程度', '息切れしない程度', '(空欄)'],
-            'daily_activity': ['3000歩', '5000歩', '6000歩', '8000歩', '10000歩','ストレッチ運動を主に行う', '(空欄)'],
+            'exercise_frequency': ['毎日', '週に5日', '週に3日', '週に2日', '(空欄)'],
+            'exercise_intensity': ['息が弾む程度', 'ニコニコペース', '少し汗をかく程度', '息切れしない程度', '(空欄)'],
+            'daily_activity': ['3000歩', '5000歩', '6000歩', '8000歩', '10000歩', 'ストレッチ運動を主に行う', '(空欄)'],
         }
 
     def get_options(self, key):
@@ -614,10 +615,6 @@ def create_ui(page):
 
         def csv_export(e):
             export_to_csv(e)
-            close_dialog(e)
-
-        def csv_import(e):
-            file_picker.pick_files(allow_multiple=False)
             close_dialog(e)
 
         content = ft.Container(
@@ -1564,7 +1561,9 @@ def create_ui(page):
         apply_template()
 
     def open_route(e):
-        for field in [target_weight, target_bp, target_hba1c,  goal1, goal2,target_achievement,diet1, diet2, diet3, diet4,exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,daily_activity, other1, other2, issue_date_value]:
+        for field in [target_weight, target_bp, target_hba1c, goal1, goal2, target_achievement, diet1, diet2, diet3,
+                      diet4, exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
+                      daily_activity, other1, other2, issue_date_value]:
             field.value = ""
 
         main_diagnosis.value = ""
@@ -1636,8 +1635,10 @@ def create_ui(page):
     target_weight = ft.TextField(label="目標体重", width=150, value="", text_size=13)
     target_bp = ft.TextField(label="目標血圧", width=150, text_size=13)
     target_hba1c = ft.TextField(label="目標HbA1c", width=150, text_size=13)
-    goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=700, value="主病名とシート名を選択してください", on_submit=lambda _: target_weight.focus(), text_size=13)
-    goal2 = ft.TextField(label="②行動目標：患者と相談した目標", width=700, on_submit=lambda _: exercise_frequency.focus(), text_size=13)
+    goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=700, value="主病名とシート名を選択してください",
+                         on_submit=lambda _: target_weight.focus(), text_size=13)
+    goal2 = ft.TextField(label="②行動目標：患者と相談した目標", width=700,
+                         on_submit=lambda _: exercise_frequency.focus(), text_size=13)
 
     (exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
      daily_activity, target_achievement, diet1, diet2, diet3, diet4) = create_form_fields(dropdown_items)
@@ -1661,9 +1662,9 @@ def create_ui(page):
 
     guidance_items = ft.Column([
         ft.Row([target_achievement,
-                target_weight,ft.Text("kg", size=13),
-                target_bp,ft.Text("mmHg", size=13),
-                target_hba1c,ft.Text("%", size=13),]),
+                target_weight, ft.Text("kg", size=13),
+                target_bp, ft.Text("mmHg", size=13),
+                target_hba1c, ft.Text("%", size=13), ]),
         ft.Row([diet1, diet2]),
         ft.Row([diet3, diet4]),
         ft.Row([exercise_prescription, exercise_time, exercise_frequency, exercise_intensity]),
@@ -1671,11 +1672,11 @@ def create_ui(page):
         ft.Row([ft.Text("たばこ", size=14), nonsmoker, smoking_cessation,
                 ft.Text("    (チェックボックスを2回選ぶと解除できます)", size=12)]),
         ft.Row([other1, other2]),
-        ft.Row([ft.Text("受診勧奨", size=14), ophthalmology,dental]),
+        ft.Row([ft.Text("受診勧奨", size=14), ophthalmology, dental]),
     ])
 
     guidance_items_template = ft.Column([
-        ft.Row([target_bp,ft.Text("mmHg", size=14),
+        ft.Row([target_bp, ft.Text("mmHg", size=14),
                 target_hba1c, ft.Text("%", size=14), ]),
         ft.Row([diet1, diet2]),
         ft.Row([diet3, diet4]),
