@@ -960,6 +960,8 @@ def create_ui(page):
                 patient_info.main_diagnosis = main_diagnosis.value
                 patient_info.sheet_name = sheet_name_dropdown.value
                 patient_info.creation_count = int(creation_count.value)
+                patient_info.issue_date = datetime.strptime(issue_date_value.value, "%Y/%m/%d").date()
+                patient_info.issue_date_age = calculate_issue_date_age(patient_info.birthdate, patient_info.issue_date)
                 patient_info.target_weight = float(target_weight.value) if target_weight.value else None
                 patient_info.target_bp = target_bp.value
                 patient_info.target_hba1c = target_hba1c.value
