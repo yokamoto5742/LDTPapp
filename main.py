@@ -22,8 +22,8 @@ from barcode.codex import Code128
 from barcode.writer import ImageWriter
 from io import BytesIO
 
-VERSION = "1.0.7"
-LAST_UPDATED = "2024/09/04"
+VERSION = "1.0.9"
+LAST_UPDATED = "2024/09/05"
 
 # 実行ファイルかどうかを確認し本番環境（実行形式ファイル）の場合はディレクトリを変更
 if getattr(sys, 'frozen', False):
