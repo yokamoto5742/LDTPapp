@@ -298,6 +298,7 @@ class TreatmentPlanGenerator:
         common_sheet["B33"] = patient_info.other2
         common_sheet["B34"] = patient_info.ophthalmology
         common_sheet["B35"] = patient_info.dental
+        common_sheet["B36"] = patient_info.issue_date_age
 
 
 class TemplateManager:
@@ -653,6 +654,7 @@ def create_ui(page):
                         gender=row['gender'],
                         birthdate=datetime.strptime(row['birthdate'], '%Y-%m-%d').date(),
                         issue_date=datetime.strptime(row['issue_date'], '%Y-%m-%d').date(),
+                        issue_date_age=int(row['issue_date_age']),
                         doctor_id=int(row['doctor_id']),
                         doctor_name=row['doctor_name'],
                         department=row['department'],
@@ -1055,6 +1057,7 @@ def create_ui(page):
                 gender=patient_info.gender,
                 birthdate=patient_info.birthdate,
                 issue_date=datetime.now().date(),
+                issue_date_age=patient_info.issue_date_age,
                 doctor_id=int(patient_csv_info.iloc[9]),
                 doctor_name=patient_csv_info.iloc[10],
                 department_id=int(patient_csv_info.iloc[13]),
@@ -1542,7 +1545,7 @@ def create_ui(page):
         apply_template()
 
     def open_route(e):
-        for field in [target_weight, target_bp, target_hba1c,  goal1, goal2,target_achievement,diet1, diet2, diet3, diet4,exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,daily_activity, other1, other2]:
+        for field in [target_weight, target_bp, target_hba1c,  goal1, goal2,target_achievement,diet1, diet2, diet3, diet4,exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,daily_activity, other1, other2, issue_date_value]:
             field.value = ""
 
         main_diagnosis.value = ""
