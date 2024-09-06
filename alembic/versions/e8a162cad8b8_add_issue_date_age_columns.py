@@ -1,8 +1,8 @@
 """Add issue_date_age columns
 
-Revision ID: d6dbefb25967
+Revision ID: e8a162cad8b8
 Revises: 
-Create Date: 2024-09-05 14:45:39.759269
+Create Date: 2024-09-06 10:12:34.364518
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'd6dbefb25967'
+revision: str = 'e8a162cad8b8'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
