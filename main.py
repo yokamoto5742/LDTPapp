@@ -1715,8 +1715,7 @@ def create_ui(page):
                 target_hba1c, ft.Text("%", size=13), ]),
         ft.Row([diet1, diet2]),
         ft.Row([diet3, diet4]),
-        ft.Row([exercise_prescription, exercise_time, exercise_frequency, exercise_intensity]),
-        daily_activity,
+        ft.Row([exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,daily_activity]),
         ft.Row([other1, other2]),
     ])
 
