@@ -78,11 +78,13 @@ class PatientInfo(Base):
     diet2 = Column(String)
     diet3 = Column(String)
     diet4 = Column(String)
+    diet_comment = Column(String)
     exercise_prescription = Column(String)
     exercise_time = Column(String)
     exercise_frequency = Column(String)
     exercise_intensity = Column(String)
     daily_activity = Column(String)
+    exercise_comment = Column(String)
     nonsmoker = Column(Boolean)
     smoking_cessation = Column(Boolean)
     other1 = Column(String)
@@ -319,6 +321,8 @@ class TreatmentPlanGenerator:
         common_sheet["B34"] = patient_info.ophthalmology
         common_sheet["B35"] = patient_info.dental
         common_sheet["B36"] = patient_info.issue_date_age
+        common_sheet["B37"] = patient_info.diet_comment
+        common_sheet["B38"] = patient_info.exercise_comment
 
 
 class TemplateManager:
@@ -688,11 +692,13 @@ def create_ui(page):
                         diet2=row['diet2'],
                         diet3=row['diet3'],
                         diet4=row['diet4'],
+                        diet_comment=row['diet_comment'],
                         exercise_prescription=row['exercise_prescription'],
                         exercise_time=row['exercise_time'],
                         exercise_frequency=row['exercise_frequency'],
                         exercise_intensity=row['exercise_intensity'],
                         daily_activity=row['daily_activity'],
+                        exercise_comment=row['exercise_comment'],
                         nonsmoker=row['nonsmoker'] == 'True',
                         smoking_cessation=row['smoking_cessation'] == 'True',
                         other1=row['other1'],
@@ -880,11 +886,13 @@ def create_ui(page):
             diet2=diet2.value,
             diet3=diet3.value,
             diet4=diet4.value,
+            diet_comment=diet_comment.value,
             exercise_prescription=exercise_prescription.value,
             exercise_time=exercise_time.value,
             exercise_frequency=exercise_frequency.value,
             exercise_intensity=exercise_intensity.value,
             daily_activity=daily_activity.value,
+            exercise_comment=exercise_comment.value,
             nonsmoker=nonsmoker.value,
             smoking_cessation=smoking_cessation.value,
             other1=other1.value,
@@ -972,11 +980,13 @@ def create_ui(page):
                 patient_info.diet2 = diet2.value
                 patient_info.diet3 = diet3.value
                 patient_info.diet4 = diet4.value
+                patient_info.diet_comment = diet_comment.value
                 patient_info.exercise_prescription = exercise_prescription.value
                 patient_info.exercise_time = exercise_time.value
                 patient_info.exercise_frequency = exercise_frequency.value
                 patient_info.exercise_intensity = exercise_intensity.value
                 patient_info.daily_activity = daily_activity.value
+                patient_info.exercise_comment = exercise_comment.value
                 patient_info.nonsmoker = nonsmoker.value
                 patient_info.smoking_cessation = smoking_cessation.value
                 patient_info.other1 = other1.value
@@ -1028,11 +1038,13 @@ def create_ui(page):
                 patient_info.diet2 = diet2.value
                 patient_info.diet3 = diet3.value
                 patient_info.diet4 = diet4.value
+                patient_info.diet_comment = diet_comment.value
                 patient_info.exercise_prescription = exercise_prescription.value
                 patient_info.exercise_time = exercise_time.value
                 patient_info.exercise_frequency = exercise_frequency.value
                 patient_info.exercise_intensity = exercise_intensity.value
                 patient_info.daily_activity = daily_activity.value
+                patient_info.exercise_comment = exercise_comment.value
                 patient_info.nonsmoker = nonsmoker.value
                 patient_info.smoking_cessation = smoking_cessation.value
                 patient_info.other1 = other1.value
@@ -1093,11 +1105,13 @@ def create_ui(page):
                 diet2=patient_info.diet2,
                 diet3=patient_info.diet3,
                 diet4=patient_info.diet4,
+                diet_comment=patient_info.diet_comment,
                 exercise_prescription=patient_info.exercise_prescription,
                 exercise_time=patient_info.exercise_time,
                 exercise_frequency=patient_info.exercise_frequency,
                 exercise_intensity=patient_info.exercise_intensity,
                 daily_activity=patient_info.daily_activity,
+                exercise_comment=patient_info.exercise_comment,
                 nonsmoker=patient_info.nonsmoker,
                 smoking_cessation=patient_info.smoking_cessation,
                 other1=patient_info.other1,
@@ -1166,11 +1180,13 @@ def create_ui(page):
         diet2.value = patient_info.diet2
         diet3.value = patient_info.diet3
         diet4.value = patient_info.diet4
+        diet_comment.value = patient_info.diet_comment
         exercise_prescription.value = patient_info.exercise_prescription
         exercise_time.value = patient_info.exercise_time
         exercise_frequency.value = patient_info.exercise_frequency
         exercise_intensity.value = patient_info.exercise_intensity
         daily_activity.value = patient_info.daily_activity
+        exercise_comment.value = patient_info.exercise_comment
         nonsmoker.value = patient_info.nonsmoker
         smoking_cessation.value = patient_info.smoking_cessation
         other1.value = patient_info.other1
@@ -1260,11 +1276,13 @@ def create_ui(page):
                 diet2.value = patient_info.diet2
                 diet3.value = patient_info.diet3
                 diet4.value = patient_info.diet4
+                diet_comment.value = patient_info.diet_comment
                 exercise_prescription.value = patient_info.exercise_prescription
                 exercise_time.value = patient_info.exercise_time
                 exercise_frequency.value = patient_info.exercise_frequency
                 exercise_intensity.value = patient_info.exercise_intensity
                 daily_activity.value = patient_info.daily_activity
+                exercise_comment.value = patient_info.exercise_comment
                 nonsmoker.value = patient_info.nonsmoker
                 smoking_cessation.value = patient_info.smoking_cessation
                 other1.value = patient_info.other1
@@ -1564,8 +1582,8 @@ def create_ui(page):
 
     def open_route(e):
         for field in [target_weight, target_bp, target_hba1c, goal1, goal2, target_achievement, diet1, diet2, diet3,
-                      diet4, exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
-                      daily_activity, other1, other2, issue_date_value]:
+                      diet4, diet_comment,  exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
+                      daily_activity, exercise_comment, other1, other2, issue_date_value]:
             field.value = ""
 
         main_diagnosis.value = ""
@@ -1645,6 +1663,11 @@ def create_ui(page):
     (exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
      daily_activity, target_achievement, diet1, diet2, diet3, diet4) = create_form_fields(dropdown_items)
 
+    diet_comment = ft.TextField(label="食事フリーコメント", width=700,
+                                on_submit=lambda _: exercise_comment.focus(), text_size=13)
+    exercise_comment = ft.TextField(label="運動フリーコメント", width=700,
+                                    on_submit=lambda _: other1.focus(), text_size=13)
+
     def on_tobacco_checkbox_change(e):
         if e.control == nonsmoker and nonsmoker.value:
             smoking_cessation.value = False
@@ -1669,17 +1692,19 @@ def create_ui(page):
                 target_hba1c, ft.Text("%", size=13), ]),
         ft.Row([diet1, diet2]),
         ft.Row([diet3, diet4]),
+        ft.Row([diet_comment]),
         ft.Row([exercise_prescription, exercise_time, exercise_frequency, exercise_intensity]),
         daily_activity,
-        ft.Row([ft.Text("たばこ", size=14), nonsmoker, smoking_cessation,
+        ft.Row([exercise_comment]),
+        ft.Row([ft.Text("たばこ", size=13), nonsmoker, smoking_cessation,
                 ft.Text("    (チェックボックスを2回選ぶと解除できます)", size=12)]),
         ft.Row([other1, other2]),
-        ft.Row([ft.Text("受診勧奨", size=14), ophthalmology, dental]),
+        ft.Row([ft.Text("受診勧奨", size=13), ophthalmology, dental]),
     ])
 
     guidance_items_template = ft.Column([
-        ft.Row([target_bp, ft.Text("mmHg", size=14),
-                target_hba1c, ft.Text("%", size=14), ]),
+        ft.Row([target_bp, ft.Text("mmHg", size=13),
+                target_hba1c, ft.Text("%", size=13), ]),
         ft.Row([diet1, diet2]),
         ft.Row([diet3, diet4]),
         ft.Row([exercise_prescription, exercise_time, exercise_frequency, exercise_intensity]),
