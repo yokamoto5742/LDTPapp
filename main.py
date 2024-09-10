@@ -33,6 +33,8 @@ if getattr(sys, 'frozen', False):
 # config.iniファイルの読み込み
 config = configparser.ConfigParser()
 config.read('config.ini', encoding='utf-8')
+input_height = config.getint('UI', 'input_height', fallback=50)
+text_height = config.getint('UI', 'text_height', fallback=40)
 db_url = config.get('Database', 'db_url')
 barcode_config = config['Barcode']
 table_width = config.getint('DataTable', 'width')
@@ -191,11 +193,15 @@ def create_form_fields(dropdown_items):
     diet2 = dropdown_items.create_dropdown('diet', "食事2", 400)
     diet3 = dropdown_items.create_dropdown('diet', "食事3", 400)
     diet4 = dropdown_items.create_dropdown('diet', "食事4", 400)
-    exercise_prescription = dropdown_items.create_dropdown('exercise_prescription', "運動処方", 300)
+    exercise_prescription = dropdown_items.create_dropdown('exercise_prescription', "運動処方", 200)
     exercise_time = dropdown_items.create_dropdown('exercise_time', "時間", 200)
     exercise_frequency = dropdown_items.create_dropdown('exercise_frequency', "頻度", 200)
     exercise_intensity = dropdown_items.create_dropdown('exercise_intensity', "強度", 200)
-    daily_activity = dropdown_items.create_dropdown('daily_activity', "日常生活の活動量増加", 300)
+    daily_activity = dropdown_items.create_dropdown('daily_activity', "日常生活の活動量", 200)
+
+    for dropdown in [target_achievement, diet1, diet2, diet3, diet4, exercise_prescription,
+                     exercise_time, exercise_frequency, exercise_intensity, daily_activity]:
+        dropdown.height = input_height
 
     def create_focus_handler(next_field):
         return lambda _: next_field.focus()
@@ -1624,16 +1630,17 @@ def create_ui(page):
         page.window.close()
 
     # Patient Information
-    patient_id = ft.TextField(label="患者ID", on_change=on_patient_id_change, value=initial_patient_id, width=150)
-    issue_date_value = ft.TextField(label="発行日", width=150, read_only=True)
-    name_value = ft.TextField(label="氏名", read_only=True, width=150)
-    kana_value = ft.TextField(label="カナ", read_only=True, width=150)
-    gender_value = ft.TextField(label="性別", read_only=True, width=150)
-    birthdate_value = ft.TextField(label="生年月日", read_only=True, width=150)
-    doctor_id_value = ft.TextField(label="医師ID", read_only=True, width=150)
-    doctor_name_value = ft.TextField(label="医師名", read_only=True, width=150)
-    department_id_value = ft.TextField(label="診療科ID", read_only=True, width=150)
-    department_value = ft.TextField(label="診療科", read_only=True, width=150)
+    patient_id = ft.TextField(label="患者ID", on_change=on_patient_id_change, value=initial_patient_id, width=150,
+                              height=input_height)
+    issue_date_value = ft.TextField(label="発行日", width=150, read_only=True, height=input_height)
+    name_value = ft.TextField(label="氏名", read_only=True, width=150, height=input_height)
+    kana_value = ft.TextField(label="カナ", read_only=True, width=150, height=input_height)
+    gender_value = ft.TextField(label="性別", read_only=True, width=150, height=input_height)
+    birthdate_value = ft.TextField(label="生年月日", read_only=True, width=150, height=input_height)
+    doctor_id_value = ft.TextField(label="医師ID", read_only=True, width=150, height=input_height)
+    doctor_name_value = ft.TextField(label="医師名", read_only=True, width=150, height=input_height)
+    department_id_value = ft.TextField(label="診療科ID", read_only=True, width=150, height=input_height)
+    department_value = ft.TextField(label="診療科", read_only=True, width=150, height=input_height)
     main_disease_options = load_main_diseases()
     main_diagnosis = ft.Dropdown(
         label="主病名",
@@ -1641,32 +1648,34 @@ def create_ui(page):
         width=200, text_size=13, value="",
         on_change=on_main_diagnosis_change,
         autofocus=True,
+        height=input_height
     )
     sheet_name_options = load_sheet_names(main_diagnosis.value)
     sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=300, text_size=13, value="",
-                                      on_change=on_sheet_name_change)
+                                      on_change=on_sheet_name_change, height=input_height)
     creation_count = ft.TextField(
         label="作成回数",
         width=100,
         value="1",
         on_submit=lambda _: goal1.focus(),
         text_size=13,
+        height=input_height
     )
-    target_weight = ft.TextField(label="目標体重", width=150, value="", text_size=13)
-    target_bp = ft.TextField(label="目標血圧", width=150, text_size=13)
-    target_hba1c = ft.TextField(label="目標HbA1c", width=150, text_size=13)
-    goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=700, value="主病名とシート名を選択してください",
-                         on_submit=lambda _: target_weight.focus(), text_size=13)
-    goal2 = ft.TextField(label="②行動目標：患者と相談した目標", width=700,
-                         on_submit=lambda _: exercise_frequency.focus(), text_size=13)
+    target_weight = ft.TextField(label="目標体重", width=150, value="", text_size=13, height=input_height)
+    target_bp = ft.TextField(label="目標血圧", width=150, text_size=13, height=input_height)
+    target_hba1c = ft.TextField(label="目標HbA1c", width=150, text_size=13, height=input_height)
+    goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=800, value="主病名とシート名を選択してください",
+                         on_submit=lambda _: target_weight.focus(), text_size=13, height=text_height)
+    goal2 = ft.TextField(label="②行動目標：患者と相談した目標", width=800,
+                         on_submit=lambda _: exercise_frequency.focus(), text_size=13, height=text_height)
 
     (exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,
      daily_activity, target_achievement, diet1, diet2, diet3, diet4) = create_form_fields(dropdown_items)
 
-    diet_comment = ft.TextField(label="食事フリーコメント", width=700,
-                                on_submit=lambda _: exercise_comment.focus(), text_size=13)
-    exercise_comment = ft.TextField(label="運動フリーコメント", width=700,
-                                    on_submit=lambda _: other1.focus(), text_size=13)
+    diet_comment = ft.TextField(label="食事フリーコメント", width=800,
+                                on_submit=lambda _: exercise_comment.focus(), text_size=13, height=text_height)
+    exercise_comment = ft.TextField(label="運動フリーコメント", width=800,
+                                    on_submit=lambda _: other1.focus(), text_size=13, height=text_height)
 
     def on_tobacco_checkbox_change(e):
         if e.control == nonsmoker and nonsmoker.value:
@@ -1676,14 +1685,14 @@ def create_ui(page):
             nonsmoker.value = False
             nonsmoker.update()
 
-    nonsmoker = ft.Checkbox(label="非喫煙者である", on_change=on_tobacco_checkbox_change)
-    smoking_cessation = ft.Checkbox(label="禁煙の実施方法等を指示", on_change=on_tobacco_checkbox_change)
-
-    other1 = ft.TextField(label="その他1", value="", width=400, on_submit=lambda _: other2.focus(), text_size=13)
-    other2 = ft.TextField(label="その他2", value="", width=400, text_size=13)
-
-    ophthalmology = ft.Checkbox(label="眼科")
-    dental = ft.Checkbox(label="歯科")
+    nonsmoker = ft.Checkbox(label="非喫煙者である", on_change=on_tobacco_checkbox_change, height=text_height)
+    smoking_cessation = ft.Checkbox(label="禁煙の実施方法等を指示", on_change=on_tobacco_checkbox_change,
+                                    height=text_height)
+    other1 = ft.TextField(label="その他1", value="", width=400, on_submit=lambda _: other2.focus(), text_size=13,
+                          height=text_height)
+    other2 = ft.TextField(label="その他2", value="", width=400, text_size=13, height=text_height)
+    ophthalmology = ft.Checkbox(label="眼科", height=text_height)
+    dental = ft.Checkbox(label="歯科", height=text_height)
 
     guidance_items = ft.Column([
         ft.Row([target_achievement,
@@ -1693,13 +1702,12 @@ def create_ui(page):
         ft.Row([diet1, diet2]),
         ft.Row([diet3, diet4]),
         ft.Row([diet_comment]),
-        ft.Row([exercise_prescription, exercise_time, exercise_frequency, exercise_intensity]),
-        daily_activity,
+        ft.Row([exercise_prescription, exercise_time, exercise_frequency, exercise_intensity,daily_activity,]),
         ft.Row([exercise_comment]),
-        ft.Row([ft.Text("たばこ", size=13), nonsmoker, smoking_cessation,
+        ft.Row([ft.Text("たばこ", size=14), nonsmoker, smoking_cessation,
                 ft.Text("    (チェックボックスを2回選ぶと解除できます)", size=12)]),
         ft.Row([other1, other2]),
-        ft.Row([ft.Text("受診勧奨", size=13), ophthalmology, dental]),
+        ft.Row([ft.Text("受診勧奨", size=14), ophthalmology, dental]),
     ])
 
     guidance_items_template = ft.Column([
