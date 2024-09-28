@@ -93,6 +93,7 @@ class PatientInfo(Base):
     other2 = Column(String)
     ophthalmology = Column(Boolean)
     dental = Column(Boolean)
+    cancer_screening = Column(Boolean)
 
 
 class MainDisease(Base):
@@ -326,9 +327,10 @@ class TreatmentPlanGenerator:
         common_sheet["B33"] = patient_info.other2
         common_sheet["B34"] = patient_info.ophthalmology
         common_sheet["B35"] = patient_info.dental
-        common_sheet["B36"] = patient_info.issue_date_age
-        common_sheet["B37"] = patient_info.diet_comment
-        common_sheet["B38"] = patient_info.exercise_comment
+        common_sheet["B36"] = patient_info.cancer_screening
+        common_sheet["B37"] = patient_info.issue_date_age
+        common_sheet["B38"] = patient_info.diet_comment
+        common_sheet["B39"] = patient_info.exercise_comment
 
 
 class TemplateManager:
@@ -711,6 +713,7 @@ def create_ui(page):
                         other2=row['other2'],
                         ophthalmology=row['ophthalmology'] == 'True',
                         dental=row['dental'] == 'True',
+                        cancer_screening=row['cancer_screening'] == 'True'
                     )
                     session.add(patient_info)
                 session.commit()
@@ -905,6 +908,7 @@ def create_ui(page):
             other2=other2.value,
             ophthalmology=ophthalmology.value,
             dental=dental.value,
+            cancer_screening=cancer_screening.value
         )
 
     def create_treatment_plan(p_id, doctor_id, doctor_name, department, department_id, patients_df):
@@ -999,6 +1003,7 @@ def create_ui(page):
                 patient_info.other2 = other2.value
                 patient_info.ophthalmology = ophthalmology.value
                 patient_info.dental = dental.value
+                patient_info.cancer_screening = cancer_screening.value
                 session.commit()
 
                 # 更新後のデータを使用して印刷
@@ -1057,6 +1062,7 @@ def create_ui(page):
                 patient_info.other2 = other2.value
                 patient_info.ophthalmology = ophthalmology.value
                 patient_info.dental = dental.value
+                patient_info.cancer_screening = cancer_screening.value
                 session.commit()
 
                 snack_bar = ft.SnackBar(ft.Text("データが保存されました"), duration=1000)
@@ -1124,6 +1130,7 @@ def create_ui(page):
                 other2=patient_info.other2,
                 ophthalmology=patient_info.ophthalmology,
                 dental=patient_info.dental,
+                cancer_screening=patient_info.cancer_screening
             )
             session.add(patient_info_copy)
             session.commit()
@@ -1199,6 +1206,7 @@ def create_ui(page):
         other2.value = patient_info.other2
         ophthalmology.value = patient_info.ophthalmology
         dental.value = patient_info.dental
+        cancer_screening.value = patient_info.cancer_screening
         page.update()
 
     def delete_data(e):
@@ -1295,6 +1303,7 @@ def create_ui(page):
                 other2.value = patient_info.other2
                 ophthalmology.value = patient_info.ophthalmology
                 dental.value = patient_info.dental
+                cancer_screening.value = patient_info.cancer_screening
             session.close()
             page.update()
 
@@ -1599,6 +1608,7 @@ def create_ui(page):
         smoking_cessation.value = False
         ophthalmology.value = False
         dental.value = False
+        cancer_screening.value = False
 
         # 発行日を現在の日付で初期化
         current_date = datetime.now().date()
@@ -1693,6 +1703,7 @@ def create_ui(page):
     other2 = ft.TextField(label="その他2", value="", width=400, text_size=13, height=text_height)
     ophthalmology = ft.Checkbox(label="眼科", height=text_height)
     dental = ft.Checkbox(label="歯科", height=text_height)
+    cancer_screening = ft.Checkbox(label="がん検診", height=text_height)
 
     guidance_items = ft.Column([
         ft.Row([target_achievement,
@@ -1707,7 +1718,7 @@ def create_ui(page):
         ft.Row([ft.Text("たばこ", size=14), nonsmoker, smoking_cessation,
                 ft.Text("    (チェックボックスを2回選ぶと解除できます)", size=12)]),
         ft.Row([other1, other2]),
-        ft.Row([ft.Text("受診勧奨", size=14), ophthalmology, dental]),
+        ft.Row([ft.Text("受診勧奨", size=14), ophthalmology, dental, cancer_screening]),
     ])
 
     guidance_items_template = ft.Column([
