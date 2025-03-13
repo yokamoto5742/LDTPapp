@@ -31,7 +31,18 @@ if getattr(sys, 'frozen', False):
 
 # config.iniファイルの読み込み
 config = configparser.ConfigParser()
-config.read('config.ini', encoding='utf-8')
+if getattr(sys, 'frozen', False):
+    # 実行ファイルの場合のパス
+    config_path = os.path.join(os.path.dirname(sys.executable), 'config.ini')
+    if not os.path.exists(config_path):
+        # 実行ファイル内部のリソースパス
+        config_path = os.path.join(sys._MEIPASS, 'config.ini')
+else:
+    # 通常のPython実行時のパス
+    config_path = 'config.ini'
+
+config.read(config_path, encoding='utf-8')
+
 input_height = config.getint('UI', 'input_height', fallback=50)
 text_height = config.getint('UI', 'text_height', fallback=40)
 db_url = config.get('Database', 'db_url')

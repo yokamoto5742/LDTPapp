@@ -66,7 +66,7 @@ def build_executable():
         "--name=LDTPapp",
         "--windowed",
         "--icon=assets/LDPTapp_icon.ico",
-        "--add-data", "config.ini:.",
+        "--add-data", "config.ini;.",
     ]
 
     # DLLファイルを個別に追加
