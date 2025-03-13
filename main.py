@@ -4,6 +4,7 @@ import os
 import re
 import sys
 import threading
+import time
 from datetime import datetime
 from io import BytesIO
 
@@ -299,6 +300,7 @@ class TreatmentPlanGenerator:
         wb.active = ws_plan
 
         wb.save(file_path)
+        time.sleep(0.5)  # 0.5秒待機
         os.startfile(file_path)
 
     @staticmethod
