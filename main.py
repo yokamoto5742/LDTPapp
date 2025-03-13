@@ -376,9 +376,7 @@ def check_file_exists(page):
 def load_patient_data():
     global csv_file_path
     try:
-        config_csv = configparser.ConfigParser()
-        config_csv.read('config.ini')
-        csv_file_path = config_csv.get('FilePaths', 'patient_data')
+        csv_file_path = config.get('FilePaths', 'patient_data')
 
         date_columns = [0, 6]  # 0列目と6列目を日付として読み込む
         nrows = 3  # csvファイルで先頭3行のみ読み込む
