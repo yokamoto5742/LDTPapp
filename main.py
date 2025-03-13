@@ -1,4 +1,4 @@
-import contextlib
+from contextlib import contextmanager
 import csv
 import os
 import re
@@ -162,9 +162,9 @@ class DropdownItems:
             options=self.get_options(key),
             on_change=on_change,
             text_style=ft.TextStyle(size=13),
-            border_color=ft.colors.ON_SURFACE_VARIANT,
-            focused_border_color=ft.colors.PRIMARY,
-            color=ft.colors.ON_SURFACE,
+            border_color=ft.Colors.ON_SURFACE_VARIANT,
+            focused_border_color=ft.Colors.PRIMARY,
+            color=ft.Colors.ON_SURFACE,
         )
 
 
@@ -173,12 +173,12 @@ def create_blue_outlined_dropdown(dropdown_items, key, label, width):
         label=label,
         width=width,
         options=dropdown_items.get_options(key),
-        border_color=ft.colors.BLUE,
+        border_color=ft.Colors.BLUE,
         border_width=3,
-        focused_border_color=ft.colors.BLUE,
+        focused_border_color=ft.Colors.BLUE,
         focused_border_width=3,
         text_style=ft.TextStyle(size=13),
-        color=ft.colors.ON_SURFACE,
+        color=ft.Colors.ON_SURFACE,
     )
 
 
@@ -419,14 +419,14 @@ def create_theme_aware_button_style(page: ft.Page):
     return {
         "style": ft.ButtonStyle(
             color={
-                ft.MaterialState.HOVERED: ft.colors.ON_PRIMARY,
-                ft.MaterialState.FOCUSED: ft.colors.ON_PRIMARY,
-                ft.MaterialState.DEFAULT: ft.colors.ON_PRIMARY,
+                "hovered": ft.Colors.ON_PRIMARY,
+                "focused": ft.Colors.ON_PRIMARY,
+                "": ft.Colors.ON_PRIMARY,
             },
             bgcolor={
-                ft.MaterialState.HOVERED: ft.colors.PRIMARY_CONTAINER,
-                ft.MaterialState.FOCUSED: ft.colors.PRIMARY_CONTAINER,
-                ft.MaterialState.DEFAULT: ft.colors.PRIMARY,
+                "hovered": ft.Colors.PRIMARY_CONTAINER,
+                "focused": ft.Colors.PRIMARY_CONTAINER,
+                "": ft.Colors.PRIMARY,
             },
             padding=10,
         ),
@@ -447,8 +447,8 @@ def create_ui(page):
     )
 
     # テーマの設定
-    page.theme = ft.Theme(color_scheme_seed=ft.colors.BLUE)
-    page.dark_theme = ft.Theme(color_scheme_seed=ft.colors.BLUE)
+    page.theme = ft.Theme(color_scheme_seed=ft.Colors.BLUE)
+    page.dark_theme = ft.Theme(color_scheme_seed=ft.Colors.BLUE)
 
     dropdown_items = DropdownItems()
     threading.Thread(target=initialize_database).start()
@@ -1496,7 +1496,7 @@ def create_ui(page):
                             controls=[
                                 ft.Container(
                                     content=ft.Text("新規作成", size=16, weight=ft.FontWeight.BOLD),
-                                    border=ft.border.all(3, ft.colors.BLUE),
+                                    border=ft.border.all(3, ft.Colors.BLUE),
                                     padding=5,
                                     border_radius=5,
                                 ),
@@ -1525,7 +1525,7 @@ def create_ui(page):
                             controls=[
                                 ft.Container(
                                     content=ft.Text("編集", size=16, weight=ft.FontWeight.BOLD),
-                                    border=ft.border.all(3, ft.colors.BLUE),
+                                    border=ft.border.all(3, ft.Colors.BLUE),
                                     padding=5,
                                     border_radius=5,
                                 ),
@@ -1558,7 +1558,7 @@ def create_ui(page):
                             controls=[
                                 ft.Container(
                                     content=ft.Text("テンプレート", size=16, weight=ft.FontWeight.BOLD),
-                                    border=ft.border.all(3, ft.colors.BLUE),
+                                    border=ft.border.all(3, ft.Colors.BLUE),
                                     padding=5,
                                     border_radius=5,
                                 ),
@@ -1640,16 +1640,16 @@ def create_ui(page):
 
     # Patient Information
     patient_id = ft.TextField(label="患者ID", on_change=on_patient_id_change, value=initial_patient_id, width=150,
-                              height=input_height)
-    issue_date_value = ft.TextField(label="発行日", width=150, read_only=True, height=input_height)
-    name_value = ft.TextField(label="氏名", read_only=True, width=150, height=input_height)
-    kana_value = ft.TextField(label="カナ", read_only=True, width=150, height=input_height)
-    gender_value = ft.TextField(label="性別", read_only=True, width=150, height=input_height)
-    birthdate_value = ft.TextField(label="生年月日", read_only=True, width=150, height=input_height)
-    doctor_id_value = ft.TextField(label="医師ID", read_only=True, width=150, height=input_height)
-    doctor_name_value = ft.TextField(label="医師名", read_only=True, width=150, height=input_height)
-    department_id_value = ft.TextField(label="診療科ID", read_only=True, width=150, height=input_height)
-    department_value = ft.TextField(label="診療科", read_only=True, width=150, height=input_height)
+                              )
+    issue_date_value = ft.TextField(label="発行日", width=150, read_only=True, )
+    name_value = ft.TextField(label="氏名", read_only=True, width=150, )
+    kana_value = ft.TextField(label="カナ", read_only=True, width=150, )
+    gender_value = ft.TextField(label="性別", read_only=True, width=150, )
+    birthdate_value = ft.TextField(label="生年月日", read_only=True, width=150, )
+    doctor_id_value = ft.TextField(label="医師ID", read_only=True, width=150, )
+    doctor_name_value = ft.TextField(label="医師名", read_only=True, width=150, )
+    department_id_value = ft.TextField(label="診療科ID", read_only=True, width=150, )
+    department_value = ft.TextField(label="診療科", read_only=True, width=150, )
     main_disease_options = load_main_diseases()
     main_diagnosis = ft.Dropdown(
         label="主病名",
@@ -1657,22 +1657,22 @@ def create_ui(page):
         width=200, text_size=13, value="",
         on_change=on_main_diagnosis_change,
         autofocus=True,
-        height=input_height
+        
     )
     sheet_name_options = load_sheet_names(main_diagnosis.value)
     sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=300, text_size=13, value="",
-                                      on_change=on_sheet_name_change, height=input_height)
+                                      on_change=on_sheet_name_change, )
     creation_count = ft.TextField(
         label="作成回数",
         width=100,
         value="1",
         on_submit=lambda _: goal1.focus(),
         text_size=13,
-        height=input_height
+        
     )
-    target_weight = ft.TextField(label="目標体重", width=150, value="", text_size=13, height=input_height)
-    target_bp = ft.TextField(label="目標血圧", width=150, text_size=13, height=input_height)
-    target_hba1c = ft.TextField(label="目標HbA1c", width=150, text_size=13, height=input_height)
+    target_weight = ft.TextField(label="目標体重", width=150, value="", text_size=13, )
+    target_bp = ft.TextField(label="目標血圧", width=150, text_size=13, )
+    target_hba1c = ft.TextField(label="目標HbA1c", width=150, text_size=13, )
     goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=800, value="主病名とシート名を選択してください",
                          on_submit=lambda _: target_weight.focus(), text_size=13, height=text_height)
     goal2 = ft.TextField(label="②行動目標：患者と相談した目標", width=800,
@@ -1751,7 +1751,7 @@ def create_ui(page):
         content=history_column,
         width=1200,
         height=400,
-        border=ft.border.all(1, ft.colors.BLACK),
+        border=ft.border.all(1, ft.Colors.BLACK),
         border_radius=5,
         padding=10,
     )
