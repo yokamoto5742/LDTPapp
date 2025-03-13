@@ -1,29 +1,28 @@
-import os
-import sys
-import re
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
-from datetime import datetime
+import contextlib
 import csv
+import os
+import re
+import sys
+import threading
+from datetime import datetime
+from io import BytesIO
 
+import configparser
 import flet as ft
-from flet import View
 import pandas as pd
+from barcode.codex import Code128
+from barcode.writer import ImageWriter
+from flet import View
 from openpyxl import load_workbook
 from openpyxl.drawing.image import Image
 from sqlalchemy import create_engine, Column, Integer, String, Float, Date, Boolean
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
-import configparser
-from contextlib import contextmanager
-import threading
+from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
 
-from barcode.codex import Code128
-from barcode.writer import ImageWriter
-from io import BytesIO
+from version import VERSION, LAST_UPDATED
 
-VERSION = "1.1.4"
-LAST_UPDATED = "2024/09/28"
 
 # 実行ファイルかどうかを確認し本番環境（実行形式ファイル）の場合はディレクトリを変更
 if getattr(sys, 'frozen', False):
