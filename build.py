@@ -5,7 +5,6 @@ from version_manager import update_version, update_version_py
 
 
 def build_executable():
-    # バージョンを更新
     new_version = update_version()
     update_version_py(new_version)
 
