@@ -1789,7 +1789,7 @@ def create_ui(page):
     manual_button = ft.ElevatedButton("操作マニュアル", on_click=open_manual_pdf, **button_style)
     issue_date_button = ft.ElevatedButton(
         "日付選択",
-        icon=ft.icons.CALENDAR_TODAY,
+        icon=ft.Icons.CALENDAR_TODAY,
         on_click=open_date_picker,
         **button_style
     )
