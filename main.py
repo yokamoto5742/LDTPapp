@@ -25,6 +25,11 @@ from watchdog.observers import Observer
 from version import VERSION, LAST_UPDATED
 
 
+# オフラインモードを有効化
+os.environ["FLET_OFFLINE"] = "1"
+# 追加の安定性向上のための設定
+os.environ["FLET_FORCE_WEB_VIEW"] = "true"
+
 # 実行ファイルかどうかを確認し本番環境（実行形式ファイル）の場合はディレクトリを変更
 if getattr(sys, 'frozen', False):
     app_directory = r"C:\Shinseikai\LDTPapp"
@@ -1835,4 +1840,11 @@ def main(page: ft.Page):
 
 
 if __name__ == "__main__":
-    ft.app(target=main)
+    ft.app(
+        target=main,
+        view=ft.AppView.FLET_APP,
+        assets_dir="assets",
+        use_color_emoji=False,
+        port=0,
+        host="127.0.0.1",
+    )
