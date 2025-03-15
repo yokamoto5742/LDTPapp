@@ -1,28 +1,26 @@
-from contextlib import contextmanager
-import csv
 import os
-import re
 import sys
-import threading
-import time
+import re
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 from datetime import datetime
-from io import BytesIO
+import csv
 
-import configparser
 import flet as ft
-import pandas as pd
-from barcode.codex import Code128
-from barcode.writer import ImageWriter
 from flet import View
+import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.drawing.image import Image
 from sqlalchemy import create_engine, Column, Integer, String, Float, Date, Boolean
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
-from watchdog.events import FileSystemEventHandler
-from watchdog.observers import Observer
+import configparser
+from contextlib import contextmanager
+import threading
 
-from version import VERSION, LAST_UPDATED
+from barcode.codex import Code128
+from barcode.writer import ImageWriter
+from io import BytesIO
 
 
 # 実行ファイルかどうかを確認し本番環境（実行形式ファイル）の場合はディレクトリを変更
@@ -32,18 +30,7 @@ if getattr(sys, 'frozen', False):
 
 # config.iniファイルの読み込み
 config = configparser.ConfigParser()
-if getattr(sys, 'frozen', False):
-    # 実行ファイルの場合のパス
-    config_path = os.path.join(os.path.dirname(sys.executable), 'config.ini')
-    if not os.path.exists(config_path):
-        # 実行ファイル内部のリソースパス
-        config_path = os.path.join(sys._MEIPASS, 'config.ini')
-else:
-    # 通常のPython実行時のパス
-    config_path = 'config.ini'
-
-config.read(config_path, encoding='utf-8')
-
+config.read('config.ini', encoding='utf-8')
 input_height = config.getint('UI', 'input_height', fallback=50)
 text_height = config.getint('UI', 'text_height', fallback=40)
 db_url = config.get('Database', 'db_url')
@@ -300,7 +287,6 @@ class TreatmentPlanGenerator:
         wb.active = ws_plan
 
         wb.save(file_path)
-        time.sleep(0.5)  # 0.5秒待機
         os.startfile(file_path)
 
     @staticmethod
@@ -378,7 +364,9 @@ def check_file_exists(page):
 def load_patient_data():
     global csv_file_path
     try:
-        csv_file_path = config.get('FilePaths', 'patient_data')
+        config_csv = configparser.ConfigParser()
+        config_csv.read('config.ini')
+        csv_file_path = config_csv.get('FilePaths', 'patient_data')
 
         date_columns = [0, 6]  # 0列目と6列目を日付として読み込む
         nrows = 3  # csvファイルで先頭3行のみ読み込む
@@ -430,14 +418,14 @@ def create_theme_aware_button_style(page: ft.Page):
     return {
         "style": ft.ButtonStyle(
             color={
-                "hovered": ft.colors.ON_PRIMARY,
-                "focused": ft.colors.ON_PRIMARY,
-                "": ft.colors.ON_PRIMARY,
+                ft.MaterialState.HOVERED: ft.colors.ON_PRIMARY,
+                ft.MaterialState.FOCUSED: ft.colors.ON_PRIMARY,
+                ft.MaterialState.DEFAULT: ft.colors.ON_PRIMARY,
             },
             bgcolor={
-                "hovered": ft.colors.PRIMARY_CONTAINER,
-                "focused": ft.colors.PRIMARY_CONTAINER,
-                "": ft.colors.PRIMARY,
+                ft.MaterialState.HOVERED: ft.colors.PRIMARY_CONTAINER,
+                ft.MaterialState.FOCUSED: ft.colors.PRIMARY_CONTAINER,
+                ft.MaterialState.DEFAULT: ft.colors.PRIMARY,
             },
             padding=10,
         ),
@@ -1651,16 +1639,16 @@ def create_ui(page):
 
     # Patient Information
     patient_id = ft.TextField(label="患者ID", on_change=on_patient_id_change, value=initial_patient_id, width=150,
-                              )
-    issue_date_value = ft.TextField(label="発行日", width=150, read_only=True, )
-    name_value = ft.TextField(label="氏名", read_only=True, width=150, )
-    kana_value = ft.TextField(label="カナ", read_only=True, width=150, )
-    gender_value = ft.TextField(label="性別", read_only=True, width=150, )
-    birthdate_value = ft.TextField(label="生年月日", read_only=True, width=150, )
-    doctor_id_value = ft.TextField(label="医師ID", read_only=True, width=150, )
-    doctor_name_value = ft.TextField(label="医師名", read_only=True, width=150, )
-    department_id_value = ft.TextField(label="診療科ID", read_only=True, width=150, )
-    department_value = ft.TextField(label="診療科", read_only=True, width=150, )
+                              height=input_height)
+    issue_date_value = ft.TextField(label="発行日", width=150, read_only=True, height=input_height)
+    name_value = ft.TextField(label="氏名", read_only=True, width=150, height=input_height)
+    kana_value = ft.TextField(label="カナ", read_only=True, width=150, height=input_height)
+    gender_value = ft.TextField(label="性別", read_only=True, width=150, height=input_height)
+    birthdate_value = ft.TextField(label="生年月日", read_only=True, width=150, height=input_height)
+    doctor_id_value = ft.TextField(label="医師ID", read_only=True, width=150, height=input_height)
+    doctor_name_value = ft.TextField(label="医師名", read_only=True, width=150, height=input_height)
+    department_id_value = ft.TextField(label="診療科ID", read_only=True, width=150, height=input_height)
+    department_value = ft.TextField(label="診療科", read_only=True, width=150, height=input_height)
     main_disease_options = load_main_diseases()
     main_diagnosis = ft.Dropdown(
         label="主病名",
@@ -1668,22 +1656,22 @@ def create_ui(page):
         width=200, text_size=13, value="",
         on_change=on_main_diagnosis_change,
         autofocus=True,
-        
+        height=input_height
     )
     sheet_name_options = load_sheet_names(main_diagnosis.value)
     sheet_name_dropdown = ft.Dropdown(label="シート名", options=sheet_name_options, width=300, text_size=13, value="",
-                                      on_change=on_sheet_name_change, )
+                                      on_change=on_sheet_name_change, height=input_height)
     creation_count = ft.TextField(
         label="作成回数",
         width=100,
         value="1",
         on_submit=lambda _: goal1.focus(),
         text_size=13,
-        
+        height=input_height
     )
-    target_weight = ft.TextField(label="目標体重", width=150, value="", text_size=13, )
-    target_bp = ft.TextField(label="目標血圧", width=150, text_size=13, )
-    target_hba1c = ft.TextField(label="目標HbA1c", width=150, text_size=13, )
+    target_weight = ft.TextField(label="目標体重", width=150, value="", text_size=13, height=input_height)
+    target_bp = ft.TextField(label="目標血圧", width=150, text_size=13, height=input_height)
+    target_hba1c = ft.TextField(label="目標HbA1c", width=150, text_size=13, height=input_height)
     goal1 = ft.TextField(label="①達成目標：患者と相談した目標", width=800, value="主病名とシート名を選択してください",
                          on_submit=lambda _: target_weight.focus(), text_size=13, height=text_height)
     goal2 = ft.TextField(label="②行動目標：患者と相談した目標", width=800,
