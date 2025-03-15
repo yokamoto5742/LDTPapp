@@ -25,11 +25,6 @@ from watchdog.observers import Observer
 from version import VERSION, LAST_UPDATED
 
 
-# オフラインモードを有効化
-os.environ["FLET_OFFLINE"] = "1"
-# 追加の安定性向上のための設定
-os.environ["FLET_FORCE_WEB_VIEW"] = "true"
-
 # 実行ファイルかどうかを確認し本番環境（実行形式ファイル）の場合はディレクトリを変更
 if getattr(sys, 'frozen', False):
     app_directory = r"C:\Shinseikai\LDTPapp"
@@ -179,9 +174,9 @@ class DropdownItems:
             options=self.get_options(key),
             on_change=on_change,
             text_style=ft.TextStyle(size=13),
-            border_color=ft.Colors.ON_SURFACE_VARIANT,
-            focused_border_color=ft.Colors.PRIMARY,
-            color=ft.Colors.ON_SURFACE,
+            border_color=ft.colors.ON_SURFACE_VARIANT,
+            focused_border_color=ft.colors.PRIMARY,
+            color=ft.colors.ON_SURFACE,
         )
 
 
@@ -190,12 +185,12 @@ def create_blue_outlined_dropdown(dropdown_items, key, label, width):
         label=label,
         width=width,
         options=dropdown_items.get_options(key),
-        border_color=ft.Colors.BLUE,
+        border_color=ft.colors.BLUE,
         border_width=3,
-        focused_border_color=ft.Colors.BLUE,
+        focused_border_color=ft.colors.BLUE,
         focused_border_width=3,
         text_style=ft.TextStyle(size=13),
-        color=ft.Colors.ON_SURFACE,
+        color=ft.colors.ON_SURFACE,
     )
 
 
@@ -435,14 +430,14 @@ def create_theme_aware_button_style(page: ft.Page):
     return {
         "style": ft.ButtonStyle(
             color={
-                "hovered": ft.Colors.ON_PRIMARY,
-                "focused": ft.Colors.ON_PRIMARY,
-                "": ft.Colors.ON_PRIMARY,
+                "hovered": ft.colors.ON_PRIMARY,
+                "focused": ft.colors.ON_PRIMARY,
+                "": ft.colors.ON_PRIMARY,
             },
             bgcolor={
-                "hovered": ft.Colors.PRIMARY_CONTAINER,
-                "focused": ft.Colors.PRIMARY_CONTAINER,
-                "": ft.Colors.PRIMARY,
+                "hovered": ft.colors.PRIMARY_CONTAINER,
+                "focused": ft.colors.PRIMARY_CONTAINER,
+                "": ft.colors.PRIMARY,
             },
             padding=10,
         ),
@@ -463,8 +458,8 @@ def create_ui(page):
     )
 
     # テーマの設定
-    page.theme = ft.Theme(color_scheme_seed=ft.Colors.BLUE)
-    page.dark_theme = ft.Theme(color_scheme_seed=ft.Colors.BLUE)
+    page.theme = ft.Theme(color_scheme_seed=ft.colors.BLUE)
+    page.dark_theme = ft.Theme(color_scheme_seed=ft.colors.BLUE)
 
     dropdown_items = DropdownItems()
     threading.Thread(target=initialize_database).start()
@@ -1512,7 +1507,7 @@ def create_ui(page):
                             controls=[
                                 ft.Container(
                                     content=ft.Text("新規作成", size=16, weight=ft.FontWeight.BOLD),
-                                    border=ft.border.all(3, ft.Colors.BLUE),
+                                    border=ft.border.all(3, ft.colors.BLUE),
                                     padding=5,
                                     border_radius=5,
                                 ),
@@ -1541,7 +1536,7 @@ def create_ui(page):
                             controls=[
                                 ft.Container(
                                     content=ft.Text("編集", size=16, weight=ft.FontWeight.BOLD),
-                                    border=ft.border.all(3, ft.Colors.BLUE),
+                                    border=ft.border.all(3, ft.colors.BLUE),
                                     padding=5,
                                     border_radius=5,
                                 ),
@@ -1574,7 +1569,7 @@ def create_ui(page):
                             controls=[
                                 ft.Container(
                                     content=ft.Text("テンプレート", size=16, weight=ft.FontWeight.BOLD),
-                                    border=ft.border.all(3, ft.Colors.BLUE),
+                                    border=ft.border.all(3, ft.colors.BLUE),
                                     padding=5,
                                     border_radius=5,
                                 ),
@@ -1767,7 +1762,7 @@ def create_ui(page):
         content=history_column,
         width=1200,
         height=400,
-        border=ft.border.all(1, ft.Colors.BLACK),
+        border=ft.border.all(1, ft.colors.BLACK),
         border_radius=5,
         padding=10,
     )
@@ -1805,7 +1800,7 @@ def create_ui(page):
     manual_button = ft.ElevatedButton("操作マニュアル", on_click=open_manual_pdf, **button_style)
     issue_date_button = ft.ElevatedButton(
         "日付選択",
-        icon=ft.Icons.CALENDAR_TODAY,
+        icon=ft.icons.CALENDAR_TODAY,
         on_click=open_date_picker,
         **button_style
     )
@@ -1840,11 +1835,4 @@ def main(page: ft.Page):
 
 
 if __name__ == "__main__":
-    ft.app(
-        target=main,
-        view=ft.AppView.FLET_APP,
-        assets_dir="assets",
-        use_color_emoji=False,
-        port=0,
-        host="127.0.0.1",
-    )
+    ft.app(target=main)
